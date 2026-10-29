@@ -55,6 +55,10 @@ from natural_color_charts.spectral.illuminants import DaylightBasis
 logger = logging.getLogger(__name__)
 
 
+class ShowcaseError(RuntimeError):
+    """A case could not be built faithfully."""
+
+
 @dataclass(frozen=True)
 class ShowcaseCase:
     """One test photo on the showcase page."""
@@ -177,6 +181,9 @@ class ShowcaseBuilder:
         )
         hidden = hide_annotated_chart(image, case.chart) if case.chart else image
         result = self._pipeline.run_image(hidden, intent=case.intent)
+        if self._config.context.client != "none" and result.context.source != "vlm":
+            # Publishing the fallback context would present "AI reasoning" that never happened.
+            raise ShowcaseError(f"{case.case_id}: the VLM gave no usable answer; see the log above")
         renders = self._renders(image, hidden, result)
         record: dict[str, Any] = {
             "id": case.case_id,
