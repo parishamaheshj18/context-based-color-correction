@@ -4,11 +4,22 @@ from __future__ import annotations
 
 from natural_color_charts.camera.repository import CameraSensitivityRepository
 from natural_color_charts.camera.selector import CameraSensitivitySelector
-from natural_color_charts.config import AppConfig, DetectionConfig, EstimationConfig
+from natural_color_charts.config import (
+    AppConfig,
+    ContextConfig,
+    DetectionConfig,
+    EstimationConfig,
+)
+from natural_color_charts.context.analyzer import VlmSceneContextAnalyzer
 from natural_color_charts.context.base import (
     DefaultSceneContextProvider,
     KeywordIntentParser,
     SceneContextProvider,
+)
+from natural_color_charts.context.clients import (
+    AnthropicClient,
+    OllamaClient,
+    VisionLanguageClient,
 )
 from natural_color_charts.correction.base import CorrectionBuilder, FallbackCorrectionBuilder
 from natural_color_charts.correction.matrix_builders import (
@@ -174,13 +185,33 @@ def build_correction_builder(config: AppConfig) -> CorrectionBuilder:
     )
 
 
-def build_context_provider(config: AppConfig) -> SceneContextProvider:
+def build_default_context_provider(config: AppConfig) -> DefaultSceneContextProvider:
     """Scene context without a VLM: all reference classes, uninformative lighting priors."""
     return DefaultSceneContextProvider(
         families=config.context.default_families,
         estimation_config=config.estimation,
         candidate_confidence=config.context.default_candidate_confidence,
         intent_parser=KeywordIntentParser(config.context.default_ambiance_strength),
+    )
+
+
+def build_vlm_client(config: ContextConfig) -> VisionLanguageClient | None:
+    """The configured VLM client, or None when scene analysis runs without one."""
+    if config.client == "ollama":
+        return OllamaClient(config.ollama.host, config.ollama.model, config.ollama.timeout_s)
+    if config.client == "anthropic":
+        return AnthropicClient(config.anthropic.model, config.anthropic.max_tokens)
+    return None
+
+
+def build_context_provider(config: AppConfig) -> SceneContextProvider:
+    """VLM analysis when a client is configured, with the default context as its fallback."""
+    default = build_default_context_provider(config)
+    client = build_vlm_client(config.context)
+    if client is None:
+        return default
+    return VlmSceneContextAnalyzer(
+        client, default, config.context.max_retries, config.context.preview_long_edge_px
     )
 
 
