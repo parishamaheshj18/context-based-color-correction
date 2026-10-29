@@ -33,6 +33,7 @@ class CameraConfig(_Section):
     sensitivity_dir: Path
     include_builtin: bool
     fuzzy_match_cutoff: float
+    use_same_make_fallback: bool
 
 
 class OllamaConfig(_Section):

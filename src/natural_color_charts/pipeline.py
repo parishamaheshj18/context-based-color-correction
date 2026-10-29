@@ -6,6 +6,7 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 
+from natural_color_charts.camera.selector import CameraSensitivitySelector
 from natural_color_charts.correction.adaptation import adaptation_degree, apply_adaptation_degree
 from natural_color_charts.correction.base import CorrectionBuilder
 from natural_color_charts.correction.renderer import RenderedImage, SrgbRenderer
@@ -40,31 +41,36 @@ class ColorCorrectionPipeline:
     def __init__(
         self,
         loader: ImageLoader,
+        sensitivity_selector: CameraSensitivitySelector,
         estimator: IlluminantEstimator,
         correction_builder: CorrectionBuilder,
         renderer: SrgbRenderer,
         adaptation_transform: str,
     ) -> None:
         self._loader = loader
+        self._sensitivity_selector = sensitivity_selector
         self._estimator = estimator
         self._correction_builder = correction_builder
         self._renderer = renderer
         self._adaptation_transform = adaptation_transform
 
-    def run(self, path: Path) -> PipelineResult:
-        """Correct the image at path."""
-        return self.run_image(self._loader.load(path))
+    def run(self, path: Path, camera: str | None = None) -> PipelineResult:
+        """Correct the image at path, optionally forcing a named camera's sensitivity."""
+        return self.run_image(self._loader.load(path), camera)
 
-    def run_image(self, image: LinearImage) -> PipelineResult:
+    def run_image(self, image: LinearImage, camera: str | None = None) -> PipelineResult:
         """Correct an already loaded image."""
+        sensitivity = self._sensitivity_selector.select(image, camera)
         context = SceneContext()
-        outcome = self._estimator.estimate(EstimationInput(image=image, context=context))
-        transform = self._correction_builder.build(outcome.estimate, image, None)
+        outcome = self._estimator.estimate(
+            EstimationInput(image=image, context=context, sensitivity=sensitivity)
+        )
+        transform = self._correction_builder.build(outcome.estimate, image, sensitivity)
         degree = adaptation_degree(context.user_intent)
         transform = apply_adaptation_degree(transform, degree, self._adaptation_transform)
         return PipelineResult(
             image=image,
-            sensitivity=None,
+            sensitivity=sensitivity,
             context=context,
             estimate=outcome.estimate,
             transform=transform,
