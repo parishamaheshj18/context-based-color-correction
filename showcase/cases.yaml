@@ -9,7 +9,7 @@ config_overrides:
   io: {raw_half_size: true}
   camera: {sensitivity_dir: Data}
   context: {client: anthropic, cache_dir: showcase/vlm_cache}
-  detection: {detector: transformers, segmenter: sam, device: cpu}
+  detection: {detector: vlm, segmenter: sam, device: cpu}
 
 cases:
   - id: lab-tabletop

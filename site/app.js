@@ -258,7 +258,7 @@ function aiPanel(c) {
 function regionsPanel(c) {
   const rows = c.ai.regions.map((r) =>
     el("tr", {}, [
-      el("td", { text: LABELS[r.label] ?? r.label }),
+      el("td", {}, [el("strong", { text: LABELS[r.label] ?? r.label }), r.description ? el("div", { class: "note", text: r.description }) : null]),
       el("td", { text: r.detector_score?.toFixed(2) ?? "–" }),
       el("td", { text: r.pixels.toLocaleString() }),
       el("td", { text: r.kept ? r.weight.toFixed(2) : "–" }),
@@ -272,7 +272,7 @@ function regionsPanel(c) {
     ]),
     rows.length
       ? el("table", { class: "data-table" }, [
-          el("thead", {}, [el("tr", {}, ["Material", "Detector score", "Pixels", "Weight", "Status"].map((t) => el("th", { text: t })))]),
+          el("thead", {}, [el("tr", {}, ["Material", "AI confidence", "Pixels", "Weight", "Status"].map((t) => el("th", { text: t })))]),
           el("tbody", {}, rows),
         ])
       : el("p", { class: "note", text: "No usable reference regions were found, so the estimate fell back to image statistics." }),

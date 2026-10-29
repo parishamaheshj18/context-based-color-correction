@@ -34,7 +34,10 @@ and list concerns when the material is atypical or its light differs from the ma
 autumn or dry foliage, wet or stained concrete, tinted or colored paper, skin lit by \
 colored or neon light, snow in blue shade, cream, beige or tinted surfaces, glossy \
 reflections, regions mostly in shadow or reflecting a colored surface. Omit classes not \
-present.
+present. List each distinct surface as its own candidate. For each usable candidate give \
+up to 3 boxes [x0, y0, x1, y1] in coordinates normalized to the image (0,0 = top left, \
+1,1 = bottom right), each tightly around a flat, evenly lit area of that material that \
+avoids edges, highlights, deep shadows, and other objects. Use [] when it is not usable.
 
 3. Intent. Map the user's request to adaptation "neutral" (accurate, white-balanced \
 colors), "preserve_ambiance" (keep some of the light's mood; strength 0-1 is the \

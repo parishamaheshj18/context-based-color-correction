@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from natural_color_charts.domain import (
     AdaptationMode,
+    BoxXyxy,
     IlluminantHypothesis,
     ReferenceCandidate,
     ReferenceClass,
@@ -16,6 +17,8 @@ from natural_color_charts.domain import (
 )
 
 FamilyName = Literal["daylight", "blackbody"]
+MAX_BOXES_PER_CANDIDATE = 3
+MIN_BOX_SIDE = 0.01
 
 
 class _Strict(BaseModel):
@@ -34,6 +37,19 @@ class CandidateResponse(_Strict):
     usable: bool
     confidence: float = Field(ge=0.0, le=1.0)
     concerns: list[str]
+    boxes: list[list[float]] = Field(default_factory=list)
+
+    def clean_boxes(self) -> tuple[BoxXyxy, ...]:
+        """Well-formed boxes clipped to the image; malformed or tiny ones are dropped."""
+        cleaned = []
+        for box in self.boxes:
+            if len(box) != 4:
+                continue
+            x0, x1 = sorted(min(max(v, 0.0), 1.0) for v in (box[0], box[2]))
+            y0, y1 = sorted(min(max(v, 0.0), 1.0) for v in (box[1], box[3]))
+            if x1 - x0 >= MIN_BOX_SIDE and y1 - y0 >= MIN_BOX_SIDE:
+                cleaned.append((x0, y0, x1, y1))
+        return tuple(cleaned[:MAX_BOXES_PER_CANDIDATE])
 
 
 class IntentResponse(_Strict):
@@ -66,7 +82,12 @@ class SceneAnalysisResponse(_Strict):
             ),
             reference_candidates=tuple(
                 ReferenceCandidate(
-                    c.label, c.description, c.usable, c.confidence, tuple(c.concerns)
+                    c.label,
+                    c.description,
+                    c.usable,
+                    c.confidence,
+                    tuple(c.concerns),
+                    c.clean_boxes(),
                 )
                 for c in self.reference_candidates
             ),
@@ -122,6 +143,7 @@ def response_json_schema() -> dict[str, Any]:
                         "usable": {"type": "boolean"},
                         "confidence": number,
                         "concerns": strings,
+                        "boxes": {"type": "array", "items": {"type": "array", "items": number}},
                     }
                 ),
             },

@@ -10,7 +10,7 @@ from typing import Protocol
 import numpy as np
 from numpy.typing import NDArray
 
-from natural_color_charts.domain import Detection, PreviewImage, ReferenceClass
+from natural_color_charts.domain import Detection, PreviewImage, ReferenceClass, SceneContext
 
 __all__ = ["PreviewImage"]
 
@@ -24,6 +24,7 @@ class DetectionRequest:
     preview: PreviewImage
     labels: Sequence[ReferenceClass]
     source_path: Path | None = None
+    context: SceneContext | None = None
 
 
 class ReferenceDetector(Protocol):

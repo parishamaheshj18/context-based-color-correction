@@ -49,7 +49,7 @@
       <ol class="pipeline" aria-label="Pipeline stages">
         <li class="stage physics"><span class="kind">Physics</span><strong>Decode RAW</strong><span>Linear sensor RGB, no camera processing</span></li>
         <li class="stage ai"><span class="kind">AI · Claude</span><strong>Read the scene</strong><span>Indoor or outdoor, light sources, which materials are present and whether each is trustworthy</span></li>
-        <li class="stage ai"><span class="kind">AI · OWLv2 + SAM</span><strong>Find the materials</strong><span>Open-vocabulary detection and pixel masks for the trusted materials</span></li>
+        <li class="stage ai"><span class="kind">AI · Claude + SAM</span><strong>Find the materials</strong><span>Claude boxes each trusted surface; Segment Anything turns the boxes into pixel masks</span></li>
         <li class="stage physics"><span class="kind">Physics</span><strong>Measure patches</strong><span>Reject clipped, specular, and shadowed pixels; robust color per region</span></li>
         <li class="stage physics"><span class="kind">Physics</span><strong>Fit the light</strong><span>Daylight / tungsten spectra fitted to reflectance priors, outliers rejected</span></li>
         <li class="stage physics"><span class="kind">Physics</span><strong>Correct &amp; render</strong><span>Spectral 3×3 color matrix, optional mood-preserving adaptation</span></li>
@@ -84,7 +84,7 @@
   <footer class="footer">
     <p>
       <strong>Natural Color Charts</strong> · Python, NumPy/SciPy, colour-science, rawpy,
-      Claude (vision), OWLv2 and SAM (Hugging Face Transformers).
+      Claude (vision), Segment Anything (Hugging Face Transformers).
     </p>
     <p id="footer-meta"></p>
   </footer>

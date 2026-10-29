@@ -11,6 +11,7 @@ from natural_color_charts.domain.regions import Detection, PatchMeasurement, Ref
 from natural_color_charts.domain.scene import (
     NEUTRAL_CLASSES,
     AdaptationMode,
+    BoxXyxy,
     IlluminantHypothesis,
     ReferenceCandidate,
     ReferenceClass,
@@ -28,6 +29,7 @@ from natural_color_charts.domain.spectral import (
 __all__ = [
     "NEUTRAL_CLASSES",
     "AdaptationMode",
+    "BoxXyxy",
     "CameraSensitivity",
     "CorrectionTransform",
     "Detection",

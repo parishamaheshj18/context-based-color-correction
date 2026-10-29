@@ -36,6 +36,8 @@ from natural_color_charts.detection.patch_statistics import PatchStatisticsCalcu
 from natural_color_charts.detection.region_finder import ReferenceRegionFinder
 from natural_color_charts.detection.simple import (
     BoxSegmenter,
+    ChromaCoherenceRefiner,
+    ContextBoxDetector,
     ManualRegionDetector,
     NullDetector,
     SkinPixelRefiner,
@@ -241,6 +243,8 @@ def build_detector(config: DetectionConfig) -> ReferenceDetector:
     """Detector chosen by config; model-based detectors load weights here."""
     if config.detector == "manual":
         return ManualRegionDetector(config.manual_sidecar_suffix)
+    if config.detector == "vlm":
+        return ContextBoxDetector()
     if config.detector == "transformers":
         from natural_color_charts.detection.transformers_models import (
             TransformersZeroShotDetector,
@@ -272,7 +276,10 @@ def build_region_finder(config: AppConfig) -> ReferenceRegionFinder:
     return ReferenceRegionFinder(
         detector=build_detector(detection),
         segmenter=build_segmenter(detection),
-        refiners=[SkinPixelRefiner(detection.skin_cr_range, detection.skin_cb_range)],
+        refiners=[
+            SkinPixelRefiner(detection.skin_cr_range, detection.skin_cb_range),
+            ChromaCoherenceRefiner(detection.coherence_max_chroma_distance),
+        ],
         excluded_labels=[ReferenceClass(name) for name in detection.excluded_classes],
     )
 

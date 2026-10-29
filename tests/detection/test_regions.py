@@ -95,3 +95,39 @@ def test_region_finder_only_detects_usable_candidates_and_upscales():
 
 def test_null_detector_finds_nothing():
     assert NullDetector().detect(DetectionRequest(np.zeros((2, 2, 3), np.uint8), [PAPER])) == []
+
+
+def test_context_box_detector_uses_vlm_boxes_of_usable_candidates():
+    from natural_color_charts.detection.simple import ContextBoxDetector
+
+    context = SceneContext(
+        reference_candidates=(
+            ReferenceCandidate(
+                PAPER, "letter", True, 0.8, (), ((0.1, 0.1, 0.4, 0.4), (0.5, 0.5, 0.6, 0.6))
+            ),
+            ReferenceCandidate(SKIN, "face under neon", False, 0.2, (), ((0.0, 0.0, 1.0, 1.0),)),
+        )
+    )
+    request = DetectionRequest(np.zeros((4, 4, 3), np.uint8), [PAPER, SKIN], None, context)
+    detections = ContextBoxDetector().detect(request)
+    assert [d.label for d in detections] == [PAPER, PAPER]
+    assert detections[0].candidate_confidence == 0.8 and detections[0].description == "letter"
+
+
+def test_chroma_coherence_refiner_drops_off_color_pixels():
+    from natural_color_charts.detection.simple import ChromaCoherenceRefiner
+
+    preview = np.full((10, 10, 3), 200, np.uint8)
+    preview[:, 7:] = (200, 40, 40)  # red object inside the box
+    refined = ChromaCoherenceRefiner(0.04).refine(preview, PAPER, np.ones((10, 10), bool))
+    assert refined[:, :7].all() and not refined[:, 7:].any()
+
+
+def test_vlm_boxes_are_cleaned():
+    from natural_color_charts.context.schema import CandidateResponse
+
+    candidate = CandidateResponse(
+        label="paper", description="", usable=True, confidence=0.5, concerns=[],
+        boxes=[[0.5, 0.2, 0.1, 0.9], [0.2, 0.2, 0.2005, 0.3], [0.1, 0.1], [-0.2, 0.0, 0.3, 1.4]],
+    )  # fmt: skip
+    assert candidate.clean_boxes() == ((0.1, 0.2, 0.5, 0.9), (0.0, 0.0, 0.3, 1.0))

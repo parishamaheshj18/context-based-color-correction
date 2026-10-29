@@ -63,7 +63,7 @@ class ContextConfig(_Section):
 
 
 class DetectionConfig(_Section):
-    detector: Literal["none", "manual", "transformers"]
+    detector: Literal["none", "manual", "vlm", "transformers"]
     segmenter: Literal["box", "sam"]
     device: str
     detector_model: str
@@ -74,6 +74,7 @@ class DetectionConfig(_Section):
     box_inset_fraction: float
     manual_sidecar_suffix: str
     excluded_classes: list[str]
+    coherence_max_chroma_distance: float
     skin_cr_range: tuple[int, int]
     skin_cb_range: tuple[int, int]
     prompts: dict[str, list[str]]

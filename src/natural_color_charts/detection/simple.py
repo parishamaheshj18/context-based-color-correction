@@ -61,6 +61,48 @@ class ManualRegionDetector:
         return [d for d in detections if d.label in wanted]
 
 
+class ContextBoxDetector:
+    """Uses the boxes the scene analysis (VLM) attached to each usable candidate."""
+
+    def detect(self, request: DetectionRequest) -> list[Detection]:
+        if request.context is None:
+            return []
+        wanted = set(request.labels)
+        return [
+            Detection(
+                label=candidate.label,
+                box_xyxy=box,
+                score=candidate.confidence,
+                candidate_confidence=candidate.confidence,
+                description=candidate.description,
+            )
+            for candidate in request.context.reference_candidates
+            if candidate.usable and candidate.label in wanted
+            for box in candidate.boxes
+        ]
+
+
+class ChromaCoherenceRefiner:
+    """Keeps mask pixels whose rg chromaticity is near the mask's median.
+
+    Boxes include some background; the material usually dominates, so its chromaticity is
+    the median and the outliers are other objects.
+    """
+
+    def __init__(self, max_distance: float) -> None:
+        self._max_distance = max_distance
+
+    def refine(
+        self, preview: PreviewImage, label: ReferenceClass, mask: PreviewMask
+    ) -> PreviewMask:
+        if self._max_distance <= 0 or not mask.any():
+            return mask
+        rgb = preview.astype(np.float32) + 1.0
+        rg = rgb[..., :2] / rgb.sum(axis=2, keepdims=True)
+        distance = np.linalg.norm(rg - np.median(rg[mask], axis=0), axis=2)
+        return np.asarray(mask & (distance <= self._max_distance))
+
+
 class BoxSegmenter:
     """Uses the inner part of each box as its mask; patch statistics reject the outliers."""
 

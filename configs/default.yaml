@@ -36,7 +36,7 @@ context:
     max_tokens: 2048
 
 detection:
-  detector: none          # none | manual | transformers
+  detector: none          # none | manual | vlm (boxes from scene analysis) | transformers
   segmenter: box          # box | sam
   device: cpu             # cpu | cuda | mps
   detector_model: google/owlv2-base-patch16-ensemble
@@ -47,6 +47,7 @@ detection:
   box_inset_fraction: 0.1
   manual_sidecar_suffix: .regions.json
   excluded_classes: []
+  coherence_max_chroma_distance: 0.04   # 0 disables
   skin_cr_range: [133, 173]
   skin_cb_range: [77, 127]
   prompts:

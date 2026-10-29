@@ -271,9 +271,10 @@ class ShowcaseBuilder:
             "candidates": to_jsonable(context.reference_candidates),
             "intent": to_jsonable(context.user_intent),
             "rationale": context.rationale,
-            "detector": self._config.detection.detector_model
-            if self._config.detection.detector == "transformers"
-            else self._config.detection.detector,
+            "detector": {
+                "transformers": self._config.detection.detector_model,
+                "vlm": f"{self._model_name()} boxes",
+            }.get(self._config.detection.detector, self._config.detection.detector),
             "segmenter": self._config.detection.segmenter_model
             if self._config.detection.segmenter == "sam"
             else self._config.detection.segmenter,
@@ -289,6 +290,7 @@ class ShowcaseBuilder:
         )
         return {
             "label": patch.label.value,
+            "description": region.description if region else "",
             "box_xyxy": to_jsonable(region.box_xyxy) if region else None,
             "detector_score": round(region.detector_score, 3) if region else None,
             "pixels": patch.pixel_count,
@@ -364,7 +366,7 @@ class ShowcaseBuilder:
     def _pipeline_info(self) -> dict[str, Any]:
         return {
             "vlm": self._model_name(),
-            "detector": self._config.detection.detector_model,
+            "detector": self._config.detection.detector,
             "segmenter": self._config.detection.segmenter_model,
             "processing_long_edge_px": self._manifest.processing_long_edge_px,
         }

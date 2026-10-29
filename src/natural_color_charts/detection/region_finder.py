@@ -57,7 +57,7 @@ class ReferenceRegionFinder:
         ]
         if not usable:
             return []
-        request = DetectionRequest(preview, [c.label for c in usable], image.source_path)
+        request = DetectionRequest(preview, [c.label for c in usable], image.source_path, context)
         detections = self._detector.detect(request)
         logger.info("Detected %d reference boxes", len(detections))
         masks = self._segmenter.segment(preview, detections)
@@ -66,14 +66,18 @@ class ReferenceRegionFinder:
             for refiner in self._refiners:
                 mask = refiner.refine(preview, detection.label, mask)
             candidate = context.candidate_for(detection.label)
+            confidence = detection.candidate_confidence
+            if confidence is None:
+                confidence = candidate.confidence if candidate else 0.5
             regions.append(
                 ReferenceRegion(
                     label=detection.label,
                     mask=upscale_mask(mask, image.width, image.height),
                     detector_score=detection.score,
                     box_xyxy=detection.box_xyxy,
-                    candidate_confidence=candidate.confidence if candidate else 0.5,
-                    description=candidate.description if candidate else "",
+                    candidate_confidence=confidence,
+                    description=detection.description
+                    or (candidate.description if candidate else ""),
                 )
             )
         return regions

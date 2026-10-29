@@ -18,6 +18,8 @@ class ReferenceClass(StrEnum):
     NEUTRAL_SURFACE = "neutral_surface"  # white/gray man-made: plastic, paint, laminate, ceramic
 
 
+BoxXyxy = tuple[float, float, float, float]
+
 NEUTRAL_CLASSES = frozenset(
     {
         ReferenceClass.CONCRETE,
@@ -55,6 +57,7 @@ class ReferenceCandidate:
     usable: bool = True
     confidence: float = 0.5
     concerns: tuple[str, ...] = ()
+    boxes: tuple[BoxXyxy, ...] = ()  # normalized xyxy, when the scene analysis localizes it
 
 
 @dataclass(frozen=True)

@@ -7,10 +7,10 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.typing import NDArray
 
-from natural_color_charts.domain.scene import ReferenceClass
+from natural_color_charts.domain.scene import BoxXyxy, ReferenceClass
 from natural_color_charts.domain.spectral import RgbVector
 
-BoxXyxy = tuple[float, float, float, float]
+__all__ = ["BoxXyxy", "Detection", "PatchMeasurement", "ReferenceRegion"]
 
 
 @dataclass(frozen=True)
@@ -20,6 +20,9 @@ class Detection:
     label: ReferenceClass
     box_xyxy: BoxXyxy
     score: float
+    # Set when the box comes from the scene analysis itself, which already judged the region.
+    candidate_confidence: float | None = None
+    description: str = ""
 
 
 @dataclass(frozen=True, eq=False)
