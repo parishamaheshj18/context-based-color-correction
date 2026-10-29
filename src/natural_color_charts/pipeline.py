@@ -86,12 +86,32 @@ class ColorCorrectionPipeline:
         self, image: LinearImage, camera: str | None = None, intent: str | None = None
     ) -> PipelineResult:
         """Correct an already loaded image."""
+        preview = self.render_preview(image)
+        context = self._stages.context_provider.analyze(preview, intent)
+        return self.run_with_context(image, preview, context, camera)
+
+    def render_preview(self, image: LinearImage) -> PreviewImage:
+        """The display preview used for scene analysis, detection, and overlays."""
+        return render_preview(image, self._preview_px)
+
+    def measure_references(
+        self, image: LinearImage, preview: PreviewImage, context: SceneContext
+    ) -> tuple[tuple[ReferenceRegion, ...], tuple[PatchMeasurement, ...]]:
+        """Stages 4 and 5: reference regions and their patch measurements."""
+        regions = tuple(self._stages.region_finder.find(image, preview, context))
+        return regions, tuple(self._stages.patch_calculator.measure(image, regions, context))
+
+    def run_with_context(
+        self,
+        image: LinearImage,
+        preview: PreviewImage,
+        context: SceneContext,
+        camera: str | None = None,
+    ) -> PipelineResult:
+        """Stages 2 and 4-9 with a given scene context, e.g. one proposed by a model in training."""
         stages = self._stages
         sensitivity = stages.sensitivity_selector.select(image, camera)
-        preview = render_preview(image, self._preview_px)
-        context = stages.context_provider.analyze(preview, intent)
-        regions = tuple(stages.region_finder.find(image, preview, context))
-        patches = tuple(stages.patch_calculator.measure(image, regions, context))
+        regions, patches = self.measure_references(image, preview, context)
         outcome = stages.estimator.estimate(
             EstimationInput(image=image, patches=patches, context=context, sensitivity=sensitivity)
         )
@@ -113,3 +133,21 @@ class ColorCorrectionPipeline:
             rendered=stages.renderer.render(image, transform),
             grid=self._grid,
         )
+
+    def estimate_illuminant(
+        self,
+        image: LinearImage,
+        patches: tuple[PatchMeasurement, ...],
+        context: SceneContext,
+        camera: str | None = None,
+    ) -> IlluminantEstimate:
+        """Stage 7 alone, for experiments that vary which references are used."""
+        sensitivity = self._stages.sensitivity_selector.select(image, camera)
+        request = EstimationInput(
+            image=image, patches=patches, context=context, sensitivity=sensitivity
+        )
+        return self._stages.estimator.estimate(request).estimate
+
+    def analyze_scene(self, preview: PreviewImage, intent: str | None) -> SceneContext:
+        """Stage 3 alone."""
+        return self._stages.context_provider.analyze(preview, intent)
