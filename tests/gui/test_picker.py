@@ -1,4 +1,4 @@
-"""The matching window: draw a box, pick its chart patch, add Claude's picks, correct."""
+"""The matching window: click a pixel, click its chart patch, add Claude's picks, correct."""
 
 import numpy as np
 import pytest
@@ -31,30 +31,50 @@ def test_chart_swatches_are_the_24_patches_in_order(session):
     assert red[0] > 2 * red[1]
 
 
-def test_drawn_box_matched_to_a_patch_corrects_the_photo(session, tmp_path):
+def _center(box):
+    return (box[0] + box[2]) / 2, (box[1] + box[3]) / 2
+
+
+def test_clicked_pixel_paired_with_a_patch_corrects_the_photo(session, tmp_path):
     match_session, box = session
     picker = MatchPicker(match_session, "scene", tmp_path / "out")
-    picker.choose_patch(0)  # no box yet: ignored
-    assert picker.anchors == []
-    picker.add_box(box)
+    picker.choose_patch(0)  # no pixel yet: ignored
+    assert picker.matches == []
+    picker.pick_pixel(*_center(box))
     picker.choose_patch(NAMES.index("red"))
-    assert len(picker.anchors) == 1 and picker.pending is None
+    assert len(picker.matches) == 1 and picker.pending is None
+    pixel = picker.matches[0].pixel_rgb
+    assert pixel[0] > pixel[1] and pixel[0] > pixel[2]  # the patch looks red-orange
     saved = picker.correct()
     assert saved.exists() and (tmp_path / "out" / "comparison.png").exists()
+    rows = (tmp_path / "out" / "matches.csv").read_text().splitlines()
+    assert len(rows) == 2 and ",red," in rows[1]
     result = match_session.correct(picker.anchors)
     assert angular_error_deg(result.estimate.white_rgb, TRUTH) < 1.5
 
 
-def test_undo_drops_pending_box_then_last_match(session, tmp_path):
+def test_a_click_measures_a_small_square_around_the_pixel(session, tmp_path):
+    match_session, _ = session
+    picker = MatchPicker(match_session, "scene", tmp_path)
+    picker.pick_pixel(0.5, 0.5)
+    picker.choose_patch(0)
+    x0, y0, x1, y1 = picker.anchors[0].box_xyxy
+    width, height = match_session.preview.shape[1], match_session.preview.shape[0]
+    assert x0 < 0.5 < x1 and y0 < 0.5 < y1
+    # Small images get the 12 px floor on each side, enough pixels to measure.
+    assert round((x1 - x0) * width) == 24 and round((y1 - y0) * height) == 24
+
+
+def test_undo_drops_pending_pixel_then_last_pair(session, tmp_path):
     match_session, box = session
     picker = MatchPicker(match_session, "scene", tmp_path)
-    picker.add_box(box)
+    picker.pick_pixel(*_center(box))
     picker.choose_patch(3)
-    picker.add_box(box)
+    picker.pick_pixel(*_center(box))
     picker.undo()
-    assert picker.pending is None and len(picker.anchors) == 1
+    assert picker.pending is None and len(picker.matches) == 1
     picker.undo()
-    assert picker.anchors == []
+    assert picker.matches == []
 
 
 def test_clicking_a_claude_pick_ignores_it(session, tmp_path):

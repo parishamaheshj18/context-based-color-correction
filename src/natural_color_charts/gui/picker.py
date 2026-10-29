@@ -1,19 +1,22 @@
-"""Matplotlib window: draw boxes on the photo, pick the chart patch each one truly is.
+"""Matplotlib window: click a pixel on the photo, then the chart patch it truly is.
 
-Drag on the photo to draw a box, then click a chart patch to match it. "Ask Claude" adds
-Claude's own picks (purple); click one to ignore or restore it. "Correct" combines both.
+Each click pair is saved as (pixel RGB, chart RGB). "Ask Claude" adds Claude's own picks
+(purple); right-click one to ignore or restore it. "Correct" combines both.
 """
 
 from __future__ import annotations
 
+import csv
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.backend_bases import MouseButton, MouseEvent
 from matplotlib.patches import Rectangle
-from matplotlib.widgets import Button, RectangleSelector
+from matplotlib.widgets import Button
 
 from natural_color_charts.domain import BoxXyxy, UserColorAnchor
 from natural_color_charts.gui.session import MatchSession, corrected_uint8, describe
@@ -21,6 +24,31 @@ from natural_color_charts.io.writers import write_image8
 
 YOU, CLAUDE, PENDING = "#eb6834", "#6250d6", "#ffffff"
 CHART_COLUMNS = 6
+# The pipeline measures a small area around each clicked pixel; one pixel is too noisy.
+POINT_HALF_SIZE = 0.015  # fraction of the long image side
+MIN_HALF_SIZE_PX = 12
+
+
+@dataclass(frozen=True)
+class ColorMatch:
+    """A clicked pixel and the chart patch whose true color it has."""
+
+    point: tuple[float, float]  # normalized x, y
+    pixel_rgb: tuple[int, int, int]
+    patch: int
+
+    def anchor(self, width: int, height: int) -> UserColorAnchor:
+        """A small square around the pixel, in normalized coordinates."""
+        half_px = max(POINT_HALF_SIZE * max(width, height), MIN_HALF_SIZE_PX)
+        half_x, half_y = half_px / width, half_px / height
+        x, y = self.point
+        box = (
+            max(x - half_x, 0.0),
+            max(y - half_y, 0.0),
+            min(x + half_x, 1.0),
+            min(y + half_y, 1.0),
+        )
+        return UserColorAnchor(box, self.patch)
 
 
 class MatchPicker:
@@ -32,9 +60,9 @@ class MatchPicker:
         self._session = session
         self._output_dir = output_dir
         self._jpeg_quality = jpeg_quality
-        self.anchors: list[UserColorAnchor] = []
+        self.matches: list[ColorMatch] = []
         self.ignored: set[int] = set()
-        self.pending: BoxXyxy | None = None
+        self.pending: tuple[tuple[float, float], tuple[int, int, int]] | None = None
         self._artists: list[Any] = []
         height, width = session.preview.shape[:2]
         self._size = (width, height)
@@ -61,47 +89,51 @@ class MatchPicker:
         self.ax_photo.imshow(session.preview)
         self.ax_photo.set_xticks([])
         self.ax_photo.set_yticks([])
-        self.ax_photo.set_title("Photo: drag a box, then pick its true color on the chart")
+        self.ax_photo.set_title("Click a pixel, then the chart patch that is its true color")
         self._draw_chart()
-        self._selector = RectangleSelector(
-            self.ax_photo,
-            self._on_box,
-            useblit=True,
-            button=[MouseButton.LEFT],
-            minspanx=6,
-            minspany=6,
-            spancoords="pixels",
-            props={"edgecolor": PENDING, "fill": False, "linestyle": "--", "linewidth": 1.5},
-        )
-        self._press_xy: tuple[float, float] | None = None
-        self.figure.canvas.mpl_connect("button_press_event", self._on_press)
-        self.figure.canvas.mpl_connect("button_release_event", self._on_click)
-        self._message = "Draw a box on something whose true color is on the chart."
+        self.figure.canvas.mpl_connect("button_press_event", self._on_click)
+        self._message = "Click a pixel whose true color is on the chart."
         self.redraw()
 
+    @property
+    def anchors(self) -> list[UserColorAnchor]:
+        """The matches as regions for the pipeline."""
+        width, height = self._size
+        return [m.anchor(width, height) for m in self.matches]
+
     # ---------- actions ----------
-    def add_box(self, box: BoxXyxy) -> None:
-        """A drawn box waits for its chart patch."""
-        self.pending = box
-        self._message = "Now click the chart patch this region truly is."
+    def pick_pixel(self, x: float, y: float) -> None:
+        """Select the pixel at normalized x, y; it waits for its chart patch."""
+        width, height = self._size
+        column = min(int(x * width), width - 1)
+        row = min(int(y * height), height - 1)
+        # Average a 5x5 neighborhood so the shown RGB is not one noisy pixel.
+        window = self._session.preview[
+            max(row - 2, 0) : row + 3, max(column - 2, 0) : column + 3
+        ].reshape(-1, 3)
+        rgb = tuple(int(v) for v in np.round(window.mean(axis=0)))
+        self.pending = ((x, y), (rgb[0], rgb[1], rgb[2]))
+        self._message = f"Pixel RGB {self.pending[1]}. Now click its chart patch."
         self.redraw()
 
     def choose_patch(self, index: int) -> None:
-        """Match the pending box to a chart patch."""
+        """Pair the pending pixel with a chart patch."""
         if self.pending is None:
-            self._message = "Draw a box on the photo first."
+            self._message = "Click a pixel on the photo first."
         else:
-            self.anchors.append(UserColorAnchor(self.pending, index))
+            point, rgb = self.pending
+            self.matches.append(ColorMatch(point, rgb, index))
             self.pending = None
-            self._message = f"Matched to {self._session.swatches[index].name}."
+            swatch = self._session.swatches[index]
+            self._message = f"Saved pair: pixel {rgb} = {swatch.name} {_rgb255(swatch.srgb)}."
         self.redraw()
 
     def undo(self) -> None:
-        """Drop the pending box, or else the last match."""
+        """Drop the pending pixel, or else the last pair."""
         if self.pending is not None:
             self.pending = None
-        elif self.anchors:
-            self.anchors.pop()
+        elif self.matches:
+            self.matches.pop()
         self.redraw()
 
     def toggle_claude_at(self, x: float, y: float) -> None:
@@ -128,7 +160,7 @@ class MatchPicker:
             self._message = f"Claude unavailable ({context.rationale}); using your matches only."
         else:
             trusted = sum(1 for c in context.reference_candidates if c.usable and c.boxes)
-            self._message = f"Claude trusts {trusted} material(s). Click one to ignore it."
+            self._message = f"Claude trusts {trusted} material(s). Right-click one to ignore it."
         self.redraw()
 
     def correct(self) -> Path:
@@ -142,6 +174,7 @@ class MatchPicker:
         saved = write_image8(
             self._output_dir / "corrected.jpg", result.rendered.encoded_srgb, self._jpeg_quality
         )
+        self.save_pairs(self._output_dir / "matches.csv")
         height, width = self._session.preview.shape[:2]
         figure, (before, after) = plt.subplots(
             1, 2, figsize=(2 * 6 * width / height, 6.6), layout="constrained"
@@ -155,44 +188,70 @@ class MatchPicker:
             ax.set_axis_off()
         figure.suptitle(lines[0])
         figure.savefig(self._output_dir / "comparison.png", dpi=110)
-        self._message = f"Saved {saved}"
+        self._message = "\n".join(
+            [*(_short(line, 60) for line in lines), f"Saved to {saved.parent}"]
+        )
         self.redraw()
         for line in lines:
             print(line)
         figure.show()
         return saved
 
+    def save_pairs(self, path: Path) -> Path:
+        """Write the clicked pixel / chart patch RGB pairs as CSV."""
+        width, height = self._size
+        with path.open("w", newline="") as handle:
+            writer = csv.writer(handle)
+            writer.writerow(
+                [
+                    "x_px",
+                    "y_px",
+                    "pixel_r",
+                    "pixel_g",
+                    "pixel_b",
+                    "patch",
+                    "name",
+                    "chart_r",
+                    "chart_g",
+                    "chart_b",
+                ]
+            )
+            for m in self.matches:
+                swatch = self._session.swatches[m.patch]
+                writer.writerow(
+                    [
+                        round(m.point[0] * width),
+                        round(m.point[1] * height),
+                        *m.pixel_rgb,
+                        m.patch + 1,
+                        swatch.name,
+                        *_rgb255(swatch.srgb),
+                    ]
+                )
+        return path
+
     def show(self) -> None:
         """Open the window and block until it is closed."""
         plt.show()
 
     # ---------- events ----------
-    def _on_box(self, press: MouseEvent, release: MouseEvent) -> None:
-        width, height = self._size
-        xs = sorted([press.xdata or 0.0, release.xdata or 0.0])
-        ys = sorted([press.ydata or 0.0, release.ydata or 0.0])
-        self.add_box((xs[0] / width, ys[0] / height, xs[1] / width, ys[1] / height))
-
-    def _on_press(self, event: MouseEvent) -> None:
-        self._press_xy = (event.x, event.y)
-
     def _on_click(self, event: MouseEvent) -> None:
-        if event.xdata is None or event.ydata is None:
-            return
+        toolbar = self.figure.canvas.toolbar
+        if event.xdata is None or event.ydata is None or (toolbar and toolbar.mode):
+            return  # outside the axes, or the zoom/pan tool is active
         if event.inaxes is self.ax_chart:
             column, row = int(event.xdata), int(event.ydata)
             index = row * CHART_COLUMNS + column
             if 0 <= column < CHART_COLUMNS and 0 <= index < len(self._session.swatches):
                 self.choose_patch(index)
-        elif event.inaxes is self.ax_photo and self._was_click(event):
-            # A plain click (too small to be a box) toggles a Claude pick.
+        elif event.inaxes is self.ax_photo:
             width, height = self._size
-            self.toggle_claude_at(event.xdata / width, event.ydata / height)
-
-    def _was_click(self, release: MouseEvent) -> bool:
-        if self._press_xy is None:
-            return False
-        return abs(self._press_xy[0] - release.x) < 6 and abs(self._press_xy[1] - release.y) < 6
+            x, y = event.xdata / width, event.ydata / height
+            # On a Mac trackpad, Ctrl + click arrives as a right click.
+            if event.button is MouseButton.RIGHT or event.key == "control":
+                self.toggle_claude_at(x, y)
+            elif event.button is MouseButton.LEFT:
+                self.pick_pixel(x, y)
 
     # ---------- drawing ----------
     def _draw_chart(self) -> None:
@@ -222,11 +281,11 @@ class MatchPicker:
                 ignored = i in self.ignored
                 for box in candidate.boxes:
                     self._box(box, CLAUDE, candidate.label.value, dashed=ignored)
-        for anchor in self.anchors:
-            swatch = self._session.swatches[anchor.chart_patch_index]
-            self._box(anchor.box_xyxy, YOU, swatch.name, fill=swatch.srgb)
+        for number, match in enumerate(self.matches, start=1):
+            swatch = self._session.swatches[match.patch]
+            self._point(match.point, YOU, f"{number}: {swatch.name}", fill=swatch.srgb)
         if self.pending is not None:
-            self._box(self.pending, PENDING, "?", dashed=True)
+            self._point(self.pending[0], PENDING, "?")
         self._draw_info()
         self.figure.canvas.draw_idle()
 
@@ -257,14 +316,48 @@ class MatchPicker:
         )
         self._artists.append(text)
 
+    def _point(
+        self,
+        point: tuple[float, float],
+        color: str,
+        label: str,
+        fill: tuple[float, float, float] | None = None,
+    ) -> None:
+        width, height = self._size
+        x, y = point[0] * width, point[1] * height
+        (marker,) = self.ax_photo.plot(
+            x,
+            y,
+            marker="o",
+            markersize=9,
+            markerfacecolor="none",
+            markeredgecolor=color,
+            markeredgewidth=2.2,
+        )
+        self._artists.append(marker)
+        ink = "black" if fill is not None and sum(fill) > 1.6 else "white"
+        text = self.ax_photo.text(
+            x + 8,
+            y - 8,
+            label,
+            color=ink,
+            fontsize=8,
+            va="bottom",
+            bbox={"facecolor": fill or color, "edgecolor": color, "pad": 1.5, "alpha": 0.9},
+        )
+        self._artists.append(text)
+
     def _draw_info(self) -> None:
         ax = self.ax_info
         ax.clear()
         ax.set_axis_off()
-        lines = [f"Your matches: {len(self.anchors)}"]
-        lines += [
-            f"  {self._session.swatches[a.chart_patch_index].name}" for a in self.anchors[-6:]
-        ]
+        lines = [f"Your pairs (pixel RGB = chart RGB): {len(self.matches)}"]
+        for number, m in enumerate(self.matches, start=1):
+            swatch = self._session.swatches[m.patch]
+            lines.append(
+                f"  {number}. {m.pixel_rgb} = {_rgb255(swatch.srgb)} {_short(swatch.name, 16)}"
+            )
+        lines = lines[:1] + lines[1:][-6:]
         context = self._session.claude
         if context is not None and context.source == "vlm":
             lines.append("Claude:")
@@ -280,6 +373,11 @@ def _ignore_event(action: Callable[[], object]) -> Callable[[Any], None]:
         action()
 
     return handler
+
+
+def _rgb255(srgb: tuple[float, float, float]) -> tuple[int, int, int]:
+    r, g, b = (round(v * 255) for v in srgb)
+    return r, g, b
 
 
 def _inside(box: BoxXyxy, x: float, y: float) -> bool:
