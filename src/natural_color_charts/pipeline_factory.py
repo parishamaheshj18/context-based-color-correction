@@ -26,8 +26,12 @@ from natural_color_charts.detection.simple import (
     NullDetector,
     SkinPixelRefiner,
 )
-from natural_color_charts.domain import WavelengthGrid
+from natural_color_charts.domain import ReferenceClass, WavelengthGrid
 from natural_color_charts.estimation.base import FallbackIlluminantEstimator, IlluminantEstimator
+from natural_color_charts.estimation.spectral import (
+    NeutralPatchEstimator,
+    SpectralIlluminantEstimator,
+)
 from natural_color_charts.estimation.statistical import (
     AsShotEstimator,
     GrayEdgeEstimator,
@@ -41,6 +45,7 @@ from natural_color_charts.io.loaders import (
     SuffixDispatchingLoader,
 )
 from natural_color_charts.pipeline import ColorCorrectionPipeline, PipelineStages
+from natural_color_charts.spectral.bootstrap_priors import build_bootstrap_priors
 from natural_color_charts.spectral.datasets import (
     chart_reflectances,
     cie_1931_cmfs,
@@ -51,6 +56,7 @@ from natural_color_charts.spectral.illuminants import (
     DaylightFamily,
     IlluminantFamily,
 )
+from natural_color_charts.spectral.priors import ReflectancePrior, load_priors
 
 STATISTICAL_ESTIMATORS = ("gray_world", "shades_of_gray", "white_patch", "gray_edge", "as_shot")
 
@@ -121,11 +127,29 @@ def build_statistical_estimator(name: str, config: EstimationConfig) -> Illumina
     return builders[name]
 
 
+def build_priors(config: AppConfig) -> dict[ReferenceClass, ReflectancePrior]:
+    """Priors from disk, with bootstrap priors for classes not built yet."""
+    grid = build_grid(config)
+    fallback = (
+        build_bootstrap_priors(grid, config.priors) if config.priors.bootstrap_if_missing else {}
+    )
+    return load_priors(config.priors.directory, grid, fallback)
+
+
+def build_named_estimator(name: str, config: AppConfig) -> IlluminantEstimator:
+    """Create any estimator by name: spectral, neutral_patches, or a statistical baseline."""
+    if name == "spectral":
+        families = {family.name: family for family in build_families(config)}
+        return SpectralIlluminantEstimator(families, build_priors(config), config.estimation)
+    if name == "neutral_patches":
+        return NeutralPatchEstimator(config.estimation.confidence_residual_scale_deg)
+    return build_statistical_estimator(name, config.estimation)
+
+
 def build_estimator(config: AppConfig) -> IlluminantEstimator:
-    """Chain the configured estimators, skipping those not yet available."""
-    names = [n for n in config.estimation.fallback_chain if n in STATISTICAL_ESTIMATORS]
+    """Chain the configured estimators in order."""
     return FallbackIlluminantEstimator(
-        [build_statistical_estimator(name, config.estimation) for name in names or ["gray_world"]]
+        [build_named_estimator(name, config) for name in config.estimation.fallback_chain]
     )
 
 

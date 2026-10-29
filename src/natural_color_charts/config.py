@@ -90,10 +90,11 @@ class PatchConfig(_Section):
 
 class PriorConfig(_Section):
     directory: Path
+    library_dir: Path
     bootstrap_if_missing: bool
     components: int
     min_samples_for_pca: int
-    neutral_smooth_sigma: float
+    relative_shape_sigma: float
 
 
 class FamilyRange(_Section):
@@ -110,7 +111,7 @@ class EstimationConfig(_Section):
     robust_loss: str
     robust_scale: float
     loo_min_references: int
-    loo_outlier_angle_deg: float
+    loo_outlier_cost: float
     confidence_residual_scale_deg: float
     fallback_confidence: float
     shades_of_gray_power: float

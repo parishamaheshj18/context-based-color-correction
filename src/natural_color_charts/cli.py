@@ -11,8 +11,10 @@ import typer
 from natural_color_charts.config import AppConfig, load_config
 from natural_color_charts.io.writers import write_image8, write_tiff16
 from natural_color_charts.pipeline import PipelineResult
-from natural_color_charts.pipeline_factory import build_pipeline, build_repository
+from natural_color_charts.pipeline_factory import build_grid, build_pipeline, build_repository
 from natural_color_charts.reporting.report import build_report, write_report
+from natural_color_charts.spectral.library_reader import build_priors_from_library
+from natural_color_charts.spectral.priors import save_prior
 
 app = typer.Typer(help="Context-aware color correction without a color checker.")
 
@@ -53,6 +55,23 @@ def list_cameras(config_path: ConfigOption = None) -> None:
     """List cameras with spectral sensitivity data."""
     for name in build_repository(_load(config_path, verbose=False)).list_cameras():
         typer.echo(name)
+
+
+@app.command("build-priors")
+def build_priors_command(
+    library_dir: Annotated[Path | None, typer.Option(help="Class subfolders of spectra.")] = None,
+    config_path: ConfigOption = None,
+) -> None:
+    """Build PCA reflectance priors from measured spectra (Stage 6)."""
+    config = _load(config_path, verbose=True)
+    grid = build_grid(config)
+    source = library_dir or config.priors.library_dir
+    for prior in build_priors_from_library(source, grid, config.priors):
+        path = save_prior(config.priors.directory, prior)
+        typer.echo(
+            f"{prior.label.value}: {prior.sample_count} spectra, {prior.components} components, "
+            f"{prior.explained_variance_ratio:.1%} variance explained -> {path}"
+        )
 
 
 def write_outputs(result: PipelineResult, directory: Path, config: AppConfig) -> list[Path]:
