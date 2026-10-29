@@ -5,7 +5,6 @@ from __future__ import annotations
 import base64
 import json
 import logging
-import os
 import urllib.request
 from typing import Any, Protocol
 
@@ -30,7 +29,7 @@ class OllamaClient:
     name = "ollama"
 
     def __init__(self, host: str, model: str, timeout_s: float) -> None:
-        self._url = os.environ.get("OLLAMA_HOST", host).rstrip("/") + "/api/chat"
+        self._url = host.rstrip("/") + "/api/chat"
         self._model = model
         self._timeout_s = timeout_s
 

@@ -149,6 +149,10 @@ class EvaluationConfig(_Section):
     white_patch_index: int
 
 
+class LearningConfig(_Section):
+    helpfulness_margin_deg: float
+
+
 class AppConfig(_Section):
     """Root configuration for the whole pipeline."""
 
@@ -163,6 +167,7 @@ class AppConfig(_Section):
     correction: CorrectionConfig
     render: RenderConfig
     output: OutputConfig
+    learning: LearningConfig
     evaluation: EvaluationConfig
 
 

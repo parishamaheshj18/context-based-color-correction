@@ -119,6 +119,9 @@ output:
   jpeg_quality: 95
   overlay_alpha_max: 0.6
 
+learning:
+  helpfulness_margin_deg: 0.1
+
 evaluation:
   chart_mask_value: 0.0
   white_patch_index: 18

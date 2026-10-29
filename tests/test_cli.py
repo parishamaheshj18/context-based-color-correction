@@ -21,3 +21,10 @@ def test_correct_command_writes_outputs(tmp_path: Path):
     white = np.array(report["illuminant"]["white_rgb"])
     assert np.degrees(np.arccos(white @ cast / np.linalg.norm(white) / np.linalg.norm(cast))) < 3
     assert (tmp_path / "out" / "corrected.tif").exists()
+
+
+def test_parse_setting_builds_nested_override():
+    from natural_color_charts.cli import parse_setting
+
+    assert parse_setting("detection.device=cuda") == {"detection": {"device": "cuda"}}
+    assert parse_setting("patches.min_valid_pixels=50") == {"patches": {"min_valid_pixels": 50}}
