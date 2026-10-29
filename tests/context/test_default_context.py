@@ -1,7 +1,7 @@
 import pytest
 
 from natural_color_charts.context.base import DefaultSceneContextProvider, KeywordIntentParser
-from natural_color_charts.domain import AdaptationMode, ReferenceClass
+from natural_color_charts.domain import SCENE_CLASSES, AdaptationMode, ReferenceClass
 
 
 @pytest.mark.parametrize(
@@ -22,6 +22,7 @@ def test_default_provider_lists_all_classes(config):
         ["daylight", "blackbody"], config.estimation, 0.5, KeywordIntentParser(0.6)
     )
     context = provider.analyze(None, "keep the mood")
-    assert {c.label for c in context.reference_candidates} == set(ReferenceClass)
+    assert {c.label for c in context.reference_candidates} == set(SCENE_CLASSES)
+    assert ReferenceClass.KNOWN_COLOR not in {c.label for c in context.reference_candidates}
     assert [h.family for h in context.illuminant_hypotheses] == ["daylight", "blackbody"]
     assert context.user_intent.strength == 0.6

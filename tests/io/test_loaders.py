@@ -1,4 +1,5 @@
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -51,7 +52,8 @@ class _FakeRaw:
 def test_raw_loader_reads_linear_camera_rgb(monkeypatch, tmp_path: Path):
     path = tmp_path / "photo.dng"
     path.write_bytes(b"")
-    monkeypatch.setattr(loaders.rawpy, "imread", lambda _: _FakeRaw())
+    fake_rawpy = SimpleNamespace(imread=lambda _: _FakeRaw(), ColorSpace=SimpleNamespace(raw=0))
+    monkeypatch.setattr(loaders, "import_rawpy", lambda: fake_rawpy)
     image = RawImageLoader(saturation_threshold=0.98).load(path)
     assert image.mode is InputMode.RAW
     np.testing.assert_allclose(image.rgb[1, 1], 32768 / 65535, rtol=1e-6)

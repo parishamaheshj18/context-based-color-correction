@@ -35,6 +35,9 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/natural_color_charts"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"configs/default.yaml" = "natural_color_charts/default.yaml"
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"

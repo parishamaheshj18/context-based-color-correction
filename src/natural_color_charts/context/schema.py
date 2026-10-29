@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from natural_color_charts.domain import (
+    SCENE_CLASSES,
     AdaptationMode,
     BoxXyxy,
     IlluminantHypothesis,
@@ -33,6 +34,14 @@ class HypothesisResponse(_Strict):
 
 class CandidateResponse(_Strict):
     label: ReferenceClass
+
+    @field_validator("label")
+    @classmethod
+    def _scene_class_only(cls, label: ReferenceClass) -> ReferenceClass:
+        if label not in SCENE_CLASSES:
+            raise ValueError("known_color is reserved for user matches")
+        return label
+
     description: str
     usable: bool
     confidence: float = Field(ge=0.0, le=1.0)
@@ -138,7 +147,7 @@ def response_json_schema() -> dict[str, Any]:
                 "type": "array",
                 "items": _object(
                     {
-                        "label": {"type": "string", "enum": [c.value for c in ReferenceClass]},
+                        "label": {"type": "string", "enum": [c.value for c in SCENE_CLASSES]},
                         "description": string,
                         "usable": {"type": "boolean"},
                         "confidence": number,

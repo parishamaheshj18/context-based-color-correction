@@ -7,9 +7,15 @@ from natural_color_charts.domain.illuminant import (
     normalize_white,
 )
 from natural_color_charts.domain.image import ImageMetadata, InputMode, LinearImage, PreviewImage
-from natural_color_charts.domain.regions import Detection, PatchMeasurement, ReferenceRegion
+from natural_color_charts.domain.regions import (
+    Detection,
+    PatchMeasurement,
+    ReferenceRegion,
+    UserColorAnchor,
+)
 from natural_color_charts.domain.scene import (
     NEUTRAL_CLASSES,
+    SCENE_CLASSES,
     AdaptationMode,
     BoxXyxy,
     IlluminantHypothesis,
@@ -28,6 +34,7 @@ from natural_color_charts.domain.spectral import (
 
 __all__ = [
     "NEUTRAL_CLASSES",
+    "SCENE_CLASSES",
     "AdaptationMode",
     "BoxXyxy",
     "CameraSensitivity",
@@ -47,6 +54,7 @@ __all__ = [
     "RgbVector",
     "SceneContext",
     "SpectralArray",
+    "UserColorAnchor",
     "UserIntent",
     "WavelengthGrid",
     "normalize_white",

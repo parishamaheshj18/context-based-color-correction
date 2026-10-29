@@ -65,17 +65,37 @@ class PatchStatisticsCalculator:
                 region_index=index,
                 kept=False,
                 rejection_reason=f"only {pixels.shape[0]} valid pixels",
+                source=region.source,
+                known_reflectance=region.known_reflectance,
             )
         rgb = self.robust_color(pixels)
-        if not self._config.use_reliability_weights:
-            return PatchMeasurement(region.label, rgb, int(pixels.shape[0]), 1.0, index)
-        weight = (
-            region.candidate_confidence
-            * self._size_factor(pixels.shape[0])
-            * self._exposure_factor(rgb)
-            * self._class_strength(region.label, context)
+        weight = self._weight(region, pixels.shape[0], rgb, context)
+        return PatchMeasurement(
+            label=region.label,
+            rgb=rgb,
+            pixel_count=int(pixels.shape[0]),
+            weight=weight,
+            region_index=index,
+            source=region.source,
+            known_reflectance=region.known_reflectance,
         )
-        return PatchMeasurement(region.label, rgb, int(pixels.shape[0]), float(weight), index)
+
+    def _weight(
+        self,
+        region: ReferenceRegion,
+        count: int,
+        rgb: NDArray[np.float64],
+        context: SceneContext,
+    ) -> float:
+        if not self._config.use_reliability_weights:
+            return 1.0
+        quality = self._size_factor(count) * self._exposure_factor(rgb)
+        if region.source == "user":
+            # The user vouches for the color, so trust comes from them, not the class prior.
+            return float(self._config.user_anchor_weight * quality)
+        return float(
+            region.candidate_confidence * quality * self._class_strength(region.label, context)
+        )
 
     def valid_pixels(self, image: LinearImage, region: ReferenceRegion) -> NDArray[np.float64]:
         """Region pixels after erosion, clipping, noise-floor, and specular rejection."""
