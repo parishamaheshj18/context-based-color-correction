@@ -29,6 +29,7 @@ from natural_color_charts.pipeline import PipelineResult
 from natural_color_charts.pipeline_factory import (
     build_grid,
     build_loader,
+    build_match_session,
     build_pipeline,
     build_repository,
 )
@@ -207,6 +208,26 @@ def showcase(
     logging.basicConfig(level=logging.INFO if verbose else logging.WARNING, format="%(message)s")
     path = ShowcaseBuilder.from_manifest(manifest, site_dir).build(set(case) if case else None)
     typer.echo(f"Wrote {path}")
+
+
+@app.command()
+def match(
+    photo: Annotated[Path, typer.Argument(exists=True, dir_okay=False)],
+    intent: Annotated[str | None, typer.Option(help='E.g. "keep the warm evening mood".')] = None,
+    output_dir: Annotated[Path | None, typer.Option(help="Defaults to outputs/<stem>.")] = None,
+    settings: SetOption = None,
+    config_path: ConfigOption = None,
+    verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
+) -> None:
+    """Match regions of PHOTO to chart patches in a window, add Claude's picks, and correct."""
+    from natural_color_charts.gui.picker import MatchPicker
+
+    defaults = {"context": {"client": "anthropic"}, "detection": {"detector": "vlm"}}
+    overrides = merge_nested(defaults, _stage_overrides(None, None, settings))
+    config = _load(config_path, verbose, overrides)
+    session = build_match_session(config, photo, intent, 2048)
+    target_dir = output_dir or config.output.directory / photo.stem
+    MatchPicker(session, photo.name, target_dir, config.output.jpeg_quality).show()
 
 
 def write_outputs(result: PipelineResult, directory: Path, config: AppConfig) -> list[Path]:

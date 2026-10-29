@@ -4,12 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")  # headless rendering, e.g. on cluster nodes
-import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 
 from natural_color_charts.io.preview import resize_to_long_edge
 from natural_color_charts.io.writers import to_uint8
@@ -21,9 +18,10 @@ def save_comparison(result: PipelineResult, path: Path) -> Path:
     """Before/after side by side, plus the estimated illuminant spectrum against D65."""
     after = resize_to_long_edge(result.rendered.encoded_srgb, max(result.preview.shape[:2]))
     has_spectrum = result.estimate.spectrum is not None
-    figure, axes = plt.subplots(
-        1, 3 if has_spectrum else 2, figsize=(15 if has_spectrum else 10, 4.5)
-    )
+    # A bare Figure renders off-screen without pyplot, so it works headless (e.g. on Palmetto)
+    # and leaves the interactive backend alone for the matching window.
+    figure = Figure(figsize=(15 if has_spectrum else 10, 4.5))
+    axes = figure.subplots(1, 3 if has_spectrum else 2)
     axes[0].imshow(result.preview)
     axes[0].set_title("Before (camera as-shot preview)")
     axes[1].imshow(to_uint8(after))
@@ -37,7 +35,6 @@ def save_comparison(result: PipelineResult, path: Path) -> Path:
     figure.tight_layout()
     path.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(path, dpi=120)
-    plt.close(figure)
     return path
 
 

@@ -1,385 +1,6 @@
 {
  "cases": [
   {
-   "id": "lab-tabletop",
-   "title": "Lab tabletop, camera locked at 5200 K",
-   "caption": "",
-   "intent": "neutral",
-   "source_file": "IMG_7861.CR3",
-   "camera": "Canon EOS Rebel T8i",
-   "input_mode": "raw",
-   "size": [
-    1367,
-    2048
-   ],
-   "images": {
-    "ours": "assets/cases/lab-tabletop/ours.jpg",
-    "gray_world": "assets/cases/lab-tabletop/gray_world.jpg",
-    "before": "assets/cases/lab-tabletop/before.jpg",
-    "overlay": "assets/cases/lab-tabletop/overlay.jpg",
-    "thumb": "assets/cases/lab-tabletop/thumb.jpg"
-   },
-   "ai": {
-    "source": "vlm",
-    "model": "claude-opus-5-5",
-    "environment": "indoor",
-    "time_of_day": "unknown (controlled indoor lab setup)",
-    "weather": "not applicable (indoor)",
-    "light_sources": [
-     "no direct sources visible; diffuse overhead studio/lab lighting inferred from soft shadows and reflections in chrome sphere"
-    ],
-    "hypotheses": [
-     {
-      "family": "daylight",
-      "cct_range_k": [
-       4500.0,
-       6500.0
-      ],
-      "confidence": 0.55
-     },
-     {
-      "family": "blackbody",
-      "cct_range_k": [
-       3000.0,
-       4500.0
-      ],
-      "confidence": 0.35
-     }
-    ],
-    "candidates": [
-     {
-      "label": "paper",
-      "description": "White printed calibration sheet with ArUco/checkerboard pattern; white margins around the pattern",
-      "usable": true,
-      "confidence": 0.75,
-      "concerns": [
-       "faint overlapping shadows on the paper",
-       "slight cool cast in the image"
-      ],
-      "boxes": [
-       [
-        0.07,
-        0.46,
-        0.85,
-        0.49
-       ],
-       [
-        0.07,
-        0.84,
-        0.84,
-        0.86
-       ],
-       [
-        0.06,
-        0.52,
-        0.12,
-        0.8
-       ]
-      ]
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Dark gray fabric/foam surface the objects rest on",
-      "usable": false,
-      "confidence": 0.3,
-      "concerns": [
-       "very dark, low signal",
-       "fabric texture and possible tint",
-       "vignetting toward edges"
-      ],
-      "boxes": []
-     }
-    ],
-    "intent": {
-     "adaptation": "neutral",
-     "strength": 1.0
-    },
-    "rationale": "This is a controlled indoor tabletop scene on a dark gray cloth with a calibration print, a CD, a chrome sphere, and a figurine; there are no windows or visible lamps, and the chrome sphere shows multiple diffuse overhead sources typical of lab LED or fluorescent lighting, so a daylight-like prior around 4500-6500 K is favored, with a warmer tungsten-like alternative kept at lower confidence. The white paper margins of the calibration sheet are the best neutral reference, being flat and evenly lit, although faint shadows exist so the boxes target the clean margins. The dark cloth is too dark and textured to be a reliable neutral. The user asked for neutral, so full correction is applied.",
-    "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
-    "regions": [
-     {
-      "label": "paper",
-      "description": "White printed calibration sheet with ArUco/checkerboard pattern; white margins around the pattern",
-      "box_xyxy": [
-       0.07,
-       0.46,
-       0.85,
-       0.49
-      ],
-      "detector_score": 0.75,
-      "pixels": 62311,
-      "weight": 0.675,
-      "kept": true,
-      "reason": "",
-      "used": true
-     },
-     {
-      "label": "paper",
-      "description": "White printed calibration sheet with ArUco/checkerboard pattern; white margins around the pattern",
-      "box_xyxy": [
-       0.07,
-       0.84,
-       0.84,
-       0.86
-      ],
-      "detector_score": 0.75,
-      "pixels": 45290,
-      "weight": 0.675,
-      "kept": true,
-      "reason": "",
-      "used": true
-     },
-     {
-      "label": "paper",
-      "description": "White printed calibration sheet with ArUco/checkerboard pattern; white margins around the pattern",
-      "box_xyxy": [
-       0.06,
-       0.52,
-       0.12,
-       0.8
-      ],
-      "detector_score": 0.75,
-      "pixels": 21441,
-      "weight": 0.675,
-      "kept": true,
-      "reason": "",
-      "used": true
-     }
-    ]
-   },
-   "physics": {
-    "estimator": "neutral_patches",
-    "is_fallback": true,
-    "family": null,
-    "cct_k": null,
-    "cct_uncertainty_k": null,
-    "confidence": 0.804,
-    "white_rgb": [
-     0.564848,
-     1.0,
-     0.617155
-    ],
-    "notes": [
-     "skipped spectral: no camera sensitivity data"
-    ],
-    "correction": "camera_matrix",
-    "adaptation_degree": 1.0,
-    "camera_curves": null,
-    "camera_curves_reason": null
-   },
-   "seconds": 13.9,
-   "ground_truth": {
-    "truth_white_rgb": [
-     0.561765,
-     1.0,
-     0.618122
-    ],
-    "ours": {
-     "angular_error_deg": 0.14,
-     "delta_e00": 5.41
-    },
-    "gray_world": {
-     "angular_error_deg": 0.58,
-     "delta_e00": 5.53
-    },
-    "before": {
-     "angular_error_deg": 0.5,
-     "delta_e00": 5.58
-    }
-   }
-  },
-  {
-   "id": "lab-tabletop-tinted",
-   "title": "Same scene, tinted fill light",
-   "caption": "",
-   "intent": "neutral",
-   "source_file": "IMG_7866.CR3",
-   "camera": "Canon EOS Rebel T8i",
-   "input_mode": "raw",
-   "size": [
-    1367,
-    2048
-   ],
-   "images": {
-    "ours": "assets/cases/lab-tabletop-tinted/ours.jpg",
-    "gray_world": "assets/cases/lab-tabletop-tinted/gray_world.jpg",
-    "before": "assets/cases/lab-tabletop-tinted/before.jpg",
-    "overlay": "assets/cases/lab-tabletop-tinted/overlay.jpg",
-    "thumb": "assets/cases/lab-tabletop-tinted/thumb.jpg"
-   },
-   "ai": {
-    "source": "vlm",
-    "model": "claude-opus-5-5",
-    "environment": "indoor",
-    "time_of_day": "unknown (controlled indoor/lab setup)",
-    "weather": "not applicable (indoor)",
-    "light_sources": [
-     "rectangular light panel/lightbox at bottom edge of frame appearing pink/magenta (likely clipped or LED-tinted)",
-     "specular reflections of overhead lamps in the chrome sphere"
-    ],
-    "hypotheses": [
-     {
-      "family": "daylight",
-      "cct_range_k": [
-       4500.0,
-       6500.0
-      ],
-      "confidence": 0.55
-     },
-     {
-      "family": "blackbody",
-      "cct_range_k": [
-       3000.0,
-       4500.0
-      ],
-      "confidence": 0.3
-     }
-    ],
-    "candidates": [
-     {
-      "label": "paper",
-      "description": "White printed calibration sheet with checkerboard/ArUco pattern; unprinted white margins around the pattern",
-      "usable": true,
-      "confidence": 0.7,
-      "concerns": [
-       "bottom margin picks up pinkish spill from the light panel",
-       "slight folds/waviness causing mild shading on the right side",
-       "paper appears slightly gray, likely underexposed rather than tinted"
-      ],
-      "boxes": [
-       [
-        0.12,
-        0.511,
-        0.78,
-        0.535
-       ],
-       [
-        0.07,
-        0.56,
-        0.115,
-        0.78
-       ],
-       [
-        0.815,
-        0.56,
-        0.85,
-        0.75
-       ]
-      ]
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Black matte backdrop and black rectangular card at upper left",
-      "usable": false,
-      "confidence": 0.2,
-      "concerns": [
-       "very dark, low signal and noise-dominated",
-       "black surfaces are unreliable for chromaticity estimation"
-      ],
-      "boxes": []
-     }
-    ],
-    "intent": {
-     "adaptation": "neutral",
-     "strength": 1.0
-    },
-    "rationale": "This is a controlled indoor tabletop setup on a black backdrop with a calibration sheet, a mirror sphere, a CD and a figurine; no windows or sky are visible. The only directly visible source is a light panel at the bottom that renders pink/magenta, which is likely clipped or an atypical LED and also spills pink onto the bottom of the paper, so it should not dictate the estimate. The sphere shows reflections of overhead lamps, consistent with typical studio/lab lighting near neutral white, so a daylight-family prior around 4500-6500 K is favored with a lower-confidence warmer blackbody alternative. The white paper margins are the best reference; boxes are placed on the top margin and the upper parts of the side margins to avoid the pink spill at the bottom, the printed pattern, and fold shading. Black surfaces are too dark to use. The user asked for neutral, so full correction is applied.",
-    "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
-    "regions": [
-     {
-      "label": "paper",
-      "description": "White printed calibration sheet with checkerboard/ArUco pattern; unprinted white margins around the pattern",
-      "box_xyxy": [
-       0.12,
-       0.511,
-       0.78,
-       0.535
-      ],
-      "detector_score": 0.7,
-      "pixels": 45482,
-      "weight": 0.63,
-      "kept": true,
-      "reason": "",
-      "used": true
-     },
-     {
-      "label": "paper",
-      "description": "White printed calibration sheet with checkerboard/ArUco pattern; unprinted white margins around the pattern",
-      "box_xyxy": [
-       0.07,
-       0.56,
-       0.115,
-       0.78
-      ],
-      "detector_score": 0.7,
-      "pixels": 15205,
-      "weight": 0.63,
-      "kept": true,
-      "reason": "",
-      "used": true
-     },
-     {
-      "label": "paper",
-      "description": "White printed calibration sheet with checkerboard/ArUco pattern; unprinted white margins around the pattern",
-      "box_xyxy": [
-       0.815,
-       0.56,
-       0.85,
-       0.75
-      ],
-      "detector_score": 0.7,
-      "pixels": 20104,
-      "weight": 0.63,
-      "kept": true,
-      "reason": "",
-      "used": true
-     }
-    ]
-   },
-   "physics": {
-    "estimator": "neutral_patches",
-    "is_fallback": true,
-    "family": null,
-    "cct_k": null,
-    "cct_uncertainty_k": null,
-    "confidence": 0.808,
-    "white_rgb": [
-     0.570034,
-     1.0,
-     0.611466
-    ],
-    "notes": [
-     "skipped spectral: no camera sensitivity data"
-    ],
-    "correction": "camera_matrix",
-    "adaptation_degree": 1.0,
-    "camera_curves": null,
-    "camera_curves_reason": null
-   },
-   "seconds": 15.2,
-   "ground_truth": {
-    "truth_white_rgb": [
-     0.565538,
-     1.0,
-     0.614474
-    ],
-    "ours": {
-     "angular_error_deg": 0.24,
-     "delta_e00": 5.63
-    },
-    "gray_world": {
-     "angular_error_deg": 0.12,
-     "delta_e00": 5.65
-    },
-    "before": {
-     "angular_error_deg": 0.71,
-     "delta_e00": 5.73
-    }
-   }
-  },
-  {
    "id": "lab-shelf-warm",
    "title": "Warm room light on a shelf",
    "caption": "",
@@ -668,7 +289,7 @@
     "camera_curves": null,
     "camera_curves_reason": null
    },
-   "seconds": 19.1,
+   "seconds": 18.1,
    "ground_truth": {
     "truth_white_rgb": [
      0.691857,
@@ -847,7 +468,7 @@
     "camera_curves": null,
     "camera_curves_reason": null
    },
-   "seconds": 20.3,
+   "seconds": 17.4,
    "ground_truth": {
     "truth_white_rgb": [
      0.600393,
@@ -867,398 +488,6 @@
      "delta_e00": 7.07
     }
    }
-  },
-  {
-   "id": "dining-room",
-   "title": "Dining room at dusk, keeping the mood",
-   "caption": "",
-   "intent": "keep the warm, cozy evening ambiance",
-   "source_file": "5C31C55C-64D2-4293-B897-FB560DA6A907.PNG",
-   "camera": null,
-   "input_mode": "raster",
-   "size": [
-    1087,
-    1447
-   ],
-   "images": {
-    "ours": "assets/cases/dining-room/ours.jpg",
-    "gray_world": "assets/cases/dining-room/gray_world.jpg",
-    "before": "assets/cases/dining-room/before.jpg",
-    "overlay": "assets/cases/dining-room/overlay.jpg",
-    "thumb": "assets/cases/dining-room/thumb.jpg"
-   },
-   "ai": {
-    "source": "vlm",
-    "model": "claude-opus-5-5",
-    "environment": "indoor",
-    "time_of_day": "evening / golden hour",
-    "weather": "unknown (likely clear, low warm sun through window)",
-    "light_sources": [
-     "candle-style pendant chandelier with warm bulbs",
-     "two wall-mounted picture lights above artworks",
-     "window with blinds and bamboo shade (low warm daylight)",
-     "table candles"
-    ],
-    "hypotheses": [
-     {
-      "family": "blackbody",
-      "cct_range_k": [
-       2200.0,
-       3000.0
-      ],
-      "confidence": 0.65
-     },
-     {
-      "family": "daylight",
-      "cct_range_k": [
-       4000.0,
-       5500.0
-      ],
-      "confidence": 0.25
-     },
-     {
-      "family": "blackbody",
-      "cct_range_k": [
-       1800.0,
-       2200.0
-      ],
-      "confidence": 0.1
-     }
-    ],
-    "candidates": [
-     {
-      "label": "foliage",
-      "description": "Olive tree in woven basket at left and potted plant on table",
-      "usable": false,
-      "confidence": 0.35,
-      "concerns": [
-       "likely artificial plants",
-       "olive leaves are naturally gray-green, atypical",
-       "small leaves with mixed shadow"
-      ],
-      "boxes": []
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Painted wall behind table and on right side",
-      "usable": false,
-      "confidence": 0.4,
-      "concerns": [
-       "wall paint appears beige/cream, tinted",
-       "strong gradient from mixed warm lamps and window light",
-       "picture-light hot spots"
-      ],
-      "boxes": []
-     },
-     {
-      "label": "neutral_surface",
-      "description": "White baseboard trim along left wall",
-      "usable": true,
-      "confidence": 0.4,
-      "concerns": [
-       "thin strip, partially in shadow",
-       "may be off-white"
-      ],
-      "boxes": [
-       [
-        0.1,
-        0.66,
-        0.2,
-        0.68
-       ]
-      ]
-     },
-     {
-      "label": "neutral_surface",
-      "description": "White window blinds and sheer curtains",
-      "usable": false,
-      "confidence": 0.3,
-      "concerns": [
-       "backlit by window, different illuminant from room lamps",
-       "curtains appear cream",
-       "translucent"
-      ],
-      "boxes": []
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Ceiling",
-      "usable": false,
-      "confidence": 0.3,
-      "concerns": [
-       "strong gradient and shadows from chandelier",
-       "reflects warm wall color"
-      ],
-      "boxes": []
-     }
-    ],
-    "intent": {
-     "adaptation": "preserve_ambiance",
-     "strength": 0.4
-    },
-    "rationale": "This is an indoor dining room lit mainly by a candle-style pendant with warm bulbs, picture lights over the artwork, and actual candles, so a warm blackbody illuminant around 2200-3000 K is most likely. A window with blinds adds some low evening daylight, giving a secondary daylight hypothesis. Good neutral references are scarce. The walls and curtains look cream or beige and have gradients from the mixed light, and the plants appear artificial with gray-green olive leaves. Only a small strip of white baseboard is a weakly usable neutral. The user wants to keep the warm, cozy evening mood, so I mapped the request to preserve_ambiance with a modest strength of 0.4. This removes some excess cast while keeping most of the warmth.",
-    "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
-    "regions": [
-     {
-      "label": "neutral_surface",
-      "description": "White baseboard trim along left wall",
-      "box_xyxy": [
-       0.1,
-       0.66,
-       0.2,
-       0.68
-      ],
-      "detector_score": 0.4,
-      "pixels": 0,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 0 valid pixels",
-      "used": false
-     }
-    ]
-   },
-   "physics": {
-    "estimator": "shades_of_gray",
-    "is_fallback": true,
-    "family": null,
-    "cct_k": null,
-    "cct_uncertainty_k": null,
-    "confidence": 0.2,
-    "white_rgb": [
-     1.307041,
-     1.0,
-     0.936779
-    ],
-    "notes": [
-     "skipped spectral: no usable reference patches",
-     "skipped neutral_patches: no usable neutral patches"
-    ],
-    "correction": "bradford",
-    "adaptation_degree": 0.4,
-    "camera_curves": "sRGB-equivalent (CIE 1931)",
-    "camera_curves_reason": "display-referred input: linear sRGB as sensor"
-   },
-   "seconds": 14.8
-  },
-  {
-   "id": "festival-night",
-   "title": "Festival hall under mixed stage lighting",
-   "caption": "",
-   "intent": "neutral",
-   "source_file": "IMG_2997.DNG",
-   "camera": "Apple iPhone 16 Pro",
-   "input_mode": "raw",
-   "size": [
-    2048,
-    1536
-   ],
-   "images": {
-    "ours": "assets/cases/festival-night/ours.jpg",
-    "gray_world": "assets/cases/festival-night/gray_world.jpg",
-    "before": "assets/cases/festival-night/before.jpg",
-    "overlay": "assets/cases/festival-night/overlay.jpg",
-    "thumb": "assets/cases/festival-night/thumb.jpg"
-   },
-   "ai": {
-    "source": "vlm",
-    "model": "claude-opus-5-5",
-    "environment": "indoor",
-    "time_of_day": "evening/night",
-    "weather": "not applicable (indoor)",
-    "light_sources": [
-     "ceiling spotlights/downlights",
-     "decorative string lights on stage and walls",
-     "colored LED stage lights near altar",
-     "overhead hall lighting"
-    ],
-    "hypotheses": [
-     {
-      "family": "blackbody",
-      "cct_range_k": [
-       2800.0,
-       4000.0
-      ],
-      "confidence": 0.55
-     },
-     {
-      "family": "daylight",
-      "cct_range_k": [
-       4000.0,
-       5500.0
-      ],
-      "confidence": 0.4
-     }
-    ],
-    "candidates": [
-     {
-      "label": "skin",
-      "description": "Faces of the four people in the foreground selfie, frontally lit by hall lighting",
-      "usable": true,
-      "confidence": 0.6,
-      "concerns": [
-       "possible mixed lighting from colored stage lights",
-       "varied skin tones"
-      ],
-      "boxes": [
-       [
-        0.6,
-        0.6,
-        0.7,
-        0.7
-       ],
-       [
-        0.36,
-        0.6,
-        0.42,
-        0.68
-       ],
-       [
-        0.49,
-        0.48,
-        0.55,
-        0.55
-       ]
-      ]
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Off-white/cream embroidered kurta worn by woman on right",
-      "usable": false,
-      "confidence": 0.3,
-      "concerns": [
-       "fabric may be cream-tinted",
-       "embroidery and sequins cause sparkle highlights",
-       "folds and shading"
-      ],
-      "boxes": []
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Gray hall floor",
-      "usable": true,
-      "confidence": 0.4,
-      "concerns": [
-       "glossy reflections of lights",
-       "may be slightly tinted"
-      ],
-      "boxes": [
-       [
-        0.86,
-        0.6,
-        0.97,
-        0.7
-       ]
-      ]
-     },
-     {
-      "label": "neutral_surface",
-      "description": "White painted ceiling and upper walls",
-      "usable": false,
-      "confidence": 0.25,
-      "concerns": [
-       "dim and underexposed",
-       "uneven lighting with shadows"
-      ],
-      "boxes": []
-     }
-    ],
-    "intent": {
-     "adaptation": "neutral",
-     "strength": 1.0
-    },
-    "rationale": "This is an indoor festival hall (Navratri/garba event) at night lit by ceiling spotlights plus warm decorative string lights and some colored LEDs at the altar; no windows or sky are visible, so artificial light dominates, likely warm-white to neutral LED or halogen, giving a blackbody prior around 2800-4000 K with a secondary neutral-white LED (daylight-like 4000-5500 K) hypothesis. Faces in the foreground are the most reliable references, lit fairly evenly from the front, though colored stage light could contaminate them slightly. The gray floor is a usable but weaker neutral given glossy reflections; the cream kurta and dim ceiling are unreliable. The user asked for neutral, so full correction is applied.",
-    "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
-    "regions": [
-     {
-      "label": "skin",
-      "description": "Faces of the four people in the foreground selfie, frontally lit by hall lighting",
-      "box_xyxy": [
-       0.6,
-       0.6,
-       0.7,
-       0.7
-      ],
-      "detector_score": 0.6,
-      "pixels": 6463,
-      "weight": 0.029,
-      "kept": true,
-      "reason": "needs this camera's spectral curves",
-      "used": false
-     },
-     {
-      "label": "skin",
-      "description": "Faces of the four people in the foreground selfie, frontally lit by hall lighting",
-      "box_xyxy": [
-       0.36,
-       0.6,
-       0.42,
-       0.68
-      ],
-      "detector_score": 0.6,
-      "pixels": 4398,
-      "weight": 0.027,
-      "kept": true,
-      "reason": "needs this camera's spectral curves",
-      "used": false
-     },
-     {
-      "label": "skin",
-      "description": "Faces of the four people in the foreground selfie, frontally lit by hall lighting",
-      "box_xyxy": [
-       0.49,
-       0.48,
-       0.55,
-       0.55
-      ],
-      "detector_score": 0.6,
-      "pixels": 0,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 0 valid pixels",
-      "used": false
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Gray hall floor",
-      "box_xyxy": [
-       0.86,
-       0.6,
-       0.97,
-       0.7
-      ],
-      "detector_score": 0.4,
-      "pixels": 3,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 3 valid pixels",
-      "used": false
-     }
-    ]
-   },
-   "physics": {
-    "estimator": "shades_of_gray",
-    "is_fallback": true,
-    "family": null,
-    "cct_k": null,
-    "cct_uncertainty_k": null,
-    "confidence": 0.2,
-    "white_rgb": [
-     1.054547,
-     1.0,
-     1.011954
-    ],
-    "notes": [
-     "skipped spectral: no camera sensitivity data",
-     "skipped neutral_patches: no usable neutral patches"
-    ],
-    "correction": "bradford",
-    "adaptation_degree": 1.0,
-    "camera_curves": null,
-    "camera_curves_reason": null
-   },
-   "seconds": 18.8
   },
   {
    "id": "bluebird-garden",
@@ -1438,14 +667,14 @@
     "camera_curves": null,
     "camera_curves_reason": null
    },
-   "seconds": 20.9
+   "seconds": 20.4
   },
   {
-   "id": "bluebird-feeder",
-   "title": "Bluebird at a feeder, through a window screen",
+   "id": "forest-shade",
+   "title": "Forest trail in deep shade",
    "caption": "",
    "intent": "neutral",
-   "source_file": "IMG_3036.DNG",
+   "source_file": "IMG_9500.DNG",
    "camera": "Apple iPhone 16 Pro",
    "input_mode": "raw",
    "size": [
@@ -1453,197 +682,28 @@
     2048
    ],
    "images": {
-    "ours": "assets/cases/bluebird-feeder/ours.jpg",
-    "gray_world": "assets/cases/bluebird-feeder/gray_world.jpg",
-    "before": "assets/cases/bluebird-feeder/before.jpg",
-    "overlay": "assets/cases/bluebird-feeder/overlay.jpg",
-    "thumb": "assets/cases/bluebird-feeder/thumb.jpg"
-   },
-   "ai": {
-    "source": "vlm",
-    "model": "claude-opus-5-5",
-    "environment": "mixed",
-    "time_of_day": "daytime",
-    "weather": "overcast",
-    "light_sources": [
-     "diffuse overcast daylight through window/screen"
-    ],
-    "hypotheses": [
-     {
-      "family": "daylight",
-      "cct_range_k": [
-       5500.0,
-       7500.0
-      ],
-      "confidence": 0.8
-     },
-     {
-      "family": "blackbody",
-      "cct_range_k": [
-       4500.0,
-       6000.0
-      ],
-      "confidence": 0.1
-     }
-    ],
-    "candidates": [
-     {
-      "label": "foliage",
-      "description": "Reddish-brown autumn leaves of a small tree at left",
-      "usable": false,
-      "confidence": 0.2,
-      "concerns": [
-       "autumn foliage, not green",
-       "blurred through screen"
-      ],
-      "boxes": []
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Gray-green painted metal feeder roof",
-      "usable": false,
-      "confidence": 0.3,
-      "concerns": [
-       "tinted gray-green paint, not neutral",
-       "specular ridges"
-      ],
-      "boxes": []
-     },
-     {
-      "label": "neutral_surface",
-      "description": "White posts/poles in background yard",
-      "usable": true,
-      "confidence": 0.4,
-      "concerns": [
-       "small and blurred",
-       "seen through window screen with veiling haze"
-      ],
-      "boxes": [
-       [
-        0.91,
-        0.3,
-        0.955,
-        0.58
-       ],
-       [
-        0.71,
-        0.17,
-        0.76,
-        0.3
-       ]
-      ]
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Dark gray plastic feeder tray",
-      "usable": false,
-      "confidence": 0.25,
-      "concerns": [
-       "dark, low signal",
-       "glossy reflections",
-       "may be slightly tinted"
-      ],
-      "boxes": []
-     }
-    ],
-    "intent": {
-     "adaptation": "neutral",
-     "strength": 1.0
-    },
-    "rationale": "The photo is taken from indoors through a window screen looking at an outdoor bird feeder on a deck under flat, shadowless overcast daylight, so a cloudy daylight illuminant around 5500-7500 K is the main prior. The image has a strong warm/hazy veil from the screen and glass, which should not be mistaken for warm light. Good references are scarce: foliage is autumn-colored, the feeder roof is a tinted gray-green, and the tray is dark and glossy, so only the small white background posts are offered as tentative neutral references. The user asked for neutral, so full correction is applied.",
-    "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
-    "regions": [
-     {
-      "label": "neutral_surface",
-      "description": "White posts/poles in background yard",
-      "box_xyxy": [
-       0.91,
-       0.3,
-       0.955,
-       0.58
-      ],
-      "detector_score": 0.4,
-      "pixels": 32449,
-      "weight": 0.2,
-      "kept": true,
-      "reason": "",
-      "used": true
-     },
-     {
-      "label": "neutral_surface",
-      "description": "White posts/poles in background yard",
-      "box_xyxy": [
-       0.71,
-       0.17,
-       0.76,
-       0.3
-      ],
-      "detector_score": 0.4,
-      "pixels": 21764,
-      "weight": 0.2,
-      "kept": true,
-      "reason": "",
-      "used": true
-     }
-    ]
-   },
-   "physics": {
-    "estimator": "neutral_patches",
-    "is_fallback": true,
-    "family": null,
-    "cct_k": null,
-    "cct_uncertainty_k": null,
-    "confidence": 0.321,
-    "white_rgb": [
-     1.09011,
-     1.0,
-     0.91019
-    ],
-    "notes": [
-     "skipped spectral: no camera sensitivity data"
-    ],
-    "correction": "bradford",
-    "adaptation_degree": 1.0,
-    "camera_curves": null,
-    "camera_curves_reason": null
-   },
-   "seconds": 23.9
-  },
-  {
-   "id": "flycatcher-feeder",
-   "title": "Flycatcher at the same feeder",
-   "caption": "",
-   "intent": "neutral",
-   "source_file": "IMG_3039.DNG",
-   "camera": "Apple iPhone 16 Pro",
-   "input_mode": "raw",
-   "size": [
-    1536,
-    2048
-   ],
-   "images": {
-    "ours": "assets/cases/flycatcher-feeder/ours.jpg",
-    "gray_world": "assets/cases/flycatcher-feeder/gray_world.jpg",
-    "before": "assets/cases/flycatcher-feeder/before.jpg",
-    "overlay": "assets/cases/flycatcher-feeder/overlay.jpg",
-    "thumb": "assets/cases/flycatcher-feeder/thumb.jpg"
+    "ours": "assets/cases/forest-shade/ours.jpg",
+    "gray_world": "assets/cases/forest-shade/gray_world.jpg",
+    "before": "assets/cases/forest-shade/before.jpg",
+    "overlay": "assets/cases/forest-shade/overlay.jpg",
+    "thumb": "assets/cases/forest-shade/thumb.jpg"
    },
    "ai": {
     "source": "vlm",
     "model": "claude-opus-5-5",
     "environment": "outdoor",
-    "time_of_day": "daytime",
-    "weather": "overcast or hazy, diffuse light with no hard shadows",
+    "time_of_day": "daytime, likely afternoon",
+    "weather": "partly cloudy or overcast sky visible through dense forest canopy",
     "light_sources": [
-     "diffuse skylight (sky not visible)"
+     "sky through tree canopy",
+     "sun glow behind leaves"
     ],
     "hypotheses": [
      {
       "family": "daylight",
       "cct_range_k": [
        5500.0,
-       7500.0
+       8000.0
       ],
       "confidence": 0.8
      },
@@ -1659,49 +719,100 @@
     "candidates": [
      {
       "label": "foliage",
-      "description": "Red/maroon autumn maple leaves on a young tree at left",
+      "description": "Green leaves of canopy and understory trees, left side and mid-background",
+      "usable": true,
+      "confidence": 0.45,
+      "concerns": [
+       "some autumn coloration nearby",
+       "backlit and translucent against sky",
+       "underexposed"
+      ],
+      "boxes": [
+       [
+        0.0,
+        0.33,
+        0.12,
+        0.45
+       ],
+       [
+        0.3,
+        0.3,
+        0.42,
+        0.4
+       ]
+      ]
+     },
+     {
+      "label": "foliage",
+      "description": "Autumn reddish-orange tree on left",
       "usable": false,
       "confidence": 0.2,
       "concerns": [
-       "autumn foliage, not green",
-       "seen through window screen with haze"
+       "autumn foliage, atypical hue"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "skin",
+      "description": "Face and hands of the woman standing on the rock",
+      "usable": false,
+      "confidence": 0.2,
+      "concerns": [
+       "very small region",
+       "in deep shade, underexposed"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "concrete",
+      "description": "Gray boulders and rocks along the trail",
+      "usable": true,
+      "confidence": 0.4,
+      "concerns": [
+       "natural stone, not concrete; possible lichen or staining",
+       "in forest shade with green spill from canopy",
+       "underexposed"
+      ],
+      "boxes": [
+       [
+        0.54,
+        0.6,
+        0.62,
+        0.64
+       ],
+       [
+        0.72,
+        0.78,
+        0.84,
+        0.84
+       ],
+       [
+        0.36,
+        0.67,
+        0.48,
+        0.71
+       ]
+      ]
+     },
+     {
+      "label": "cloud",
+      "description": "Bright sky patches through canopy",
+      "usable": false,
+      "confidence": 0.2,
+      "concerns": [
+       "clipped highlights",
+       "small fragmented patches between leaves"
       ],
       "boxes": []
      },
      {
       "label": "neutral_surface",
-      "description": "Gray corrugated metal roof of bird feeder",
-      "usable": true,
-      "confidence": 0.45,
-      "concerns": [
-       "seen through insect screen which adds veiling haze",
-       "possible slight tint of painted metal",
-       "ridged surface with shading variations"
-      ],
-      "boxes": [
-       [
-        0.68,
-        0.24,
-        0.85,
-        0.33
-       ],
-       [
-        0.86,
-        0.22,
-        0.97,
-        0.33
-       ]
-      ]
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Weathered wooden feeder table top",
+      "description": "White sweater worn by the woman",
       "usable": false,
-      "confidence": 0.2,
+      "confidence": 0.25,
       "concerns": [
-       "wood is naturally tinted brown/gray",
-       "possibly wet",
-       "screen haze"
+       "fabric may be off-white",
+       "small region in shade"
       ],
       "boxes": []
      }
@@ -1710,38 +821,86 @@
      "adaptation": "neutral",
      "strength": 1.0
     },
-    "rationale": "The scene is an outdoor backyard bird feeder photographed through an insect screen, with dry ground and an autumn maple; there are no hard shadows, suggesting overcast diffuse daylight around 5500-7500 K. The photo has a strong warm/magenta haze from the screen and low contrast, which should not be trusted as the illuminant. The leaves are autumn red, so foliage is unusable, and the wooden table is inherently tinted. The gray metal feeder roof is the best near-neutral reference, though the screen veil and possible paint tint lower confidence. The user asked for neutral correction at full strength.",
+    "rationale": "The scene is a forest trail in daytime with sky visible through the canopy and no artificial lights, so illumination is open-shade daylight, likely on the cooler side (5500-8000 K) due to skylight and canopy filtering. The image is heavily underexposed. Green foliage on the left and mid-background is the best reference despite backlighting and nearby autumn colors; gray boulders are a secondary near-neutral reference with caveats about stone color and green spill. Skin, the white sweater, and the sky are too small, shaded, or clipped to rely on. The user asked for neutral correction, so full-strength neutral adaptation is applied.",
     "detector": "claude-opus-5-5 boxes",
     "segmenter": "facebook/sam-vit-base",
     "regions": [
      {
-      "label": "neutral_surface",
-      "description": "Gray corrugated metal roof of bird feeder",
+      "label": "foliage",
+      "description": "Green leaves of canopy and understory trees, left side and mid-background",
       "box_xyxy": [
-       0.68,
-       0.24,
-       0.85,
-       0.33
+       0.0,
+       0.33,
+       0.12,
+       0.45
       ],
       "detector_score": 0.45,
-      "pixels": 16938,
-      "weight": 0.225,
+      "pixels": 31301,
+      "weight": 0.132,
+      "kept": true,
+      "reason": "needs this camera's spectral curves",
+      "used": false
+     },
+     {
+      "label": "foliage",
+      "description": "Green leaves of canopy and understory trees, left side and mid-background",
+      "box_xyxy": [
+       0.3,
+       0.3,
+       0.42,
+       0.4
+      ],
+      "detector_score": 0.45,
+      "pixels": 10510,
+      "weight": 0.159,
+      "kept": true,
+      "reason": "needs this camera's spectral curves",
+      "used": false
+     },
+     {
+      "label": "concrete",
+      "description": "Gray boulders and rocks along the trail",
+      "box_xyxy": [
+       0.54,
+       0.6,
+       0.62,
+       0.64
+      ],
+      "detector_score": 0.4,
+      "pixels": 654,
+      "weight": 0.003,
       "kept": true,
       "reason": "",
       "used": true
      },
      {
-      "label": "neutral_surface",
-      "description": "Gray corrugated metal roof of bird feeder",
+      "label": "concrete",
+      "description": "Gray boulders and rocks along the trail",
       "box_xyxy": [
-       0.86,
-       0.22,
-       0.97,
-       0.33
+       0.72,
+       0.78,
+       0.84,
+       0.84
       ],
-      "detector_score": 0.45,
-      "pixels": 7686,
-      "weight": 0.225,
+      "detector_score": 0.4,
+      "pixels": 6566,
+      "weight": 0.078,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "concrete",
+      "description": "Gray boulders and rocks along the trail",
+      "box_xyxy": [
+       0.36,
+       0.67,
+       0.48,
+       0.71
+      ],
+      "detector_score": 0.4,
+      "pixels": 5468,
+      "weight": 0.092,
       "kept": true,
       "reason": "",
       "used": true
@@ -1754,11 +913,11 @@
     "family": null,
     "cct_k": null,
     "cct_uncertainty_k": null,
-    "confidence": 0.359,
+    "confidence": 0.133,
     "white_rgb": [
-     0.954044,
+     1.048557,
      1.0,
-     0.995549
+     0.983459
     ],
     "notes": [
      "skipped spectral: no camera sensitivity data"
@@ -1768,42 +927,1766 @@
     "camera_curves": null,
     "camera_curves_reason": null
    },
-   "seconds": 21.6
+   "seconds": 32.7
   },
   {
-   "id": "backlit-house",
-   "title": "Backlit portrait, sun in frame",
+   "id": "conservatory-fountain",
+   "title": "Conservatory fountain under a glass roof",
    "caption": "",
    "intent": "neutral",
-   "source_file": "IMG_3050.DNG",
-   "camera": "Apple iPhone 16 Pro",
-   "input_mode": "raw",
+   "source_file": "IMG_2607.HEIC",
+   "camera": "Apple iPhone 14 Pro Max",
+   "input_mode": "raster",
    "size": [
     1536,
     2048
    ],
    "images": {
-    "ours": "assets/cases/backlit-house/ours.jpg",
-    "gray_world": "assets/cases/backlit-house/gray_world.jpg",
-    "before": "assets/cases/backlit-house/before.jpg",
-    "overlay": "assets/cases/backlit-house/overlay.jpg",
-    "thumb": "assets/cases/backlit-house/thumb.jpg"
+    "ours": "assets/cases/conservatory-fountain/ours.jpg",
+    "gray_world": "assets/cases/conservatory-fountain/gray_world.jpg",
+    "before": "assets/cases/conservatory-fountain/before.jpg",
+    "overlay": "assets/cases/conservatory-fountain/overlay.jpg",
+    "thumb": "assets/cases/conservatory-fountain/thumb.jpg"
    },
    "ai": {
     "source": "vlm",
     "model": "claude-opus-5-5",
-    "environment": "outdoor",
-    "time_of_day": "midday",
-    "weather": "clear, sunny",
+    "environment": "indoor",
+    "time_of_day": "daytime",
+    "weather": "clear, sunny (blue sky visible through glass roof)",
     "light_sources": [
-     "sun (direct, in frame, backlighting the scene)",
-     "blue sky"
+     "glass conservatory roof with daylight",
+     "blue sky through glazing"
     ],
     "hypotheses": [
      {
       "family": "daylight",
       "cct_range_k": [
        5000.0,
+       7000.0
+      ],
+      "confidence": 0.8
+     },
+     {
+      "family": "blackbody",
+      "cct_range_k": [
+       4000.0,
+       5500.0
+      ],
+      "confidence": 0.15
+     }
+    ],
+    "candidates": [
+     {
+      "label": "foliage",
+      "description": "Green orchid leaves at base and green shrubs behind statue",
+      "usable": true,
+      "confidence": 0.6,
+      "concerns": [
+       "glossy orchid leaves may show specular highlights",
+       "some leaves partially shaded"
+      ],
+      "boxes": [
+       [
+        0.6,
+        0.83,
+        0.68,
+        0.87
+       ],
+       [
+        0.35,
+        0.84,
+        0.43,
+        0.88
+       ],
+       [
+        0.72,
+        0.34,
+        0.8,
+        0.42
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White phalaenopsis orchid petals",
+      "usable": true,
+      "confidence": 0.5,
+      "concerns": [
+       "petals are translucent and curved",
+       "not a perfectly flat surface"
+      ],
+      "boxes": [
+       [
+        0.5,
+        0.7,
+        0.56,
+        0.74
+       ],
+       [
+        0.31,
+        0.71,
+        0.37,
+        0.75
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Pale marble statue of youth and cherubs",
+      "usable": true,
+      "confidence": 0.5,
+      "concerns": [
+       "marble slightly warm/aged",
+       "shading on curved form"
+      ],
+      "boxes": [
+       [
+        0.48,
+        0.29,
+        0.53,
+        0.37
+       ],
+       [
+        0.5,
+        0.38,
+        0.54,
+        0.44
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Stone columns left and right",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "beige/cream tinted stone",
+       "textured surface"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Onyx/marble fountain basin",
+      "usable": false,
+      "confidence": 0.2,
+      "concerns": [
+       "strongly amber/beige colored stone",
+       "glossy reflections"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White glass roof framing",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "backlit against sky",
+       "thin structures, edges"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "This is a glass-roofed conservatory with clear blue sky visible through the glazing and no visible artificial lamps lit, so the dominant illuminant is daylight transmitted through glass, likely around 5000-7000 K; a small blackbody prior is kept for possible interior fill. The best references are the white orchid petals and the pale marble statue (near-neutral but slightly warm and curved), plus healthy green orchid leaves and shrubs as foliage. The columns and the onyx fountain basin are beige/amber tinted and excluded. The user asked for neutral, so full correction is applied.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "foliage",
+      "description": "Green orchid leaves at base and green shrubs behind statue",
+      "box_xyxy": [
+       0.6,
+       0.83,
+       0.68,
+       0.87
+      ],
+      "detector_score": 0.6,
+      "pixels": 1,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 1 valid pixels",
+      "used": false
+     },
+     {
+      "label": "foliage",
+      "description": "Green orchid leaves at base and green shrubs behind statue",
+      "box_xyxy": [
+       0.35,
+       0.84,
+       0.43,
+       0.88
+      ],
+      "detector_score": 0.6,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "foliage",
+      "description": "Green orchid leaves at base and green shrubs behind statue",
+      "box_xyxy": [
+       0.72,
+       0.34,
+       0.8,
+       0.42
+      ],
+      "detector_score": 0.6,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White phalaenopsis orchid petals",
+      "box_xyxy": [
+       0.5,
+       0.7,
+       0.56,
+       0.74
+      ],
+      "detector_score": 0.5,
+      "pixels": 706,
+      "weight": 0.035,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White phalaenopsis orchid petals",
+      "box_xyxy": [
+       0.31,
+       0.71,
+       0.37,
+       0.75
+      ],
+      "detector_score": 0.5,
+      "pixels": 374,
+      "weight": 0.019,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Pale marble statue of youth and cherubs",
+      "box_xyxy": [
+       0.48,
+       0.29,
+       0.53,
+       0.37
+      ],
+      "detector_score": 0.5,
+      "pixels": 652,
+      "weight": 0.033,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Pale marble statue of youth and cherubs",
+      "box_xyxy": [
+       0.5,
+       0.38,
+       0.54,
+       0.44
+      ],
+      "detector_score": 0.5,
+      "pixels": 1628,
+      "weight": 0.081,
+      "kept": true,
+      "reason": "",
+      "used": true
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "spectral",
+    "is_fallback": false,
+    "family": "daylight",
+    "cct_k": 7219.594881830271,
+    "cct_uncertainty_k": 627.1228382946963,
+    "confidence": 0.143,
+    "white_rgb": [
+     0.938645,
+     1.0,
+     1.098046
+    ],
+    "notes": [
+     "mean patch residual 0.24\u00b0"
+    ],
+    "correction": "bradford",
+    "adaptation_degree": 1.0,
+    "camera_curves": "sRGB-equivalent (CIE 1931)",
+    "camera_curves_reason": "display-referred input: linear sRGB as sensor",
+    "spectrum": {
+     "wavelengths_nm": [
+      400.0,
+      410.0,
+      420.0,
+      430.0,
+      440.0,
+      450.0,
+      460.0,
+      470.0,
+      480.0,
+      490.0,
+      500.0,
+      510.0,
+      520.0,
+      530.0,
+      540.0,
+      550.0,
+      560.0,
+      570.0,
+      580.0,
+      590.0,
+      600.0,
+      610.0,
+      620.0,
+      630.0,
+      640.0,
+      650.0,
+      660.0,
+      670.0,
+      680.0,
+      690.0,
+      700.0
+     ],
+     "relative_power": [
+      0.751588,
+      0.826278,
+      0.835527,
+      0.766449,
+      0.907503,
+      1.0,
+      0.997965,
+      0.96321,
+      0.962486,
+      0.896305,
+      0.890631,
+      0.870975,
+      0.836057,
+      0.85223,
+      0.821693,
+      0.813052,
+      0.776712,
+      0.744133,
+      0.734978,
+      0.67887,
+      0.682747,
+      0.675565,
+      0.656961,
+      0.620229,
+      0.618985,
+      0.590606,
+      0.588059,
+      0.598392,
+      0.568134,
+      0.506733,
+      0.517389
+     ],
+     "d65_relative_power": [
+      0.702521,
+      0.776632,
+      0.793135,
+      0.735824,
+      0.890137,
+      0.993187,
+      1.0,
+      0.974931,
+      0.983928,
+      0.923548,
+      0.928145,
+      0.914953,
+      0.889371,
+      0.913968,
+      0.886088,
+      0.883028,
+      0.84868,
+      0.817561,
+      0.812917,
+      0.752637,
+      0.763833,
+      0.76037,
+      0.744234,
+      0.706802,
+      0.710277,
+      0.67911,
+      0.680696,
+      0.698194,
+      0.664303,
+      0.591642,
+      0.607655
+     ]
+    }
+   },
+   "seconds": 29.3
+  },
+  {
+   "id": "kitchen-roses",
+   "title": "Red roses in a kitchen",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_6470 2.HEIC",
+   "camera": "Apple iPhone 13 Pro",
+   "input_mode": "raster",
+   "size": [
+    1536,
+    2048
+   ],
+   "images": {
+    "ours": "assets/cases/kitchen-roses/ours.jpg",
+    "gray_world": "assets/cases/kitchen-roses/gray_world.jpg",
+    "before": "assets/cases/kitchen-roses/before.jpg",
+    "overlay": "assets/cases/kitchen-roses/overlay.jpg",
+    "thumb": "assets/cases/kitchen-roses/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "indoor",
+    "time_of_day": "unknown (likely evening or night; no daylight visible through the closed blinds)",
+    "weather": "unknown",
+    "light_sources": [
+     "no light fixture visible; overhead indoor lighting implied",
+     "closed window blinds on door at right (no strong daylight evident)"
+    ],
+    "hypotheses": [
+     {
+      "family": "blackbody",
+      "cct_range_k": [
+       2700.0,
+       4000.0
+      ],
+      "confidence": 0.5
+     },
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       4000.0,
+       6500.0
+      ],
+      "confidence": 0.35
+     }
+    ],
+    "candidates": [
+     {
+      "label": "foliage",
+      "description": "Green rose leaves and stems in the vase",
+      "usable": true,
+      "confidence": 0.45,
+      "concerns": [
+       "cut-flower leaves can be darker or bluish green than typical foliage",
+       "partly in shadow and close to red petals"
+      ],
+      "boxes": [
+       [
+        0.43,
+        0.62,
+        0.5,
+        0.7
+       ],
+       [
+        0.26,
+        0.8,
+        0.36,
+        0.86
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White painted walls and ceiling area in background",
+      "usable": true,
+      "confidence": 0.6,
+      "concerns": [
+       "out of focus",
+       "may be off-white painted"
+      ],
+      "boxes": [
+       [
+        0.4,
+        0.03,
+        0.6,
+        0.2
+       ],
+       [
+        0.6,
+        0.15,
+        0.66,
+        0.35
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White refrigerator door",
+      "usable": true,
+      "confidence": 0.55,
+      "concerns": [
+       "out of focus",
+       "magnets and papers on surface",
+       "slight gloss"
+      ],
+      "boxes": [
+       [
+        0.42,
+        0.27,
+        0.52,
+        0.36
+       ],
+       [
+        0.17,
+        0.27,
+        0.24,
+        0.36
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White door and window blinds at right",
+      "usable": true,
+      "confidence": 0.5,
+      "concerns": [
+       "blinds have slatted texture",
+       "possible light from outside behind blinds"
+      ],
+      "boxes": [
+       [
+        0.68,
+        0.18,
+        0.86,
+        0.4
+       ],
+       [
+        0.94,
+        0.3,
+        0.98,
+        0.45
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Kitchen cabinets at top left",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "cream/beige tint wood-tone laminate",
+       "not reliably neutral"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Countertop at lower left",
+      "usable": false,
+      "confidence": 0.25,
+      "concerns": [
+       "cluttered with objects",
+       "speckled pattern",
+       "out of focus and partly shadowed"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "This is an indoor kitchen with closed blinds and no visible daylight, so the scene is most likely lit by ceiling fixtures. These are probably warm-to-neutral LEDs or incandescent bulbs, though cooler household lighting or faint daylight is possible. The white walls, refrigerator and door are the best neutral references, although they are out of focus. The leaves give a secondary foliage cue. The beige cabinets and cluttered counter are excluded. The user asked for neutral, so full correction is applied.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "foliage",
+      "description": "Green rose leaves and stems in the vase",
+      "box_xyxy": [
+       0.43,
+       0.62,
+       0.5,
+       0.7
+      ],
+      "detector_score": 0.45,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "foliage",
+      "description": "Green rose leaves and stems in the vase",
+      "box_xyxy": [
+       0.26,
+       0.8,
+       0.36,
+       0.86
+      ],
+      "detector_score": 0.45,
+      "pixels": 9287,
+      "weight": 0.225,
+      "kept": false,
+      "reason": "inconsistent with other references",
+      "used": false
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White painted walls and ceiling area in background",
+      "box_xyxy": [
+       0.4,
+       0.03,
+       0.6,
+       0.2
+      ],
+      "detector_score": 0.6,
+      "pixels": 63731,
+      "weight": 0.3,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White painted walls and ceiling area in background",
+      "box_xyxy": [
+       0.6,
+       0.15,
+       0.66,
+       0.35
+      ],
+      "detector_score": 0.6,
+      "pixels": 11336,
+      "weight": 0.3,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White refrigerator door",
+      "box_xyxy": [
+       0.42,
+       0.27,
+       0.52,
+       0.36
+      ],
+      "detector_score": 0.55,
+      "pixels": 14079,
+      "weight": 0.275,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White refrigerator door",
+      "box_xyxy": [
+       0.17,
+       0.27,
+       0.24,
+       0.36
+      ],
+      "detector_score": 0.55,
+      "pixels": 7941,
+      "weight": 0.275,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White door and window blinds at right",
+      "box_xyxy": [
+       0.68,
+       0.18,
+       0.86,
+       0.4
+      ],
+      "detector_score": 0.5,
+      "pixels": 88005,
+      "weight": 0.25,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White door and window blinds at right",
+      "box_xyxy": [
+       0.94,
+       0.3,
+       0.98,
+       0.45
+      ],
+      "detector_score": 0.5,
+      "pixels": 217,
+      "weight": 0.011,
+      "kept": true,
+      "reason": "",
+      "used": true
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "spectral",
+    "is_fallback": false,
+    "family": "daylight",
+    "cct_k": 6161.1474529651505,
+    "cct_uncertainty_k": 361.78019160851966,
+    "confidence": 0.744,
+    "white_rgb": [
+     1.030787,
+     1.0,
+     0.944067
+    ],
+    "notes": [
+     "mean patch residual 0.05\u00b0"
+    ],
+    "correction": "bradford",
+    "adaptation_degree": 1.0,
+    "camera_curves": "sRGB-equivalent (CIE 1931)",
+    "camera_curves_reason": "display-referred input: linear sRGB as sensor",
+    "spectrum": {
+     "wavelengths_nm": [
+      400.0,
+      410.0,
+      420.0,
+      430.0,
+      440.0,
+      450.0,
+      460.0,
+      470.0,
+      480.0,
+      490.0,
+      500.0,
+      510.0,
+      520.0,
+      530.0,
+      540.0,
+      550.0,
+      560.0,
+      570.0,
+      580.0,
+      590.0,
+      600.0,
+      610.0,
+      620.0,
+      630.0,
+      640.0,
+      650.0,
+      660.0,
+      670.0,
+      680.0,
+      690.0,
+      700.0
+     ],
+     "relative_power": [
+      0.673495,
+      0.747635,
+      0.768272,
+      0.717534,
+      0.878867,
+      0.987956,
+      1.0,
+      0.980697,
+      0.995379,
+      0.938817,
+      0.949588,
+      0.940282,
+      0.920203,
+      0.949847,
+      0.923791,
+      0.924105,
+      0.891077,
+      0.860912,
+      0.859072,
+      0.797233,
+      0.813331,
+      0.812548,
+      0.798187,
+      0.760557,
+      0.767695,
+      0.735224,
+      0.73996,
+      0.762331,
+      0.726527,
+      0.646185,
+      0.666068
+     ],
+     "d65_relative_power": [
+      0.702521,
+      0.776632,
+      0.793135,
+      0.735824,
+      0.890137,
+      0.993187,
+      1.0,
+      0.974931,
+      0.983928,
+      0.923548,
+      0.928145,
+      0.914953,
+      0.889371,
+      0.913968,
+      0.886088,
+      0.883028,
+      0.84868,
+      0.817561,
+      0.812917,
+      0.752637,
+      0.763833,
+      0.76037,
+      0.744234,
+      0.706802,
+      0.710277,
+      0.67911,
+      0.680696,
+      0.698194,
+      0.664303,
+      0.591642,
+      0.607655
+     ]
+    }
+   },
+   "seconds": 29.7
+  },
+  {
+   "id": "bronze-sculpture",
+   "title": "Bronze sculpture in a tropical garden",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_6021.HEIC",
+   "camera": "Apple iPhone 13 Pro",
+   "input_mode": "raster",
+   "size": [
+    2048,
+    1536
+   ],
+   "images": {
+    "ours": "assets/cases/bronze-sculpture/ours.jpg",
+    "gray_world": "assets/cases/bronze-sculpture/gray_world.jpg",
+    "before": "assets/cases/bronze-sculpture/before.jpg",
+    "overlay": "assets/cases/bronze-sculpture/overlay.jpg",
+    "thumb": "assets/cases/bronze-sculpture/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "outdoor",
+    "time_of_day": "midday to early afternoon",
+    "weather": "sunny with scattered cumulus clouds",
+    "light_sources": [
+     "sun (direct sunlight, out of frame)",
+     "blue sky",
+     "white clouds"
+    ],
+    "hypotheses": [
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       5000.0,
+       6500.0
+      ],
+      "confidence": 0.8
+     },
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       6500.0,
+       8000.0
+      ],
+      "confidence": 0.2
+     }
+    ],
+    "candidates": [
+     {
+      "label": "foliage",
+      "description": "Healthy green palm fronds, cycads and hedge leaves in direct sun",
+      "usable": true,
+      "confidence": 0.75,
+      "concerns": [
+       "mixed species with varying greens",
+       "some leaves glossy with specular highlights"
+      ],
+      "boxes": [
+       [
+        0.27,
+        0.75,
+        0.4,
+        0.86
+       ],
+       [
+        0.55,
+        0.78,
+        0.7,
+        0.88
+       ],
+       [
+        0.72,
+        0.52,
+        0.85,
+        0.66
+       ]
+      ]
+     },
+     {
+      "label": "concrete",
+      "description": "Gray concrete curb in the foreground, sunlit",
+      "usable": true,
+      "confidence": 0.7,
+      "concerns": [
+       "slight warm/beige tint possible",
+       "edge of frame, minor blur"
+      ],
+      "boxes": [
+       [
+        0.2,
+        0.94,
+        0.5,
+        0.99
+       ],
+       [
+        0.55,
+        0.94,
+        0.85,
+        0.99
+       ]
+      ]
+     },
+     {
+      "label": "concrete",
+      "description": "Light gray concrete/stone sculpture base pad",
+      "usable": true,
+      "confidence": 0.55,
+      "concerns": [
+       "partly shaded by plants and sculpture",
+       "possible bronze reflection near figures"
+      ],
+      "boxes": [
+       [
+        0.52,
+        0.74,
+        0.6,
+        0.78
+       ],
+       [
+        0.72,
+        0.75,
+        0.8,
+        0.79
+       ]
+      ]
+     },
+     {
+      "label": "cloud",
+      "description": "White cumulus clouds against blue sky",
+      "usable": true,
+      "confidence": 0.6,
+      "concerns": [
+       "bright, may be near clipping",
+       "partly behind palm fronds"
+      ],
+      "boxes": [
+       [
+        0.03,
+        0.32,
+        0.09,
+        0.36
+       ],
+       [
+        0.62,
+        0.2,
+        0.7,
+        0.24
+       ],
+       [
+        0.4,
+        0.13,
+        0.45,
+        0.18
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White building wall visible behind hedge",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "small and fragmented by foliage",
+       "distant, possibly shaded"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "The scene is an outdoor plaza under strong direct sun with a deep blue sky and scattered cumulus, with crisp shadows under the sculptures, indicating midday daylight around 5000-6500 K with some skylight contribution possibly raising it. The bronze sculptures are colored and reflective, so they are not references. Sunlit green foliage is abundant and usable, the gray foreground curb and the base pad are good concrete candidates (the pad partially shaded), and white clouds offer a bright neutral though risk clipping. The distant white building is too fragmented to use. The user asked for neutral, so full correction (strength 1) is applied.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "foliage",
+      "description": "Healthy green palm fronds, cycads and hedge leaves in direct sun",
+      "box_xyxy": [
+       0.27,
+       0.75,
+       0.4,
+       0.86
+      ],
+      "detector_score": 0.75,
+      "pixels": 122,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 122 valid pixels",
+      "used": false
+     },
+     {
+      "label": "foliage",
+      "description": "Healthy green palm fronds, cycads and hedge leaves in direct sun",
+      "box_xyxy": [
+       0.55,
+       0.78,
+       0.7,
+       0.88
+      ],
+      "detector_score": 0.75,
+      "pixels": 2586,
+      "weight": 0.194,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "foliage",
+      "description": "Healthy green palm fronds, cycads and hedge leaves in direct sun",
+      "box_xyxy": [
+       0.72,
+       0.52,
+       0.85,
+       0.66
+      ],
+      "detector_score": 0.75,
+      "pixels": 23,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 23 valid pixels",
+      "used": false
+     },
+     {
+      "label": "concrete",
+      "description": "Gray concrete curb in the foreground, sunlit",
+      "box_xyxy": [
+       0.2,
+       0.94,
+       0.5,
+       0.99
+      ],
+      "detector_score": 0.7,
+      "pixels": 5221,
+      "weight": 0.56,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "concrete",
+      "description": "Gray concrete curb in the foreground, sunlit",
+      "box_xyxy": [
+       0.55,
+       0.94,
+       0.85,
+       0.99
+      ],
+      "detector_score": 0.7,
+      "pixels": 10464,
+      "weight": 0.56,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "concrete",
+      "description": "Light gray concrete/stone sculpture base pad",
+      "box_xyxy": [
+       0.52,
+       0.74,
+       0.6,
+       0.78
+      ],
+      "detector_score": 0.55,
+      "pixels": 890,
+      "weight": 0.078,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "concrete",
+      "description": "Light gray concrete/stone sculpture base pad",
+      "box_xyxy": [
+       0.72,
+       0.75,
+       0.8,
+       0.79
+      ],
+      "detector_score": 0.55,
+      "pixels": 1599,
+      "weight": 0.141,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "cloud",
+      "description": "White cumulus clouds against blue sky",
+      "box_xyxy": [
+       0.03,
+       0.32,
+       0.09,
+       0.36
+      ],
+      "detector_score": 0.6,
+      "pixels": 258,
+      "weight": 0.022,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "cloud",
+      "description": "White cumulus clouds against blue sky",
+      "box_xyxy": [
+       0.62,
+       0.2,
+       0.7,
+       0.24
+      ],
+      "detector_score": 0.6,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "cloud",
+      "description": "White cumulus clouds against blue sky",
+      "box_xyxy": [
+       0.4,
+       0.13,
+       0.45,
+       0.18
+      ],
+      "detector_score": 0.6,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "spectral",
+    "is_fallback": false,
+    "family": "daylight",
+    "cct_k": 6552.841186021641,
+    "cct_uncertainty_k": 252.7763810284075,
+    "confidence": 0.754,
+    "white_rgb": [
+     0.991839,
+     1.0,
+     1.004619
+    ],
+    "notes": [
+     "mean patch residual 0.14\u00b0"
+    ],
+    "correction": "bradford",
+    "adaptation_degree": 1.0,
+    "camera_curves": "sRGB-equivalent (CIE 1931)",
+    "camera_curves_reason": "display-referred input: linear sRGB as sensor",
+    "spectrum": {
+     "wavelengths_nm": [
+      400.0,
+      410.0,
+      420.0,
+      430.0,
+      440.0,
+      450.0,
+      460.0,
+      470.0,
+      480.0,
+      490.0,
+      500.0,
+      510.0,
+      520.0,
+      530.0,
+      540.0,
+      550.0,
+      560.0,
+      570.0,
+      580.0,
+      590.0,
+      600.0,
+      610.0,
+      620.0,
+      630.0,
+      640.0,
+      650.0,
+      660.0,
+      670.0,
+      680.0,
+      690.0,
+      700.0
+     ],
+     "relative_power": [
+      0.706379,
+      0.780512,
+      0.796465,
+      0.738265,
+      0.89162,
+      0.993873,
+      1.0,
+      0.974175,
+      0.982422,
+      0.921559,
+      0.925351,
+      0.911652,
+      0.885344,
+      0.909285,
+      0.881178,
+      0.877679,
+      0.843163,
+      0.811922,
+      0.806917,
+      0.746889,
+      0.757474,
+      0.753686,
+      0.737334,
+      0.699937,
+      0.702981,
+      0.672002,
+      0.673214,
+      0.69011,
+      0.656481,
+      0.584766,
+      0.600311
+     ],
+     "d65_relative_power": [
+      0.702521,
+      0.776632,
+      0.793135,
+      0.735824,
+      0.890137,
+      0.993187,
+      1.0,
+      0.974931,
+      0.983928,
+      0.923548,
+      0.928145,
+      0.914953,
+      0.889371,
+      0.913968,
+      0.886088,
+      0.883028,
+      0.84868,
+      0.817561,
+      0.812917,
+      0.752637,
+      0.763833,
+      0.76037,
+      0.744234,
+      0.706802,
+      0.710277,
+      0.67911,
+      0.680696,
+      0.698194,
+      0.664303,
+      0.591642,
+      0.607655
+     ]
+    }
+   },
+   "seconds": 33.6
+  },
+  {
+   "id": "lake-overlook",
+   "title": "Friends at a lake overlook",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_3618.HEIC",
+   "camera": "Apple iPhone 13 Pro",
+   "input_mode": "raster",
+   "size": [
+    1536,
+    2048
+   ],
+   "images": {
+    "ours": "assets/cases/lake-overlook/ours.jpg",
+    "gray_world": "assets/cases/lake-overlook/gray_world.jpg",
+    "before": "assets/cases/lake-overlook/before.jpg",
+    "overlay": "assets/cases/lake-overlook/overlay.jpg",
+    "thumb": "assets/cases/lake-overlook/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "outdoor",
+    "time_of_day": "daytime (midday to afternoon)",
+    "weather": "overcast / hazy, bright white sky",
+    "light_sources": [
+     "overcast sky"
+    ],
+    "hypotheses": [
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       6000.0,
+       7500.0
+      ],
+      "confidence": 0.85
+     },
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       5000.0,
+       6000.0
+      ],
+      "confidence": 0.15
+     }
+    ],
+    "candidates": [
+     {
+      "label": "foliage",
+      "description": "Healthy green leaves on the trees in the upper right and on the left side, plus the forested hillside",
+      "usable": true,
+      "confidence": 0.7,
+      "concerns": [
+       "backlit leaves against the sky may be translucent and look more yellow-green",
+       "the distant hillside is affected by atmospheric haze"
+      ],
+      "boxes": [
+       [
+        0.02,
+        0.52,
+        0.12,
+        0.6
+       ],
+       [
+        0.7,
+        0.2,
+        0.8,
+        0.28
+       ],
+       [
+        0.42,
+        0.64,
+        0.62,
+        0.72
+       ]
+      ]
+     },
+     {
+      "label": "skin",
+      "description": "Faces and arms of the three people, lit by diffuse skylight",
+      "usable": true,
+      "confidence": 0.6,
+      "concerns": [
+       "skin tone varies by person",
+       "small regions"
+      ],
+      "boxes": [
+       [
+        0.415,
+        0.745,
+        0.455,
+        0.775
+       ],
+       [
+        0.53,
+        0.73,
+        0.565,
+        0.765
+       ],
+       [
+        0.275,
+        0.8,
+        0.315,
+        0.825
+       ]
+      ]
+     },
+     {
+      "label": "cloud",
+      "description": "Uniform overcast white-gray sky filling the upper middle of the frame",
+      "usable": true,
+      "confidence": 0.6,
+      "concerns": [
+       "sky is near clipping and may be overexposed",
+       "bright haze may not be exactly neutral"
+      ],
+      "boxes": [
+       [
+        0.6,
+        0.5,
+        0.85,
+        0.6
+       ],
+       [
+        0.35,
+        0.3,
+        0.6,
+        0.45
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White Levi's tank top worn by the middle person",
+      "usable": true,
+      "confidence": 0.55,
+      "concerns": [
+       "fabric may contain optical brighteners",
+       "red logo nearby",
+       "small folds"
+      ],
+      "boxes": [
+       [
+        0.37,
+        0.88,
+        0.46,
+        0.94
+       ]
+      ]
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "This is an outdoor lakeside scene under a bright, uniformly overcast sky, with soft shadows and no artificial light, so the illuminant is overcast CIE daylight of roughly 6000-7500 K. Green foliage is the most plentiful reference, though backlit leaves and the hazy distant hillside need some caution. The overcast sky offers a near-neutral area but may be clipped. The white tank top serves as a small neutral reference, and the subjects' faces and arms give skin references under the same diffuse light. The user asked for neutral correction, so full-strength white balance applies.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "foliage",
+      "description": "Healthy green leaves on the trees in the upper right and on the left side, plus the forested hillside",
+      "box_xyxy": [
+       0.02,
+       0.52,
+       0.12,
+       0.6
+      ],
+      "detector_score": 0.7,
+      "pixels": 221,
+      "weight": 0.015,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "foliage",
+      "description": "Healthy green leaves on the trees in the upper right and on the left side, plus the forested hillside",
+      "box_xyxy": [
+       0.7,
+       0.2,
+       0.8,
+       0.28
+      ],
+      "detector_score": 0.7,
+      "pixels": 1167,
+      "weight": 0.082,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "foliage",
+      "description": "Healthy green leaves on the trees in the upper right and on the left side, plus the forested hillside",
+      "box_xyxy": [
+       0.42,
+       0.64,
+       0.62,
+       0.72
+      ],
+      "detector_score": 0.7,
+      "pixels": 17544,
+      "weight": 0.35,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "skin",
+      "description": "Faces and arms of the three people, lit by diffuse skylight",
+      "box_xyxy": [
+       0.415,
+       0.745,
+       0.455,
+       0.775
+      ],
+      "detector_score": 0.6,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "skin",
+      "description": "Faces and arms of the three people, lit by diffuse skylight",
+      "box_xyxy": [
+       0.53,
+       0.73,
+       0.565,
+       0.765
+      ],
+      "detector_score": 0.6,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "skin",
+      "description": "Faces and arms of the three people, lit by diffuse skylight",
+      "box_xyxy": [
+       0.275,
+       0.8,
+       0.315,
+       0.825
+      ],
+      "detector_score": 0.6,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "cloud",
+      "description": "Uniform overcast white-gray sky filling the upper middle of the frame",
+      "box_xyxy": [
+       0.6,
+       0.5,
+       0.85,
+       0.6
+      ],
+      "detector_score": 0.6,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "cloud",
+      "description": "Uniform overcast white-gray sky filling the upper middle of the frame",
+      "box_xyxy": [
+       0.35,
+       0.3,
+       0.6,
+       0.45
+      ],
+      "detector_score": 0.6,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White Levi's tank top worn by the middle person",
+      "box_xyxy": [
+       0.37,
+       0.88,
+       0.46,
+       0.94
+      ],
+      "detector_score": 0.55,
+      "pixels": 7634,
+      "weight": 0.275,
+      "kept": true,
+      "reason": "",
+      "used": true
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "spectral",
+    "is_fallback": false,
+    "family": "daylight",
+    "cct_k": 6596.491548570393,
+    "cct_uncertainty_k": 734.9454811133903,
+    "confidence": 0.473,
+    "white_rgb": [
+     0.987898,
+     1.0,
+     1.011095
+    ],
+    "notes": [
+     "mean patch residual 0.25\u00b0"
+    ],
+    "correction": "bradford",
+    "adaptation_degree": 1.0,
+    "camera_curves": "sRGB-equivalent (CIE 1931)",
+    "camera_curves_reason": "display-referred input: linear sRGB as sensor",
+    "spectrum": {
+     "wavelengths_nm": [
+      400.0,
+      410.0,
+      420.0,
+      430.0,
+      440.0,
+      450.0,
+      460.0,
+      470.0,
+      480.0,
+      490.0,
+      500.0,
+      510.0,
+      520.0,
+      530.0,
+      540.0,
+      550.0,
+      560.0,
+      570.0,
+      580.0,
+      590.0,
+      600.0,
+      610.0,
+      620.0,
+      630.0,
+      640.0,
+      650.0,
+      660.0,
+      670.0,
+      680.0,
+      690.0,
+      700.0
+     ],
+     "relative_power": [
+      0.709771,
+      0.783928,
+      0.799397,
+      0.740413,
+      0.892922,
+      0.994475,
+      1.0,
+      0.973512,
+      0.981101,
+      0.919817,
+      0.922905,
+      0.908761,
+      0.881817,
+      0.905182,
+      0.876878,
+      0.872994,
+      0.838332,
+      0.806985,
+      0.801665,
+      0.741866,
+      0.751922,
+      0.747854,
+      0.731316,
+      0.693952,
+      0.696627,
+      0.665816,
+      0.666708,
+      0.683083,
+      0.649685,
+      0.578788,
+      0.593931
+     ],
+     "d65_relative_power": [
+      0.702521,
+      0.776632,
+      0.793135,
+      0.735824,
+      0.890137,
+      0.993187,
+      1.0,
+      0.974931,
+      0.983928,
+      0.923548,
+      0.928145,
+      0.914953,
+      0.889371,
+      0.913968,
+      0.886088,
+      0.883028,
+      0.84868,
+      0.817561,
+      0.812917,
+      0.752637,
+      0.763833,
+      0.76037,
+      0.744234,
+      0.706802,
+      0.710277,
+      0.67911,
+      0.680696,
+      0.698194,
+      0.664303,
+      0.591642,
+      0.607655
+     ]
+    }
+   },
+   "seconds": 29.3
+  },
+  {
+   "id": "waterfall-group",
+   "title": "Group photo at a waterfall",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_7056.JPG",
+   "camera": "FUJIFILM X-T30",
+   "input_mode": "raster",
+   "size": [
+    2048,
+    1365
+   ],
+   "images": {
+    "ours": "assets/cases/waterfall-group/ours.jpg",
+    "gray_world": "assets/cases/waterfall-group/gray_world.jpg",
+    "before": "assets/cases/waterfall-group/before.jpg",
+    "overlay": "assets/cases/waterfall-group/overlay.jpg",
+    "thumb": "assets/cases/waterfall-group/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "outdoor",
+    "time_of_day": "midday to afternoon",
+    "weather": "overcast or open shade, soft diffuse light with no hard shadows",
+    "light_sources": [
+     "diffuse skylight through bare winter trees"
+    ],
+    "hypotheses": [
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       5500.0,
        7500.0
       ],
       "confidence": 0.85
@@ -1819,371 +2702,824 @@
     ],
     "candidates": [
      {
-      "label": "skin",
-      "description": "Faces and arms of the two people standing in front of the house",
-      "usable": false,
-      "confidence": 0.3,
+      "label": "foliage",
+      "description": "Green evergreen leaves (rhododendron/laurel) on the right side of the frame",
+      "usable": true,
+      "confidence": 0.6,
       "concerns": [
-       "backlit, mostly in shadow",
-       "lit by blue skylight rather than direct sun",
-       "very dark, low signal"
+       "mixed with dry brown leaves and branches",
+       "partly shaded"
       ],
-      "boxes": []
-     },
-     {
-      "label": "concrete",
-      "description": "Driveway pavement in the foreground",
-      "usable": false,
-      "confidence": 0.35,
-      "concerns": [
-       "in shadow from backlighting",
-       "lit by blue skylight",
-       "sparkly highlights from sun glare",
-       "darkened gradient"
-      ],
-      "boxes": []
-     },
-     {
-      "label": "neutral_surface",
-      "description": "White window trim and garage-area white trim on gray vinyl siding",
-      "usable": false,
-      "confidence": 0.3,
-      "concerns": [
-       "facade in shade facing away from sun",
-       "small thin regions near edges",
-       "skylight-dominated illumination"
-      ],
-      "boxes": []
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Gray vinyl siding on house facades",
-      "usable": false,
-      "confidence": 0.35,
-      "concerns": [
-       "shaded side facing camera",
-       "siding may be tinted gray-blue",
-       "lit mainly by skylight"
-      ],
-      "boxes": []
-     },
-     {
-      "label": "neutral_surface",
-      "description": "White vinyl fence at right edge near trees",
-      "usable": false,
-      "confidence": 0.25,
-      "concerns": [
-       "small region",
-       "partially shaded",
-       "near image edge"
-      ],
-      "boxes": []
+      "boxes": [
+       [
+        0.88,
+        0.3,
+        0.96,
+        0.42
+       ],
+       [
+        0.92,
+        0.48,
+        0.99,
+        0.6
+       ]
+      ]
      },
      {
       "label": "foliage",
-      "description": "Trees at right background behind the woman",
+      "description": "Dry brown autumn leaves and undergrowth on the slope and trail",
       "usable": false,
-      "confidence": 0.25,
+      "confidence": 0.3,
       "concerns": [
-       "backlit and in shadow",
-       "small area",
-       "may include dry/autumn leaves"
+       "dry or autumn foliage"
       ],
       "boxes": []
+     },
+     {
+      "label": "skin",
+      "description": "Faces of the group standing in front of the waterfall",
+      "usable": true,
+      "confidence": 0.55,
+      "concerns": [
+       "small regions",
+       "varied skin tones",
+       "soft shade"
+      ],
+      "boxes": [
+       [
+        0.433,
+        0.616,
+        0.446,
+        0.643
+       ],
+       [
+        0.52,
+        0.6,
+        0.534,
+        0.627
+       ],
+       [
+        0.637,
+        0.594,
+        0.65,
+        0.62
+       ]
+      ]
+     },
+     {
+      "label": "concrete",
+      "description": "Gray boulders and rocks behind the group near the waterfall base",
+      "usable": true,
+      "confidence": 0.4,
+      "concerns": [
+       "natural stone, not concrete; possibly wet or tinted",
+       "texture and shading variation"
+      ],
+      "boxes": [
+       [
+        0.25,
+        0.78,
+        0.29,
+        0.83
+       ],
+       [
+        0.24,
+        0.74,
+        0.28,
+        0.77
+       ]
+      ]
      }
     ],
     "intent": {
      "adaptation": "neutral",
      "strength": 1.0
     },
-    "rationale": "The scene is an outdoor suburban driveway under a clear sky at midday, with the sun directly in frame strongly backlighting the house, people, and cars. The primary illuminant is daylight around 5000-7500 K, though everything facing the camera is in shade and lit mainly by bluish skylight, which could push effective CCT higher. Because of the extreme backlighting, all candidate reference materials (skin, pavement, white trim, gray siding, fence, foliage) are in shadow, dark, or lit by skylight rather than the main sun, so none are marked usable; the correction should rely on the daylight prior. The user requested neutral, so full correction is applied.",
+    "rationale": "This is an outdoor winter scene at a waterfall with bare trees and a bright, white-gray sky. Shadows are soft, which points to overcast or open-shade daylight, so the main hypothesis is daylight at about 5500-7500 K, with a smaller chance of a cooler shade value. Usable references are the evergreen leaves on the right and the faces of the group, although the faces are small and vary in tone. The pale stone boulders are a weak stand-in for concrete because they are natural rock and may be damp. The dry autumn leaves on the slope are excluded. The user asked for neutral, so the full correction is applied.",
     "detector": "claude-opus-5-5 boxes",
     "segmenter": "facebook/sam-vit-base",
-    "regions": []
+    "regions": [
+     {
+      "label": "foliage",
+      "description": "Green evergreen leaves (rhododendron/laurel) on the right side of the frame",
+      "box_xyxy": [
+       0.88,
+       0.3,
+       0.96,
+       0.42
+      ],
+      "detector_score": 0.6,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "foliage",
+      "description": "Green evergreen leaves (rhododendron/laurel) on the right side of the frame",
+      "box_xyxy": [
+       0.92,
+       0.48,
+       0.99,
+       0.6
+      ],
+      "detector_score": 0.6,
+      "pixels": 32,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 32 valid pixels",
+      "used": false
+     },
+     {
+      "label": "skin",
+      "description": "Faces of the group standing in front of the waterfall",
+      "box_xyxy": [
+       0.433,
+       0.616,
+       0.446,
+       0.643
+      ],
+      "detector_score": 0.55,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "skin",
+      "description": "Faces of the group standing in front of the waterfall",
+      "box_xyxy": [
+       0.52,
+       0.6,
+       0.534,
+       0.627
+      ],
+      "detector_score": 0.55,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "skin",
+      "description": "Faces of the group standing in front of the waterfall",
+      "box_xyxy": [
+       0.637,
+       0.594,
+       0.65,
+       0.62
+      ],
+      "detector_score": 0.55,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "concrete",
+      "description": "Gray boulders and rocks behind the group near the waterfall base",
+      "box_xyxy": [
+       0.25,
+       0.78,
+       0.29,
+       0.83
+      ],
+      "detector_score": 0.4,
+      "pixels": 1053,
+      "weight": 0.067,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "concrete",
+      "description": "Gray boulders and rocks behind the group near the waterfall base",
+      "box_xyxy": [
+       0.24,
+       0.74,
+       0.28,
+       0.77
+      ],
+      "detector_score": 0.4,
+      "pixels": 179,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 179 valid pixels",
+      "used": false
+     }
+    ]
    },
    "physics": {
-    "estimator": "shades_of_gray",
-    "is_fallback": true,
-    "family": null,
-    "cct_k": null,
-    "cct_uncertainty_k": null,
-    "confidence": 0.2,
+    "estimator": "spectral",
+    "is_fallback": false,
+    "family": "daylight",
+    "cct_k": 6234.526739516024,
+    "cct_uncertainty_k": 455.8095882200869,
+    "confidence": 0.062,
     "white_rgb": [
-     0.994194,
+     1.022962,
      1.0,
-     1.003182
+     0.955749
     ],
     "notes": [
-     "skipped spectral: no camera sensitivity data",
-     "skipped neutral_patches: no usable neutral patches"
+     "mean patch residual 0.13\u00b0"
     ],
     "correction": "bradford",
     "adaptation_degree": 1.0,
-    "camera_curves": null,
-    "camera_curves_reason": null
+    "camera_curves": "sRGB-equivalent (CIE 1931)",
+    "camera_curves_reason": "display-referred input: linear sRGB as sensor",
+    "spectrum": {
+     "wavelengths_nm": [
+      400.0,
+      410.0,
+      420.0,
+      430.0,
+      440.0,
+      450.0,
+      460.0,
+      470.0,
+      480.0,
+      490.0,
+      500.0,
+      510.0,
+      520.0,
+      530.0,
+      540.0,
+      550.0,
+      560.0,
+      570.0,
+      580.0,
+      590.0,
+      600.0,
+      610.0,
+      620.0,
+      630.0,
+      640.0,
+      650.0,
+      660.0,
+      670.0,
+      680.0,
+      690.0,
+      700.0
+     ],
+     "relative_power": [
+      0.680007,
+      0.75411,
+      0.77382,
+      0.721626,
+      0.881412,
+      0.98914,
+      1.0,
+      0.979392,
+      0.992791,
+      0.935344,
+      0.944711,
+      0.934522,
+      0.913201,
+      0.941697,
+      0.915213,
+      0.914759,
+      0.881425,
+      0.851041,
+      0.848557,
+      0.787015,
+      0.801964,
+      0.800543,
+      0.785761,
+      0.748164,
+      0.754414,
+      0.722217,
+      0.726193,
+      0.747417,
+      0.712033,
+      0.633503,
+      0.652463
+     ],
+     "d65_relative_power": [
+      0.702521,
+      0.776632,
+      0.793135,
+      0.735824,
+      0.890137,
+      0.993187,
+      1.0,
+      0.974931,
+      0.983928,
+      0.923548,
+      0.928145,
+      0.914953,
+      0.889371,
+      0.913968,
+      0.886088,
+      0.883028,
+      0.84868,
+      0.817561,
+      0.812917,
+      0.752637,
+      0.763833,
+      0.76037,
+      0.744234,
+      0.706802,
+      0.710277,
+      0.67911,
+      0.680696,
+      0.698194,
+      0.664303,
+      0.591642,
+      0.607655
+     ]
+    }
    },
-   "seconds": 6.3
+   "seconds": 30.4
   },
   {
-   "id": "sunny-driveway",
-   "title": "Late-morning sun, people and cars",
+   "id": "riverside-trail",
+   "title": "Riverside trail on a sunny afternoon",
    "caption": "",
    "intent": "neutral",
-   "source_file": "IMG_3051.DNG",
-   "camera": "Apple iPhone 16 Pro",
-   "input_mode": "raw",
+   "source_file": "0aee024f-e844-4d2d-aa8f-229af6916e1d.JPG",
+   "camera": null,
+   "input_mode": "raster",
    "size": [
-    1536,
-    2048
+    900,
+    1600
    ],
    "images": {
-    "ours": "assets/cases/sunny-driveway/ours.jpg",
-    "gray_world": "assets/cases/sunny-driveway/gray_world.jpg",
-    "before": "assets/cases/sunny-driveway/before.jpg",
-    "overlay": "assets/cases/sunny-driveway/overlay.jpg",
-    "thumb": "assets/cases/sunny-driveway/thumb.jpg"
+    "ours": "assets/cases/riverside-trail/ours.jpg",
+    "gray_world": "assets/cases/riverside-trail/gray_world.jpg",
+    "before": "assets/cases/riverside-trail/before.jpg",
+    "overlay": "assets/cases/riverside-trail/overlay.jpg",
+    "thumb": "assets/cases/riverside-trail/thumb.jpg"
    },
    "ai": {
     "source": "vlm",
     "model": "claude-opus-5-5",
     "environment": "outdoor",
-    "time_of_day": "afternoon, sun high-to-mid elevation",
-    "weather": "clear, sunny",
+    "time_of_day": "midday",
+    "weather": "partly cloudy, sunny",
     "light_sources": [
-     "sun (upper right, backlighting the scene)",
-     "clear blue sky"
+     "sun (direct, from upper left/behind)",
+     "blue sky",
+     "white cumulus clouds"
     ],
     "hypotheses": [
      {
       "family": "daylight",
       "cct_range_k": [
        5000.0,
-       7000.0
+       6500.0
       ],
-      "confidence": 0.85
+      "confidence": 0.8
      },
      {
       "family": "daylight",
       "cct_range_k": [
-       7000.0,
-       10000.0
+       6500.0,
+       8000.0
       ],
-      "confidence": 0.15
+      "confidence": 0.2
      }
     ],
     "candidates": [
      {
       "label": "foliage",
-      "description": "lawn grass in lower right foreground, in shadow and appearing dark/dull",
-      "usable": false,
-      "confidence": 0.3,
-      "concerns": [
-       "mostly in shadow from backlit sun",
-       "underexposed, color unclear",
-       "possibly dry or patchy grass"
-      ],
-      "boxes": []
-     },
-     {
-      "label": "skin",
-      "description": "faces and arms of the two people, backlit and in shade",
-      "usable": false,
-      "confidence": 0.35,
-      "concerns": [
-       "subjects in shade lit mainly by blue skylight",
-       "underexposed"
-      ],
-      "boxes": []
-     },
-     {
-      "label": "concrete",
-      "description": "driveway concrete beneath people and car, in shade",
+      "description": "Fresh spring green leaves on bushes and trees along the river bank, sunlit",
       "usable": true,
-      "confidence": 0.5,
+      "confidence": 0.7,
       "concerns": [
-       "in open shade, likely bluish skylight",
-       "possibly stained by tire marks"
+       "light yellow-green spring foliage, may be slightly atypical"
       ],
       "boxes": [
        [
-        0.02,
-        0.86,
-        0.1,
-        0.95
+        0.0,
+        0.4,
+        0.12,
+        0.5
        ],
        [
-        0.6,
-        0.83,
-        0.72,
-        0.88
+        0.85,
+        0.43,
+        1.0,
+        0.48
+       ],
+       [
+        0.2,
+        0.33,
+        0.38,
+        0.42
        ]
       ]
      },
      {
-      "label": "neutral_surface",
-      "description": "white garage door, shaded side of house",
+      "label": "skin",
+      "description": "Face and hands of the woman in direct sun",
       "usable": true,
       "confidence": 0.55,
       "concerns": [
-       "in shade relative to sun",
-       "may be slightly off-white"
+       "small area",
+       "partial shading by hair"
       ],
       "boxes": [
        [
         0.62,
-        0.6,
-        0.84,
-        0.7
-       ],
-       [
-        0.75,
-        0.72,
-        0.85,
-        0.78
+        0.51,
+        0.66,
+        0.55
        ]
       ]
      },
      {
-      "label": "neutral_surface",
-      "description": "white window trim and round gable vent on right house",
+      "label": "concrete",
+      "description": "Gray stone/concrete wall top and paved walkway in sun",
       "usable": true,
-      "confidence": 0.45,
+      "confidence": 0.6,
       "concerns": [
-       "thin regions",
-       "shaded facade"
+       "stone may be slightly warm/tan",
+       "walkway partly in tree shadows",
+       "path looks somewhat beige"
       ],
       "boxes": [
        [
-        0.73,
-        0.23,
+        0.38,
+        0.72,
+        0.5,
+        0.8
+       ],
+       [
+        0.85,
+        0.68,
+        0.97,
+        0.76
+       ],
+       [
         0.8,
-        0.27
+        0.85,
+        0.95,
+        0.93
+       ]
+      ]
+     },
+     {
+      "label": "cloud",
+      "description": "White cumulus clouds in upper right sky",
+      "usable": true,
+      "confidence": 0.65,
+      "concerns": [
+       "bright, possibly clipped",
+       "partly behind branches"
+      ],
+      "boxes": [
+       [
+        0.64,
+        0.15,
+        0.72,
+        0.2
+       ],
+       [
+        0.75,
+        0.08,
+        0.82,
+        0.13
        ]
       ]
      },
      {
       "label": "neutral_surface",
-      "description": "gray vinyl siding on house facades",
-      "usable": false,
-      "confidence": 0.3,
+      "description": "White sweatshirt worn by the woman",
+      "usable": true,
+      "confidence": 0.6,
       "concerns": [
-       "painted gray may have blue tint",
-       "shaded facade"
+       "fabric may have optical brighteners",
+       "folds create shading"
       ],
-      "boxes": []
+      "boxes": [
+       [
+        0.6,
+        0.6,
+        0.68,
+        0.66
+       ],
+       [
+        0.62,
+        0.67,
+        0.7,
+        0.7
+       ]
+      ]
      }
     ],
     "intent": {
      "adaptation": "neutral",
      "strength": 1.0
     },
-    "rationale": "The scene is an outdoor clear-sky shot with the sun visible in the upper right, so the subjects and house facade are backlit and lit largely by skylight in open shade, implying daylight around 5000-7000 K with some possibility of higher bluish CCT in the shade. The image is underexposed and muted. The best neutral references are the white garage door and white window trim, plus the dry driveway concrete, all shaded but under the same skylight as the subjects; skin and grass are too dark and shaded to be reliable, and the gray siding may be intrinsically tinted. The user requested neutral, so full correction is applied.",
+    "rationale": "The scene is an outdoor river trail on a clear spring day with deep blue sky, white cumulus clouds and hard shadows, indicating direct midday sunlight mixed with skylight, best modeled as CIE daylight around 5000-6500 K, with a smaller chance of a cooler mix from sky fill. Reliable references include the sunlit white sweatshirt, white clouds, gray stone wall and pavement, fresh green foliage, and the subject's sunlit skin; concerns include possible fabric brighteners, cloud clipping, warm-toned stone and spring yellow-green leaves. The user requested neutral, so full correction is applied.",
     "detector": "claude-opus-5-5 boxes",
     "segmenter": "facebook/sam-vit-base",
     "regions": [
      {
-      "label": "concrete",
-      "description": "driveway concrete beneath people and car, in shade",
+      "label": "foliage",
+      "description": "Fresh spring green leaves on bushes and trees along the river bank, sunlit",
       "box_xyxy": [
-       0.02,
-       0.86,
-       0.1,
-       0.95
+       0.0,
+       0.4,
+       0.12,
+       0.5
       ],
-      "detector_score": 0.5,
-      "pixels": 3019,
-      "weight": 0.021,
-      "kept": true,
-      "reason": "",
-      "used": true
+      "detector_score": 0.7,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
      },
      {
-      "label": "concrete",
-      "description": "driveway concrete beneath people and car, in shade",
+      "label": "foliage",
+      "description": "Fresh spring green leaves on bushes and trees along the river bank, sunlit",
       "box_xyxy": [
-       0.6,
-       0.83,
-       0.72,
-       0.88
+       0.85,
+       0.43,
+       1.0,
+       0.48
       ],
-      "detector_score": 0.5,
-      "pixels": 6725,
-      "weight": 0.026,
-      "kept": true,
-      "reason": "",
-      "used": true
+      "detector_score": 0.7,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
      },
      {
-      "label": "neutral_surface",
-      "description": "white garage door, shaded side of house",
+      "label": "foliage",
+      "description": "Fresh spring green leaves on bushes and trees along the river bank, sunlit",
+      "box_xyxy": [
+       0.2,
+       0.33,
+       0.38,
+       0.42
+      ],
+      "detector_score": 0.7,
+      "pixels": 87,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 87 valid pixels",
+      "used": false
+     },
+     {
+      "label": "skin",
+      "description": "Face and hands of the woman in direct sun",
       "box_xyxy": [
        0.62,
-       0.6,
-       0.84,
-       0.7
+       0.51,
+       0.66,
+       0.55
       ],
       "detector_score": 0.55,
-      "pixels": 10790,
-      "weight": 0.042,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "concrete",
+      "description": "Gray stone/concrete wall top and paved walkway in sun",
+      "box_xyxy": [
+       0.38,
+       0.72,
+       0.5,
+       0.8
+      ],
+      "detector_score": 0.6,
+      "pixels": 4907,
+      "weight": 0.471,
       "kept": true,
       "reason": "",
       "used": true
      },
      {
-      "label": "neutral_surface",
-      "description": "white garage door, shaded side of house",
+      "label": "concrete",
+      "description": "Gray stone/concrete wall top and paved walkway in sun",
+      "box_xyxy": [
+       0.85,
+       0.68,
+       0.97,
+       0.76
+      ],
+      "detector_score": 0.6,
+      "pixels": 850,
+      "weight": 0.071,
+      "kept": false,
+      "reason": "inconsistent with other references",
+      "used": false
+     },
+     {
+      "label": "concrete",
+      "description": "Gray stone/concrete wall top and paved walkway in sun",
+      "box_xyxy": [
+       0.8,
+       0.85,
+       0.95,
+       0.93
+      ],
+      "detector_score": 0.6,
+      "pixels": 588,
+      "weight": 0.056,
+      "kept": false,
+      "reason": "inconsistent with other references",
+      "used": false
+     },
+     {
+      "label": "cloud",
+      "description": "White cumulus clouds in upper right sky",
+      "box_xyxy": [
+       0.64,
+       0.15,
+       0.72,
+       0.2
+      ],
+      "detector_score": 0.65,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "cloud",
+      "description": "White cumulus clouds in upper right sky",
       "box_xyxy": [
        0.75,
-       0.72,
-       0.85,
-       0.78
+       0.08,
+       0.82,
+       0.13
       ],
-      "detector_score": 0.55,
-      "pixels": 4294,
-      "weight": 0.021,
+      "detector_score": 0.65,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White sweatshirt worn by the woman",
+      "box_xyxy": [
+       0.6,
+       0.6,
+       0.68,
+       0.66
+      ],
+      "detector_score": 0.6,
+      "pixels": 1337,
+      "weight": 0.08,
       "kept": true,
       "reason": "",
       "used": true
      },
      {
       "label": "neutral_surface",
-      "description": "white window trim and round gable vent on right house",
+      "description": "White sweatshirt worn by the woman",
       "box_xyxy": [
-       0.73,
-       0.23,
-       0.8,
-       0.27
+       0.62,
+       0.67,
+       0.7,
+       0.7
       ],
-      "detector_score": 0.45,
-      "pixels": 6538,
-      "weight": 0.128,
-      "kept": true,
-      "reason": "",
-      "used": true
+      "detector_score": 0.6,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
      }
     ]
    },
    "physics": {
-    "estimator": "neutral_patches",
-    "is_fallback": true,
-    "family": null,
-    "cct_k": null,
-    "cct_uncertainty_k": null,
-    "confidence": 0.087,
+    "estimator": "spectral",
+    "is_fallback": false,
+    "family": "daylight",
+    "cct_k": 5881.551325430413,
+    "cct_uncertainty_k": 435.1432004876889,
+    "confidence": 0.398,
     "white_rgb": [
-     0.92108,
+     1.063183,
      1.0,
-     1.155498
+     0.898086
     ],
     "notes": [
-     "skipped spectral: no camera sensitivity data"
+     "mean patch residual 0.19\u00b0"
     ],
     "correction": "bradford",
     "adaptation_degree": 1.0,
-    "camera_curves": null,
-    "camera_curves_reason": null
+    "camera_curves": "sRGB-equivalent (CIE 1931)",
+    "camera_curves_reason": "display-referred input: linear sRGB as sensor",
+    "spectrum": {
+     "wavelengths_nm": [
+      400.0,
+      410.0,
+      420.0,
+      430.0,
+      440.0,
+      450.0,
+      460.0,
+      470.0,
+      480.0,
+      490.0,
+      500.0,
+      510.0,
+      520.0,
+      530.0,
+      540.0,
+      550.0,
+      560.0,
+      570.0,
+      580.0,
+      590.0,
+      600.0,
+      610.0,
+      620.0,
+      630.0,
+      640.0,
+      650.0,
+      660.0,
+      670.0,
+      680.0,
+      690.0,
+      700.0
+     ],
+     "relative_power": [
+      0.643188,
+      0.717233,
+      0.741477,
+      0.69681,
+      0.863235,
+      0.977208,
+      0.994027,
+      0.980179,
+      1.0,
+      0.94753,
+      0.964026,
+      0.958405,
+      0.943506,
+      0.97771,
+      0.953652,
+      0.957135,
+      0.925596,
+      0.896532,
+      0.897389,
+      0.835058,
+      0.856008,
+      0.858043,
+      0.845617,
+      0.808147,
+      0.819242,
+      0.785974,
+      0.79409,
+      0.821294,
+      0.784072,
+      0.696325,
+      0.720176
+     ],
+     "d65_relative_power": [
+      0.702521,
+      0.776632,
+      0.793135,
+      0.735824,
+      0.890137,
+      0.993187,
+      1.0,
+      0.974931,
+      0.983928,
+      0.923548,
+      0.928145,
+      0.914953,
+      0.889371,
+      0.913968,
+      0.886088,
+      0.883028,
+      0.84868,
+      0.817561,
+      0.812917,
+      0.752637,
+      0.763833,
+      0.76037,
+      0.744234,
+      0.706802,
+      0.710277,
+      0.67911,
+      0.680696,
+      0.698194,
+      0.664303,
+      0.591642,
+      0.607655
+     ]
+    }
    },
-   "seconds": 20.5
+   "seconds": 25.8
   }
  ],
  "pipeline": {
