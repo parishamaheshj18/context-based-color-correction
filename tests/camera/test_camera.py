@@ -41,8 +41,25 @@ def test_repository_loads_csv_jiang_and_builtin(repository):
 
 
 def test_normalize_camera_name_drops_repeated_make():
-    assert normalize_camera_name("Canon Canon EOS 5D Mark II") == "canon eos 5d mark ii"
-    assert normalize_camera_name("NIKON CORPORATION NIKON D5100") == "nikon d5100"
+    assert normalize_camera_name("Canon Canon EOS 5D Mark II") == "canon eos 5 d mark ii"
+    assert normalize_camera_name("NIKON CORPORATION NIKON D5100") == "nikon d 5100"
+
+
+def test_selector_never_matches_a_different_model_number(tmp_path: Path):
+    for name in ("iPhone12ProMAX", "iPhone8"):
+        _write_csv(tmp_path / f"{name}.csv", 530)
+    repository = CameraSensitivityRepository(GRID, tmp_path, include_builtin=False)
+    selector = CameraSensitivitySelector(repository, 0.6, use_same_make_fallback=False)
+
+    def pick(model):
+        image = make_image(
+            np.ones((2, 2, 3)), InputMode.RAW, ImageMetadata(make="Apple", model=model)
+        )
+        chosen = selector.select(image)
+        return chosen.name if chosen else None
+
+    assert pick("iPhone 12 Pro Max") == "iPhone12ProMAX"
+    assert pick("iPhone 16 Pro") is None
 
 
 def test_selector_prefers_request_then_exif(repository):
@@ -70,3 +87,18 @@ def test_selector_fallbacks(repository):
         np.ones((2, 2, 3)), InputMode.RAW, ImageMetadata(make="Leica", model="M11")
     )
     assert selector.select(unknown) is None
+
+
+def test_repository_reads_headerless_txt_and_xlsx(tmp_path: Path):
+    import openpyxl
+
+    rows = [[0.1, 0.2, 1.0 if i == 6 else 0.3] for i in range(31)]
+    (tmp_path / "PhoneA.txt").write_text("\n".join("\t".join(f"{v:.2E}" for v in r) for r in rows))
+    workbook = openpyxl.Workbook()
+    for row in rows:
+        workbook.active.append(row)
+    workbook.save(tmp_path / "PhoneB.xlsx")
+    repository = CameraSensitivityRepository(GRID, tmp_path, include_builtin=False)
+    assert repository.list_cameras() == ["PhoneA", "PhoneB"]
+    blue = repository.get_sensitivity("PhoneB").sensitivity_3xn[2]
+    assert GRID.wavelengths_nm[int(np.argmax(blue))] == 460

@@ -44,12 +44,14 @@ class SrgbRenderer:
         self._target = exposure_target
         self._normalize_raster = normalize_raster
 
-    def render(self, image: LinearImage, transform: CorrectionTransform) -> RenderedImage:
+    def render(
+        self, image: LinearImage, transform: CorrectionTransform, gain: float | None = None
+    ) -> RenderedImage:
+        """Render; pass gain to reuse another render's exposure so only color differs."""
         camera_to_srgb = XYZ_TO_LINEAR_SRGB @ transform.camera_to_xyz
         linear = apply_matrix(image.rgb, camera_to_srgb)
-        gain = 1.0
-        if image.mode is InputMode.RAW or self._normalize_raster:
-            gain = exposure_gain(linear, image.valid_mask, self._percentile, self._target)
+        if gain is None:
+            gain = self._auto_gain(image, linear)
         linear = np.clip(linear * np.float32(gain), 0.0, 1.0)
         # Saturated pixels lost their true color; rendering them white avoids colored highlights.
         linear[image.saturation_mask] = np.maximum(
@@ -58,3 +60,8 @@ class SrgbRenderer:
         return RenderedImage(
             linear_srgb=linear, encoded_srgb=encode_srgb(linear), exposure_gain=gain
         )
+
+    def _auto_gain(self, image: LinearImage, linear: NDArray[np.float32]) -> float:
+        if image.mode is InputMode.RAW or self._normalize_raster:
+            return exposure_gain(linear, image.valid_mask, self._percentile, self._target)
+        return 1.0

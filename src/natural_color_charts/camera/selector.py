@@ -9,7 +9,8 @@ import logging
 from natural_color_charts.camera.repository import (
     SRGB_EQUIVALENT_NAME,
     CameraSensitivityRepository,
-    normalize_camera_name,
+    compact_camera_name,
+    model_numbers,
 )
 from natural_color_charts.domain import CameraSensitivity, InputMode, LinearImage
 
@@ -30,7 +31,7 @@ class CameraSensitivitySelector:
         self._default_request = default_request
         self._fuzzy_cutoff = fuzzy_cutoff
         self._use_same_make_fallback = use_same_make_fallback
-        self._by_normalized = {normalize_camera_name(n): n for n in repository.list_cameras()}
+        self._by_compact = {compact_camera_name(n): n for n in repository.list_cameras()}
 
     def select(self, image: LinearImage, requested: str | None = None) -> CameraSensitivity | None:
         """Return a sensitivity, or None when only the camera matrix path is possible."""
@@ -50,11 +51,14 @@ class CameraSensitivitySelector:
         return self._fallback(image)
 
     def _find(self, name: str) -> str | None:
-        normalized = normalize_camera_name(name)
-        if normalized in self._by_normalized:
-            return self._by_normalized[normalized]
-        close = difflib.get_close_matches(normalized, self._by_normalized, 1, self._fuzzy_cutoff)
-        return self._by_normalized[close[0]] if close else None
+        compact = compact_camera_name(name)
+        if compact in self._by_compact:
+            return self._by_compact[compact]
+        # Fuzzy matching tolerates naming differences, never a different model number.
+        numbers = model_numbers(compact)
+        candidates = [c for c in self._by_compact if model_numbers(c) == numbers]
+        close = difflib.get_close_matches(compact, candidates, 1, self._fuzzy_cutoff)
+        return self._by_compact[close[0]] if close else None
 
     def _chosen(self, name: str, reason: str, approximate: bool = False) -> CameraSensitivity:
         logger.info("Camera sensitivity: %s (%s)", name, reason)
@@ -76,6 +80,6 @@ class CameraSensitivitySelector:
         return None
 
     def _same_make(self, make: str) -> str | None:
-        prefix = normalize_camera_name(make).split(" ")[0]
-        candidates = [n for n in self._by_normalized if n.split(" ")[0] == prefix]
-        return self._by_normalized[sorted(candidates)[0]] if candidates else None
+        prefix = compact_camera_name(make)
+        candidates = sorted(c for c in self._by_compact if c.startswith(prefix))
+        return self._by_compact[candidates[0]] if candidates else None

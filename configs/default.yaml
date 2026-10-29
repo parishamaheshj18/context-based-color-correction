@@ -13,12 +13,15 @@ io:
 camera:
   sensitivity_dir: data/camera_sensitivities
   include_builtin: true
+  headerless_start_nm: 400   # .xlsx / 3-column .txt files without a wavelength column
+  headerless_step_nm: 10
   fuzzy_match_cutoff: 0.6
   use_same_make_fallback: false
   force_camera: null        # e.g. "sRGB-equivalent (CIE 1931)" for the generic-curves ablation
 
 context:
   client: none            # none | ollama | anthropic
+  cache_dir: null         # directory of cached VLM answers, e.g. showcase/vlm_cache
   max_retries: 2
   preview_long_edge_px: 768
   default_families: [daylight, blackbody]

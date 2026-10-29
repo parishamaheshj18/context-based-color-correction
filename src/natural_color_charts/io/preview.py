@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import dataclasses
+
 import cv2
 import numpy as np
 from numpy.typing import NDArray
@@ -30,3 +32,15 @@ def render_preview(image: LinearImage, long_edge_px: int) -> NDArray[np.uint8]:
     # Previews only need to be recognizable, so a simple 99th-percentile exposure is enough.
     level = float(np.percentile(rgb.max(axis=2), 99)) or 1.0
     return to_uint8(encode_srgb(rgb / level))
+
+
+def downscale_image(image: LinearImage, long_edge_px: int) -> LinearImage:
+    """Smaller copy for interactive use; a pixel is saturated if any of its sources was."""
+    if max(image.height, image.width) <= long_edge_px:
+        return image
+    rgb = resize_to_long_edge(image.rgb, long_edge_px)
+    size = (rgb.shape[1], rgb.shape[0])
+    saturated = cv2.resize(
+        image.saturation_mask.astype(np.float32), size, interpolation=cv2.INTER_AREA
+    )
+    return dataclasses.replace(image, rgb=rgb, saturation_mask=saturated > 0, excluded_mask=None)
