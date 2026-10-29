@@ -73,10 +73,11 @@ patches:
 
 priors:
   directory: data/priors
+  library_dir: data/reflectance_spectra
   bootstrap_if_missing: true
   components: 3
   min_samples_for_pca: 6
-  neutral_smooth_sigma: 0.03
+  relative_shape_sigma: 0.05   # per-wavelength std as a fraction of mean reflectance
 
 estimation:
   fallback_chain: [spectral, neutral_patches, shades_of_gray]
@@ -89,7 +90,7 @@ estimation:
   robust_loss: soft_l1
   robust_scale: 2.0
   loo_min_references: 3
-  loo_outlier_angle_deg: 3.0
+  loo_outlier_cost: 16.0   # χ² units (2 dof); 16 is far beyond the 99.9th percentile
   confidence_residual_scale_deg: 3.0
   fallback_confidence: 0.2
   shades_of_gray_power: 6.0
