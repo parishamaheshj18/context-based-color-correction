@@ -26,6 +26,7 @@ LABEL_COLORS: dict[ReferenceClass, tuple[int, int, int]] = {
     ReferenceClass.PAPER: (60, 120, 255),
     ReferenceClass.SNOW: (0, 220, 220),
     ReferenceClass.CLOUD: (200, 80, 220),
+    ReferenceClass.NEUTRAL_SURFACE: (255, 200, 40),
 }
 REJECTED_COLOR = (230, 30, 30)
 

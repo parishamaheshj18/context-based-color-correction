@@ -11,7 +11,7 @@ const SERIES = [
   { key: "gray_world", label: "Gray world (classic AWB)", color: "var(--series-gray-world)" },
   { key: "before", label: "Camera as-shot", color: "var(--series-before)" },
 ];
-const LABELS = { foliage: "Foliage", skin: "Skin", concrete: "Concrete", paper: "White paper", snow: "Snow", cloud: "Cloud" };
+const LABELS = { foliage: "Foliage", skin: "Skin", concrete: "Concrete", paper: "White paper", snow: "Snow", cloud: "Cloud", neutral_surface: "Neutral surface" };
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 function el(tag, attrs = {}, children = []) {

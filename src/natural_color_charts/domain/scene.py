@@ -15,10 +15,17 @@ class ReferenceClass(StrEnum):
     PAPER = "paper"
     SNOW = "snow"
     CLOUD = "cloud"
+    NEUTRAL_SURFACE = "neutral_surface"  # white/gray man-made: plastic, paint, laminate, ceramic
 
 
 NEUTRAL_CLASSES = frozenset(
-    {ReferenceClass.CONCRETE, ReferenceClass.PAPER, ReferenceClass.SNOW, ReferenceClass.CLOUD}
+    {
+        ReferenceClass.CONCRETE,
+        ReferenceClass.PAPER,
+        ReferenceClass.SNOW,
+        ReferenceClass.CLOUD,
+        ReferenceClass.NEUTRAL_SURFACE,
+    }
 )
 
 

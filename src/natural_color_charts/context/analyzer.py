@@ -28,10 +28,13 @@ CCT range in kelvin and a confidence from 0 to 1. Judge the light from scene con
 
 2. Reference materials. For each of these classes that is visible, add one candidate: \
 foliage (healthy green leaves or grass), skin, concrete (gray, dry), paper (white), snow, \
-cloud (white or gray). Set usable=false and list concerns when the material is atypical \
-or its light differs from the main light: autumn or dry foliage, wet or stained \
-concrete, tinted or colored paper, skin lit by colored or neon light, snow in blue shade, \
-regions mostly in shadow or reflecting a colored surface. Omit classes not present.
+cloud (white or gray), neutral_surface (white or gray man-made surfaces that are not \
+paper: plastic, painted walls, laminate, ceramic, white printed areas). Set usable=false \
+and list concerns when the material is atypical or its light differs from the main light: \
+autumn or dry foliage, wet or stained concrete, tinted or colored paper, skin lit by \
+colored or neon light, snow in blue shade, cream, beige or tinted surfaces, glossy \
+reflections, regions mostly in shadow or reflecting a colored surface. Omit classes not \
+present.
 
 3. Intent. Map the user's request to adaptation "neutral" (accurate, white-balanced \
 colors), "preserve_ambiance" (keep some of the light's mood; strength 0-1 is the \

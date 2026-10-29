@@ -27,6 +27,13 @@ from natural_color_charts.spectral.priors import (
 SPECTRAL_CHARTS = ("BabelColor Average", "ColorChecker N Ohta", "ISO 17321-1")
 SKIN_PATCHES = {"dark skin", "light skin", "Caucasian", "Oriental", "South Asian", "African"}
 FOLIAGE_PATCHES = {"foliage", "Summer Grass"}
+# Measured near-neutral surfaces on the charts stand in for white/gray plastics and paints.
+NEUTRAL_PATCHES = {
+    "white 9.5 (.05 D)", "neutral 8 (.23 D)", "neutral 6.5 (.44 D)", "neutral 5 (.70 D)",
+    "neutral 3.5 (1.05 D)", "White", "Gray-80", "Gray-70", "Gray-50", "Gray-35",
+}  # fmt: skip
+# Man-made neutrals vary more than paper (off-white plastics, warm grays), so the prior is wider.
+NEUTRAL_SURFACE_SIGMA_FACTOR = 2.0
 SOURCE = "bootstrap (colour-science charts; replace with measured libraries)"
 
 
@@ -80,10 +87,26 @@ def build_bootstrap_priors(
         ReferenceClass.SNOW: build_smooth_prior(
             ReferenceClass.SNOW, neutral_mean(grid, 0.9, -0.03), grid, k, sigma, SOURCE
         ),
+        ReferenceClass.NEUTRAL_SURFACE: _neutral_surface_prior(grid, config),
         ReferenceClass.CLOUD: build_smooth_prior(
             ReferenceClass.CLOUD, neutral_mean(grid, 0.8, 0.0), grid, k, 1.5 * sigma, SOURCE
         ),
     }
+
+
+def _neutral_surface_prior(grid: WavelengthGrid, config: PriorConfig) -> ReflectancePrior:
+    # Only spectral shape matters (brightness is absorbed per patch), so anchors share one level.
+    anchors = chart_patches(grid, NEUTRAL_PATCHES)
+    anchors = 0.6 * anchors / anchors.mean(axis=1, keepdims=True)
+    return build_smooth_prior(
+        ReferenceClass.NEUTRAL_SURFACE,
+        anchors.mean(axis=0),
+        grid,
+        config.components,
+        NEUTRAL_SURFACE_SIGMA_FACTOR * config.relative_shape_sigma,
+        SOURCE,
+        anchors_mxn=anchors,
+    )
 
 
 def _measured_prior(

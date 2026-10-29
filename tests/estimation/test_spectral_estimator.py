@@ -140,3 +140,20 @@ def test_neutral_patch_estimator_uses_only_neutral_classes(priors):
     estimate = NeutralPatchEstimator(3.0).estimate(_request(patches)).estimate
     assert set(estimate.used_labels) == {"concrete", "snow"}
     assert angular_error_deg(estimate.white_rgb, white_response(NIKON.sensitivity_3xn, truth)) < 3.0
+
+
+def test_neutral_surfaces_recover_tungsten_like_light(estimator, priors):
+    truth = FAMILIES["blackbody"].spd(3400)
+    patches = _scene(priors, [C.NEUTRAL_SURFACE, C.NEUTRAL_SURFACE, C.NEUTRAL_SURFACE], truth)
+    estimate = estimator.estimate(_request(patches)).estimate
+    assert angular_error_deg(estimate.white_rgb, white_response(NIKON.sensitivity_3xn, truth)) < 2.0
+    neutral = NeutralPatchEstimator(3.0).estimate(_request(patches)).estimate
+    assert set(neutral.used_labels) == {"neutral_surface"}
+
+
+def test_neutral_surface_prior_is_wider_than_paper(priors):
+    def relative_std(label):
+        prior = priors[label]
+        return float(np.sqrt(prior.variances_k).mean() / np.linalg.norm(prior.mean_n))
+
+    assert relative_std(C.NEUTRAL_SURFACE) > relative_std(C.PAPER)
