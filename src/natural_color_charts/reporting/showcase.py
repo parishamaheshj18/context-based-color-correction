@@ -23,6 +23,7 @@ from natural_color_charts.colorimetry import encode_srgb
 from natural_color_charts.config import AppConfig, load_config
 from natural_color_charts.correction.adaptation import apply_adaptation_degree
 from natural_color_charts.domain import (
+    NEUTRAL_CLASSES,
     CorrectionTransform,
     IlluminantEstimate,
     InputMode,
@@ -48,8 +49,8 @@ from natural_color_charts.pipeline_factory import (
     build_renderer,
     build_selector,
 )
+from natural_color_charts.reporting.overlay import render_overlay
 from natural_color_charts.reporting.report import to_jsonable
-from natural_color_charts.reporting.visualization import render_overlay
 from natural_color_charts.spectral.illuminants import DaylightBasis
 
 logger = logging.getLogger(__name__)
@@ -282,12 +283,22 @@ class ShowcaseBuilder:
         }
 
     @staticmethod
+    def _unused_reason(result: PipelineResult, patch: Any) -> str:
+        if patch.rejection_reason:
+            return str(patch.rejection_reason)
+        if patch.kept and patch.label not in NEUTRAL_CLASSES and result.sensitivity is None:
+            # Non-neutral materials are only informative through the spectral model.
+            return "needs this camera's spectral curves"
+        return "not used by the estimator"
+
+    @staticmethod
     def _region_entry(result: PipelineResult, patch: Any) -> dict[str, Any]:
         region = (
             result.regions[patch.region_index]
             if 0 <= patch.region_index < len(result.regions)
             else None
         )
+        used = patch.kept and patch.label.value in result.estimate.used_labels
         return {
             "label": patch.label.value,
             "description": region.description if region else "",
@@ -296,8 +307,8 @@ class ShowcaseBuilder:
             "pixels": patch.pixel_count,
             "weight": round(patch.weight, 3),
             "kept": patch.kept,
-            "reason": patch.rejection_reason,
-            "used": patch.kept and patch.label.value in result.estimate.used_labels,
+            "reason": "" if used else ShowcaseBuilder._unused_reason(result, patch),
+            "used": used,
         }
 
     def _physics_section(self, result: PipelineResult) -> dict[str, Any]:

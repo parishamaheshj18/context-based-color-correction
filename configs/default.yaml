@@ -71,6 +71,7 @@ patches:
   full_weight_luminance: 0.05
   outdoor_paper_factor: 0.5
   use_reliability_weights: true
+  user_anchor_weight: 2.0   # user color matches outweigh any AI-trusted region
   class_prior_strength:
     paper: 0.9
     snow: 0.9

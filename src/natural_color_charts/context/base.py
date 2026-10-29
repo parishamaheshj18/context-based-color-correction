@@ -8,11 +8,11 @@ from typing import Protocol
 
 from natural_color_charts.config import EstimationConfig
 from natural_color_charts.domain import (
+    SCENE_CLASSES,
     AdaptationMode,
     IlluminantHypothesis,
     PreviewImage,
     ReferenceCandidate,
-    ReferenceClass,
     SceneContext,
     UserIntent,
 )
@@ -82,7 +82,7 @@ class DefaultSceneContextProvider:
     def analyze(self, preview: PreviewImage, intent_text: str | None) -> SceneContext:
         candidates = tuple(
             ReferenceCandidate(label=label, confidence=self._candidate_confidence)
-            for label in ReferenceClass
+            for label in SCENE_CLASSES
         )
         return SceneContext(
             illuminant_hypotheses=self._hypotheses,

@@ -16,6 +16,11 @@ class ReferenceClass(StrEnum):
     SNOW = "snow"
     CLOUD = "cloud"
     NEUTRAL_SURFACE = "neutral_surface"  # white/gray man-made: plastic, paint, laminate, ceramic
+    KNOWN_COLOR = "known_color"  # a region the user matched to a color-chart patch
+
+
+# Classes the scene analysis may propose; known colors come only from the user.
+SCENE_CLASSES = tuple(c for c in ReferenceClass if c is not ReferenceClass.KNOWN_COLOR)
 
 
 BoxXyxy = tuple[float, float, float, float]

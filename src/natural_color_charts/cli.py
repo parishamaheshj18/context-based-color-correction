@@ -32,9 +32,10 @@ from natural_color_charts.pipeline_factory import (
     build_pipeline,
     build_repository,
 )
+from natural_color_charts.reporting.overlay import render_overlay
 from natural_color_charts.reporting.report import build_report, to_jsonable, write_report
 from natural_color_charts.reporting.showcase import ShowcaseBuilder
-from natural_color_charts.reporting.visualization import render_overlay, save_comparison
+from natural_color_charts.reporting.visualization import save_comparison
 from natural_color_charts.spectral.library_reader import build_priors_from_library
 from natural_color_charts.spectral.priors import save_prior
 

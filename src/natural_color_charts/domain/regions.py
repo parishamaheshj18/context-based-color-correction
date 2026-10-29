@@ -8,9 +8,17 @@ import numpy as np
 from numpy.typing import NDArray
 
 from natural_color_charts.domain.scene import BoxXyxy, ReferenceClass
-from natural_color_charts.domain.spectral import RgbVector
+from natural_color_charts.domain.spectral import RgbVector, SpectralArray
 
-__all__ = ["BoxXyxy", "Detection", "PatchMeasurement", "ReferenceRegion"]
+__all__ = ["BoxXyxy", "Detection", "PatchMeasurement", "ReferenceRegion", "UserColorAnchor"]
+
+
+@dataclass(frozen=True)
+class UserColorAnchor:
+    """A region the user says truly has the color of one ColorChecker patch (0-23)."""
+
+    box_xyxy: BoxXyxy
+    chart_patch_index: int
 
 
 @dataclass(frozen=True)
@@ -35,6 +43,8 @@ class ReferenceRegion:
     box_xyxy: BoxXyxy | None = None
     candidate_confidence: float = 0.5
     description: str = ""
+    source: str = "ai"  # "ai" or "user"
+    known_reflectance: SpectralArray | None = None
 
 
 @dataclass(frozen=True, eq=False)
@@ -48,3 +58,11 @@ class PatchMeasurement:
     region_index: int = -1
     kept: bool = True
     rejection_reason: str = ""
+    source: str = "ai"
+    known_reflectance: SpectralArray | None = None
+
+    @property
+    def is_neutral_known_color(self) -> bool:
+        """A user anchor on a gray or white chart patch (spectrally flat within 15%)."""
+        reflectance = self.known_reflectance
+        return reflectance is not None and float(np.max(reflectance) / np.min(reflectance)) < 1.15

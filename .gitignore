@@ -21,3 +21,6 @@ models/
 .env
 logs/
 .DS_Store
+
+# The showcase data is generated output that must be published
+!site/data/

@@ -9,7 +9,12 @@ from typing import Any, Literal
 import yaml
 from pydantic import BaseModel, ConfigDict
 
-DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "configs" / "default.yaml"
+REPOSITORY_CONFIG_PATH = Path(__file__).resolve().parents[2] / "configs" / "default.yaml"
+# Wheels ship a copy of configs/default.yaml inside the package (see pyproject.toml).
+PACKAGED_CONFIG_PATH = Path(__file__).resolve().parent / "default.yaml"
+DEFAULT_CONFIG_PATH = (
+    REPOSITORY_CONFIG_PATH if REPOSITORY_CONFIG_PATH.exists() else PACKAGED_CONFIG_PATH
+)
 CONFIG_ENV_VAR = "NCC_CONFIG"
 
 
@@ -92,6 +97,7 @@ class PatchConfig(_Section):
     full_weight_luminance: float
     outdoor_paper_factor: float
     use_reliability_weights: bool
+    user_anchor_weight: float
     class_prior_strength: dict[str, float]
 
 

@@ -34,6 +34,7 @@ NEUTRAL_PATCHES = {
 }  # fmt: skip
 # Man-made neutrals vary more than paper (off-white plastics, warm grays), so the prior is wider.
 NEUTRAL_SURFACE_SIGMA_FACTOR = 2.0
+KNOWN_COLOR_SIGMA_FACTOR = 0.2
 SOURCE = "bootstrap (colour-science charts; replace with measured libraries)"
 
 
@@ -88,10 +89,26 @@ def build_bootstrap_priors(
             ReferenceClass.SNOW, neutral_mean(grid, 0.9, -0.03), grid, k, sigma, SOURCE
         ),
         ReferenceClass.NEUTRAL_SURFACE: _neutral_surface_prior(grid, config),
+        ReferenceClass.KNOWN_COLOR: known_color_template(grid, config),
         ReferenceClass.CLOUD: build_smooth_prior(
             ReferenceClass.CLOUD, neutral_mean(grid, 0.8, 0.0), grid, k, 1.5 * sigma, SOURCE
         ),
     }
+
+
+def known_color_template(grid: WavelengthGrid, config: PriorConfig) -> ReflectancePrior:
+    """Tight prior for user-matched chart colors; each match replaces the mean with its patch.
+
+    Real objects only approximate a chart patch, so a little smooth variation is allowed.
+    """
+    return build_smooth_prior(
+        ReferenceClass.KNOWN_COLOR,
+        neutral_mean(grid, 0.5, 0.0),
+        grid,
+        config.components,
+        KNOWN_COLOR_SIGMA_FACTOR * config.relative_shape_sigma,
+        "known chart patch",
+    )
 
 
 def _neutral_surface_prior(grid: WavelengthGrid, config: PriorConfig) -> ReflectancePrior:

@@ -94,6 +94,12 @@ class SpectralIlluminantEstimator:
             patches=self._mark_outliers(request.patches, patches),
         )
 
+    def _prior_for(self, patch: PatchMeasurement) -> ReflectancePrior:
+        prior = self._priors[patch.label]
+        if patch.known_reflectance is not None:
+            return dataclasses.replace(prior, mean_n=np.asarray(patch.known_reflectance))
+        return prior
+
     def _families_for(self, context: SceneContext) -> list[IlluminantFamily]:
         named = [h.family for h in context.illuminant_hypotheses if h.family in self._families]
         return [self._families[n] for n in dict.fromkeys(named)] or list(self._families.values())
@@ -110,7 +116,7 @@ class SpectralIlluminantEstimator:
             family=family,
             observed_kx3=np.stack([p.rgb for p in patches]),
             weights_k=np.array([p.weight for p in patches]),
-            priors=[self._priors[p.label] for p in patches],
+            priors=[self._prior_for(p) for p in patches],
             chromaticity_sigma=self._config.chromaticity_sigma,
             mired_prior=mired_prior_for(
                 family.name, request.context, self._config.context_prior_weight
@@ -151,6 +157,8 @@ class SpectralIlluminantEstimator:
             return set()
         flagged: list[tuple[float, int]] = []
         for index in range(len(patches)):
+            if patches[index].source == "user":
+                continue  # the user's matches are ground truth, never outliers
             others = [p for i, p in enumerate(patches) if i != index]
             loo_problem = self._problem(problem.family, others, request)
             start = np.concatenate(
@@ -159,7 +167,7 @@ class SpectralIlluminantEstimator:
             loo_fit = self._solve(loo_problem, start)
             cost = patch_consistency_cost(
                 patches[index].rgb,
-                self._priors[patches[index].label],
+                self._prior_for(patches[index]),
                 problem.sensitivity_3xn,
                 problem.family.spd(1e6 / loo_fit.mired),
                 self._config.chromaticity_sigma,
@@ -243,7 +251,11 @@ class NeutralPatchEstimator:
         self._confidence_scale = confidence_scale
 
     def estimate(self, request: EstimationInput) -> EstimationOutcome:
-        neutrals = [p for p in usable_patches(request.patches) if p.label in NEUTRAL_CLASSES]
+        neutrals = [
+            p
+            for p in usable_patches(request.patches)
+            if p.label in NEUTRAL_CLASSES or p.is_neutral_known_color
+        ]
         if not neutrals:
             raise EstimationUnavailableError("no usable neutral patches")
         chromas = np.stack([p.rgb / p.rgb.sum() for p in neutrals])

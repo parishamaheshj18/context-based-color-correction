@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,6 +12,7 @@ from natural_color_charts.context.base import SceneContextProvider
 from natural_color_charts.correction.adaptation import adaptation_degree, apply_adaptation_degree
 from natural_color_charts.correction.base import CorrectionBuilder
 from natural_color_charts.correction.renderer import RenderedImage, SrgbRenderer
+from natural_color_charts.detection.anchors import AnchorRegionBuilder
 from natural_color_charts.detection.patch_statistics import PatchStatisticsCalculator
 from natural_color_charts.detection.region_finder import ReferenceRegionFinder
 from natural_color_charts.domain import (
@@ -22,6 +24,7 @@ from natural_color_charts.domain import (
     PreviewImage,
     ReferenceRegion,
     SceneContext,
+    UserColorAnchor,
     WavelengthGrid,
 )
 from natural_color_charts.estimation.base import EstimationInput, IlluminantEstimator
@@ -55,6 +58,7 @@ class PipelineStages:
     sensitivity_selector: CameraSensitivitySelector
     context_provider: SceneContextProvider
     region_finder: ReferenceRegionFinder
+    anchor_builder: AnchorRegionBuilder
     patch_calculator: PatchStatisticsCalculator
     estimator: IlluminantEstimator
     correction_builder: CorrectionBuilder
@@ -95,10 +99,15 @@ class ColorCorrectionPipeline:
         return render_preview(image, self._preview_px)
 
     def measure_references(
-        self, image: LinearImage, preview: PreviewImage, context: SceneContext
+        self,
+        image: LinearImage,
+        preview: PreviewImage,
+        context: SceneContext,
+        anchors: Sequence[UserColorAnchor] = (),
     ) -> tuple[tuple[ReferenceRegion, ...], tuple[PatchMeasurement, ...]]:
-        """Stages 4 and 5: reference regions and their patch measurements."""
-        regions = tuple(self._stages.region_finder.find(image, preview, context))
+        """Stages 4 and 5: AI-found regions, the user's color matches, and their measurements."""
+        found = self._stages.region_finder.find(image, preview, context)
+        regions = tuple(found) + tuple(self._stages.anchor_builder.build(image, preview, anchors))
         return regions, tuple(self._stages.patch_calculator.measure(image, regions, context))
 
     def run_with_context(
@@ -107,11 +116,12 @@ class ColorCorrectionPipeline:
         preview: PreviewImage,
         context: SceneContext,
         camera: str | None = None,
+        anchors: Sequence[UserColorAnchor] = (),
     ) -> PipelineResult:
-        """Stages 2 and 4-9 with a given scene context, e.g. one proposed by a model in training."""
+        """Stages 2 and 4-9 with a given scene context (and optional user color matches)."""
         stages = self._stages
         sensitivity = stages.sensitivity_selector.select(image, camera)
-        regions, patches = self.measure_references(image, preview, context)
+        regions, patches = self.measure_references(image, preview, context, anchors)
         outcome = stages.estimator.estimate(
             EstimationInput(image=image, patches=patches, context=context, sensitivity=sensitivity)
         )

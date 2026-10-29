@@ -31,6 +31,7 @@ from natural_color_charts.correction.matrix_builders import (
 )
 from natural_color_charts.correction.renderer import SrgbRenderer
 from natural_color_charts.correction.spectral_builder import SpectralCorrectionMatrixBuilder
+from natural_color_charts.detection.anchors import AnchorRegionBuilder
 from natural_color_charts.detection.base import ReferenceDetector, Segmenter
 from natural_color_charts.detection.patch_statistics import PatchStatisticsCalculator
 from natural_color_charts.detection.region_finder import ReferenceRegionFinder
@@ -293,6 +294,17 @@ def build_renderer(config: AppConfig) -> SrgbRenderer:
     )
 
 
+def build_anchor_builder(config: AppConfig) -> AnchorRegionBuilder:
+    """User color matches are segmented from their boxes; SAM is not needed for a user box."""
+    names, reflectances = chart_reflectances(config.correction.training_set, build_grid(config))
+    return AnchorRegionBuilder(
+        names,
+        reflectances,
+        BoxSegmenter(config.detection.box_inset_fraction),
+        [ChromaCoherenceRefiner(config.detection.coherence_max_chroma_distance)],
+    )
+
+
 def build_pipeline(config: AppConfig) -> ColorCorrectionPipeline:
     """Assemble the full pipeline from configuration."""
     renderer = build_renderer(config)
@@ -301,6 +313,7 @@ def build_pipeline(config: AppConfig) -> ColorCorrectionPipeline:
         sensitivity_selector=build_selector(config),
         context_provider=build_context_provider(config),
         region_finder=build_region_finder(config),
+        anchor_builder=build_anchor_builder(config),
         patch_calculator=PatchStatisticsCalculator(config.patches),
         estimator=build_estimator(config),
         correction_builder=build_correction_builder(config),

@@ -6,11 +6,10 @@ import dataclasses
 import logging
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 import cv2
 import numpy as np
-import rawpy
 import tifffile
 from numpy.typing import NDArray
 from PIL import Image, ImageOps
@@ -35,6 +34,13 @@ class ImageLoader(Protocol):
     def load(self, path: Path) -> LinearImage: ...
 
 
+def import_rawpy() -> Any:
+    """Import rawpy on first RAW decode; it has no WebAssembly build, so it stays optional."""
+    import rawpy
+
+    return rawpy
+
+
 class RawImageLoader:
     """Decodes RAW files to demosaiced linear camera RGB with no camera processing."""
 
@@ -46,6 +52,7 @@ class RawImageLoader:
         return path.suffix.lower() in RAW_SUFFIXES
 
     def load(self, path: Path) -> LinearImage:
+        rawpy = import_rawpy()
         with rawpy.imread(str(path)) as raw:
             rgb16 = raw.postprocess(
                 gamma=(1, 1),
@@ -53,7 +60,7 @@ class RawImageLoader:
                 use_camera_wb=False,
                 use_auto_wb=False,
                 user_wb=[1.0, 1.0, 1.0, 1.0],
-                output_color=rawpy.ColorSpace.raw,  # type: ignore[attr-defined]
+                output_color=rawpy.ColorSpace.raw,
                 output_bps=16,
                 half_size=self._half_size,
             )
