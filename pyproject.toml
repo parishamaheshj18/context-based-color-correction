@@ -45,6 +45,8 @@ ignore = ["N803", "N806", "RUF002", "RUF003"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
+# numpy returns Any from many operations; flagging every one adds noise, not safety.
+warn_return_any = false
 ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
 mypy_path = "src"

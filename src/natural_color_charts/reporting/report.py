@@ -1,0 +1,69 @@
+"""Stage 10: machine-readable report of a pipeline run."""
+
+from __future__ import annotations
+
+import dataclasses
+import enum
+import json
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+
+from natural_color_charts.pipeline import PipelineResult
+
+
+def to_jsonable(value: Any) -> Any:
+    """Convert dataclasses, enums, paths, and numpy values into JSON-compatible objects."""
+    if dataclasses.is_dataclass(value) and not isinstance(value, type):
+        return {f.name: to_jsonable(getattr(value, f.name)) for f in dataclasses.fields(value)}
+    if isinstance(value, enum.Enum):
+        return value.value
+    if isinstance(value, np.ndarray):
+        return np.round(value, 6).tolist()
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(value, dict):
+        return {str(k): to_jsonable(v) for k, v in value.items()}
+    if isinstance(value, list | tuple):
+        return [to_jsonable(v) for v in value]
+    return value
+
+
+def build_report(result: PipelineResult) -> dict[str, Any]:
+    """Summarize inputs, decisions, and the final transform."""
+    image = result.image
+    return {
+        "input": {
+            "path": to_jsonable(image.source_path),
+            "mode": image.mode.value,
+            "size": [image.width, image.height],
+            "metadata": to_jsonable(image.metadata),
+            "saturated_fraction": float(image.saturation_mask.mean()),
+        },
+        "camera": _camera_section(result),
+        "scene_context": to_jsonable(result.context),
+        "illuminant": to_jsonable(result.estimate),
+        "correction": to_jsonable(result.transform),
+        "exposure_gain": result.rendered.exposure_gain,
+    }
+
+
+def _camera_section(result: PipelineResult) -> dict[str, Any] | None:
+    sensitivity = result.sensitivity
+    if sensitivity is None:
+        return None
+    return {
+        "name": sensitivity.name,
+        "selection_reason": sensitivity.selection_reason,
+        "is_approximate": sensitivity.is_approximate,
+    }
+
+
+def write_report(path: Path, report: dict[str, Any]) -> Path:
+    """Write the report as indented JSON."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(report, indent=2))
+    return path
