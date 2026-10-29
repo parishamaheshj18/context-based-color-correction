@@ -1,0 +1,116 @@
+# Default configuration. Every tunable value in the pipeline lives here.
+
+spectral:
+  wavelength_start_nm: 400
+  wavelength_stop_nm: 700
+  wavelength_step_nm: 10
+
+io:
+  raw_half_size: false
+  saturation_threshold: 0.98
+  preview_long_edge_px: 1024
+
+camera:
+  sensitivity_dir: data/camera_sensitivities
+  include_builtin: true
+  fuzzy_match_cutoff: 0.6
+
+context:
+  client: none            # none | ollama | anthropic
+  max_retries: 2
+  preview_long_edge_px: 768
+  default_families: [daylight, blackbody]
+  default_candidate_confidence: 0.5
+  default_ambiance_strength: 0.6
+  ollama:
+    host: http://localhost:11434
+    model: qwen2.5vl:7b
+    timeout_s: 180
+  anthropic:
+    model: claude-sonnet-5-5
+    max_tokens: 2048
+
+detection:
+  detector: none          # none | manual | transformers
+  segmenter: box          # box | sam
+  device: cpu             # cpu | cuda | mps
+  detector_model: google/owlv2-base-patch16-ensemble
+  segmenter_model: facebook/sam-vit-base
+  score_threshold: 0.2
+  max_regions_per_label: 3
+  skin_cr_range: [133, 173]
+  skin_cb_range: [77, 127]
+  prompts:
+    foliage: [green leaves, green grass]
+    skin: [human face, human hand]
+    concrete: [gray concrete]
+    paper: [white paper]
+    snow: [snow]
+    cloud: [white cloud]
+
+patches:
+  erosion_fraction: 0.004
+  noise_floor: 0.002
+  specular_luminance_quantile: 0.95
+  specular_chroma_ratio: 0.5
+  statistic: trimmed_mean  # trimmed_mean | median
+  trim_fraction: 0.1
+  min_valid_pixels: 200
+  full_weight_pixels: 5000
+  full_weight_luminance: 0.05
+  outdoor_paper_factor: 0.5
+  class_prior_strength:
+    paper: 0.9
+    snow: 0.9
+    concrete: 0.8
+    cloud: 0.7
+    foliage: 0.5
+    skin: 0.3
+
+priors:
+  directory: data/priors
+  bootstrap_if_missing: true
+  components: 3
+  min_samples_for_pca: 6
+  neutral_smooth_sigma: 0.03
+
+estimation:
+  fallback_chain: [spectral, neutral_patches, shades_of_gray]
+  families:
+    daylight: {cct_min_k: 4000, cct_max_k: 25000}
+    blackbody: {cct_min_k: 1800, cct_max_k: 6500}
+  grid_step_mired: 5.0
+  chromaticity_sigma: 0.004
+  context_prior_weight: 1.0
+  robust_loss: soft_l1
+  robust_scale: 2.0
+  loo_min_references: 3
+  loo_outlier_angle_deg: 3.0
+  confidence_residual_scale_deg: 3.0
+  fallback_confidence: 0.2
+  shades_of_gray_power: 6.0
+  gray_edge_power: 6.0
+  gray_edge_sigma: 1.0
+  white_patch_percentile: 99.5
+  statistics_max_pixels: 250000
+
+correction:
+  training_set: BabelColor Average
+  target_illuminant: D65
+  refine_delta_e: false
+  raster_method: bradford   # bradford | spectral
+  adaptation_transform: Bradford  # Bradford | CAT16
+
+render:
+  exposure_percentile: 98.0
+  exposure_target: 0.85
+  normalize_raster_exposure: false
+
+output:
+  directory: outputs
+  jpeg_quality: 95
+  overlay_alpha_max: 0.6
+
+evaluation:
+  chart_mask_value: 0.0
+  white_patch_index: 18

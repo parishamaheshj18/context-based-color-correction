@@ -1,0 +1,23 @@
+CODING_GUIDELINES.md
+PIPELINE.md
+README.md
+# Environment and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Data, models, outputs, secrets (see CODING_GUIDELINES.md)
+data/
+outputs/
+models/
+*.safetensors
+*.pt
+.env
+logs/
+.DS_Store
