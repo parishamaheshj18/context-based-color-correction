@@ -256,9 +256,13 @@ function aiPanel(c) {
 }
 
 function regionsPanel(c) {
-  const rows = c.ai.regions.map((r) =>
+  const rows = c.ai.regions.map((r, i) =>
     el("tr", {}, [
-      el("td", {}, [el("strong", { text: LABELS[r.label] ?? r.label }), r.description ? el("div", { class: "note", text: r.description }) : null]),
+      el("td", {}, [
+        el("strong", { text: LABELS[r.label] ?? r.label }),
+        // Several boxes can share one description; show it on the first of them only.
+        r.description && r.description !== c.ai.regions[i - 1]?.description ? el("div", { class: "note", text: r.description }) : null,
+      ]),
       el("td", { text: r.detector_score?.toFixed(2) ?? "–" }),
       el("td", { text: r.pixels.toLocaleString() }),
       el("td", { text: r.kept ? r.weight.toFixed(2) : "–" }),
@@ -271,9 +275,11 @@ function regionsPanel(c) {
       el("figcaption", { text: `Masks from ${c.ai.detector} + ${c.ai.segmenter}, tinted by material; stronger tint = more trusted. Red = rejected.${c.ground_truth ? " The black box is the hidden color chart." : ""}` }),
     ]),
     rows.length
-      ? el("table", { class: "data-table" }, [
-          el("thead", {}, [el("tr", {}, ["Material", "AI confidence", "Pixels", "Weight", "Status"].map((t) => el("th", { text: t })))]),
-          el("tbody", {}, rows),
+      ? el("div", { class: "table-scroll" }, [
+          el("table", { class: "data-table" }, [
+            el("thead", {}, [el("tr", {}, ["Material", "AI confidence", "Pixels", "Weight", "Status"].map((t) => el("th", { text: t })))]),
+            el("tbody", {}, rows),
+          ]),
         ])
       : el("p", { class: "note", text: "No usable reference regions were found, so the estimate fell back to image statistics." }),
   ];

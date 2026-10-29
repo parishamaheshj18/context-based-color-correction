@@ -134,6 +134,12 @@ main > section { padding: 3.5rem clamp(1rem, 4vw, 3rem); max-width: 1240px; marg
 .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 0.75rem; font-variant-numeric: tabular-nums; }
 .data-table th, .data-table td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--border); }
 .data-table th { color: var(--text-secondary); font-weight: 600; }
+.table-scroll { overflow-x: auto; }
+.panel .data-table { font-size: 0.84rem; }
+.panel .data-table th, .panel .data-table td { padding: 0.35rem 0.4rem; }
+.data-table td:first-child { min-width: 8.5rem; }
+.data-table td:last-child { min-width: 8.5rem; }
+.data-table .chip { white-space: normal; border-radius: 8px; display: inline-block; line-height: 1.35; padding: 0.15rem 0.5rem; }
 .footnote { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.75rem; max-width: 80ch; }
 
 .case {

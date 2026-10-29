@@ -1,0 +1,2195 @@
+{
+ "cases": [
+  {
+   "id": "lab-tabletop",
+   "title": "Lab tabletop, camera locked at 5200 K",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_7861.CR3",
+   "camera": "Canon EOS Rebel T8i",
+   "input_mode": "raw",
+   "size": [
+    1367,
+    2048
+   ],
+   "images": {
+    "ours": "assets/cases/lab-tabletop/ours.jpg",
+    "gray_world": "assets/cases/lab-tabletop/gray_world.jpg",
+    "before": "assets/cases/lab-tabletop/before.jpg",
+    "overlay": "assets/cases/lab-tabletop/overlay.jpg",
+    "thumb": "assets/cases/lab-tabletop/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "indoor",
+    "time_of_day": "unknown (controlled indoor lab setup)",
+    "weather": "not applicable (indoor)",
+    "light_sources": [
+     "no direct sources visible; diffuse overhead studio/lab lighting inferred from soft shadows and reflections in chrome sphere"
+    ],
+    "hypotheses": [
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       4500.0,
+       6500.0
+      ],
+      "confidence": 0.55
+     },
+     {
+      "family": "blackbody",
+      "cct_range_k": [
+       3000.0,
+       4500.0
+      ],
+      "confidence": 0.35
+     }
+    ],
+    "candidates": [
+     {
+      "label": "paper",
+      "description": "White printed calibration sheet with ArUco/checkerboard pattern; white margins around the pattern",
+      "usable": true,
+      "confidence": 0.75,
+      "concerns": [
+       "faint overlapping shadows on the paper",
+       "slight cool cast in the image"
+      ],
+      "boxes": [
+       [
+        0.07,
+        0.46,
+        0.85,
+        0.49
+       ],
+       [
+        0.07,
+        0.84,
+        0.84,
+        0.86
+       ],
+       [
+        0.06,
+        0.52,
+        0.12,
+        0.8
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Dark gray fabric/foam surface the objects rest on",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "very dark, low signal",
+       "fabric texture and possible tint",
+       "vignetting toward edges"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "This is a controlled indoor tabletop scene on a dark gray cloth with a calibration print, a CD, a chrome sphere, and a figurine; there are no windows or visible lamps, and the chrome sphere shows multiple diffuse overhead sources typical of lab LED or fluorescent lighting, so a daylight-like prior around 4500-6500 K is favored, with a warmer tungsten-like alternative kept at lower confidence. The white paper margins of the calibration sheet are the best neutral reference, being flat and evenly lit, although faint shadows exist so the boxes target the clean margins. The dark cloth is too dark and textured to be a reliable neutral. The user asked for neutral, so full correction is applied.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "paper",
+      "description": "White printed calibration sheet with ArUco/checkerboard pattern; white margins around the pattern",
+      "box_xyxy": [
+       0.07,
+       0.46,
+       0.85,
+       0.49
+      ],
+      "detector_score": 0.75,
+      "pixels": 62311,
+      "weight": 0.675,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "paper",
+      "description": "White printed calibration sheet with ArUco/checkerboard pattern; white margins around the pattern",
+      "box_xyxy": [
+       0.07,
+       0.84,
+       0.84,
+       0.86
+      ],
+      "detector_score": 0.75,
+      "pixels": 45290,
+      "weight": 0.675,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "paper",
+      "description": "White printed calibration sheet with ArUco/checkerboard pattern; white margins around the pattern",
+      "box_xyxy": [
+       0.06,
+       0.52,
+       0.12,
+       0.8
+      ],
+      "detector_score": 0.75,
+      "pixels": 21441,
+      "weight": 0.675,
+      "kept": true,
+      "reason": "",
+      "used": true
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "neutral_patches",
+    "is_fallback": true,
+    "family": null,
+    "cct_k": null,
+    "cct_uncertainty_k": null,
+    "confidence": 0.804,
+    "white_rgb": [
+     0.564848,
+     1.0,
+     0.617155
+    ],
+    "notes": [
+     "skipped spectral: no camera sensitivity data"
+    ],
+    "correction": "camera_matrix",
+    "adaptation_degree": 1.0,
+    "camera_curves": null,
+    "camera_curves_reason": null
+   },
+   "seconds": 13.9,
+   "ground_truth": {
+    "truth_white_rgb": [
+     0.561765,
+     1.0,
+     0.618122
+    ],
+    "ours": {
+     "angular_error_deg": 0.14,
+     "delta_e00": 5.41
+    },
+    "gray_world": {
+     "angular_error_deg": 0.58,
+     "delta_e00": 5.53
+    },
+    "before": {
+     "angular_error_deg": 0.5,
+     "delta_e00": 5.58
+    }
+   }
+  },
+  {
+   "id": "lab-tabletop-tinted",
+   "title": "Same scene, tinted fill light",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_7866.CR3",
+   "camera": "Canon EOS Rebel T8i",
+   "input_mode": "raw",
+   "size": [
+    1367,
+    2048
+   ],
+   "images": {
+    "ours": "assets/cases/lab-tabletop-tinted/ours.jpg",
+    "gray_world": "assets/cases/lab-tabletop-tinted/gray_world.jpg",
+    "before": "assets/cases/lab-tabletop-tinted/before.jpg",
+    "overlay": "assets/cases/lab-tabletop-tinted/overlay.jpg",
+    "thumb": "assets/cases/lab-tabletop-tinted/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "indoor",
+    "time_of_day": "unknown (controlled indoor/lab setup)",
+    "weather": "not applicable (indoor)",
+    "light_sources": [
+     "rectangular light panel/lightbox at bottom edge of frame appearing pink/magenta (likely clipped or LED-tinted)",
+     "specular reflections of overhead lamps in the chrome sphere"
+    ],
+    "hypotheses": [
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       4500.0,
+       6500.0
+      ],
+      "confidence": 0.55
+     },
+     {
+      "family": "blackbody",
+      "cct_range_k": [
+       3000.0,
+       4500.0
+      ],
+      "confidence": 0.3
+     }
+    ],
+    "candidates": [
+     {
+      "label": "paper",
+      "description": "White printed calibration sheet with checkerboard/ArUco pattern; unprinted white margins around the pattern",
+      "usable": true,
+      "confidence": 0.7,
+      "concerns": [
+       "bottom margin picks up pinkish spill from the light panel",
+       "slight folds/waviness causing mild shading on the right side",
+       "paper appears slightly gray, likely underexposed rather than tinted"
+      ],
+      "boxes": [
+       [
+        0.12,
+        0.511,
+        0.78,
+        0.535
+       ],
+       [
+        0.07,
+        0.56,
+        0.115,
+        0.78
+       ],
+       [
+        0.815,
+        0.56,
+        0.85,
+        0.75
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Black matte backdrop and black rectangular card at upper left",
+      "usable": false,
+      "confidence": 0.2,
+      "concerns": [
+       "very dark, low signal and noise-dominated",
+       "black surfaces are unreliable for chromaticity estimation"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "This is a controlled indoor tabletop setup on a black backdrop with a calibration sheet, a mirror sphere, a CD and a figurine; no windows or sky are visible. The only directly visible source is a light panel at the bottom that renders pink/magenta, which is likely clipped or an atypical LED and also spills pink onto the bottom of the paper, so it should not dictate the estimate. The sphere shows reflections of overhead lamps, consistent with typical studio/lab lighting near neutral white, so a daylight-family prior around 4500-6500 K is favored with a lower-confidence warmer blackbody alternative. The white paper margins are the best reference; boxes are placed on the top margin and the upper parts of the side margins to avoid the pink spill at the bottom, the printed pattern, and fold shading. Black surfaces are too dark to use. The user asked for neutral, so full correction is applied.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "paper",
+      "description": "White printed calibration sheet with checkerboard/ArUco pattern; unprinted white margins around the pattern",
+      "box_xyxy": [
+       0.12,
+       0.511,
+       0.78,
+       0.535
+      ],
+      "detector_score": 0.7,
+      "pixels": 45482,
+      "weight": 0.63,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "paper",
+      "description": "White printed calibration sheet with checkerboard/ArUco pattern; unprinted white margins around the pattern",
+      "box_xyxy": [
+       0.07,
+       0.56,
+       0.115,
+       0.78
+      ],
+      "detector_score": 0.7,
+      "pixels": 15205,
+      "weight": 0.63,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "paper",
+      "description": "White printed calibration sheet with checkerboard/ArUco pattern; unprinted white margins around the pattern",
+      "box_xyxy": [
+       0.815,
+       0.56,
+       0.85,
+       0.75
+      ],
+      "detector_score": 0.7,
+      "pixels": 20104,
+      "weight": 0.63,
+      "kept": true,
+      "reason": "",
+      "used": true
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "neutral_patches",
+    "is_fallback": true,
+    "family": null,
+    "cct_k": null,
+    "cct_uncertainty_k": null,
+    "confidence": 0.808,
+    "white_rgb": [
+     0.570034,
+     1.0,
+     0.611466
+    ],
+    "notes": [
+     "skipped spectral: no camera sensitivity data"
+    ],
+    "correction": "camera_matrix",
+    "adaptation_degree": 1.0,
+    "camera_curves": null,
+    "camera_curves_reason": null
+   },
+   "seconds": 15.2,
+   "ground_truth": {
+    "truth_white_rgb": [
+     0.565538,
+     1.0,
+     0.614474
+    ],
+    "ours": {
+     "angular_error_deg": 0.24,
+     "delta_e00": 5.63
+    },
+    "gray_world": {
+     "angular_error_deg": 0.12,
+     "delta_e00": 5.65
+    },
+    "before": {
+     "angular_error_deg": 0.71,
+     "delta_e00": 5.73
+    }
+   }
+  },
+  {
+   "id": "lab-shelf-warm",
+   "title": "Warm room light on a shelf",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_7879.CR3",
+   "camera": "Canon EOS Rebel T8i",
+   "input_mode": "raw",
+   "size": [
+    2048,
+    1367
+   ],
+   "images": {
+    "ours": "assets/cases/lab-shelf-warm/ours.jpg",
+    "gray_world": "assets/cases/lab-shelf-warm/gray_world.jpg",
+    "before": "assets/cases/lab-shelf-warm/before.jpg",
+    "overlay": "assets/cases/lab-shelf-warm/overlay.jpg",
+    "thumb": "assets/cases/lab-shelf-warm/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "indoor",
+    "time_of_day": "unknown (artificial lighting)",
+    "weather": "not applicable (indoor)",
+    "light_sources": [
+     "overhead fluorescent ceiling fixture at top of frame"
+    ],
+    "hypotheses": [
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       3500.0,
+       5000.0
+      ],
+      "confidence": 0.6
+     },
+     {
+      "family": "blackbody",
+      "cct_range_k": [
+       3000.0,
+       4200.0
+      ],
+      "confidence": 0.4
+     }
+    ],
+    "candidates": [
+     {
+      "label": "neutral_surface",
+      "description": "White plastic turntable top surface",
+      "usable": true,
+      "confidence": 0.75,
+      "concerns": [
+       "slight shading toward edges"
+      ],
+      "boxes": [
+       [
+        0.31,
+        0.79,
+        0.49,
+        0.83
+       ],
+       [
+        0.6,
+        0.79,
+        0.66,
+        0.83
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White turntable cylindrical side",
+      "usable": true,
+      "confidence": 0.6,
+      "concerns": [
+       "curved surface with gradient shading"
+      ],
+      "boxes": [
+       [
+        0.33,
+        0.88,
+        0.6,
+        0.94
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Light gray laminate desk shelf surface",
+      "usable": true,
+      "confidence": 0.6,
+      "concerns": [
+       "possibly slightly warm laminate tint",
+       "specular sheen from overhead light"
+      ],
+      "boxes": [
+       [
+        0.05,
+        0.78,
+        0.25,
+        0.86
+       ],
+       [
+        0.73,
+        0.8,
+        0.92,
+        0.88
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Gray fabric cubicle partition wall",
+      "usable": true,
+      "confidence": 0.45,
+      "concerns": [
+       "fabric may have warm/beige tint",
+       "gradient from overhead light"
+      ],
+      "boxes": [
+       [
+        0.08,
+        0.25,
+        0.34,
+        0.55
+       ],
+       [
+        0.63,
+        0.4,
+        0.88,
+        0.6
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White squares of black-and-white checker pattern on box",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "small patches adjacent to black printed areas",
+       "printed markers reduce uniform area"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "This is an indoor office cubicle scene lit by an overhead fluorescent fixture visible at the top; no windows or sky are present. Office fluorescents are typically 3500-5000 K, so a daylight-locus prior near 4000 K is favored, with a blackbody fallback for warmer tubes. The best neutral references are the white plastic turntable top and side, followed by the gray laminate desk and the gray fabric partition (which may carry a slight beige tint). The checker pattern's white squares are too small and interspersed with black to be reliable. The user requested neutral, so full correction is applied.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "neutral_surface",
+      "description": "White plastic turntable top surface",
+      "box_xyxy": [
+       0.31,
+       0.79,
+       0.49,
+       0.83
+      ],
+      "detector_score": 0.75,
+      "pixels": 15223,
+      "weight": 0.375,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White plastic turntable top surface",
+      "box_xyxy": [
+       0.6,
+       0.79,
+       0.66,
+       0.83
+      ],
+      "detector_score": 0.75,
+      "pixels": 5397,
+      "weight": 0.375,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White turntable cylindrical side",
+      "box_xyxy": [
+       0.33,
+       0.88,
+       0.6,
+       0.94
+      ],
+      "detector_score": 0.6,
+      "pixels": 8259,
+      "weight": 0.254,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Light gray laminate desk shelf surface",
+      "box_xyxy": [
+       0.05,
+       0.78,
+       0.25,
+       0.86
+      ],
+      "detector_score": 0.6,
+      "pixels": 25066,
+      "weight": 0.128,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Light gray laminate desk shelf surface",
+      "box_xyxy": [
+       0.73,
+       0.8,
+       0.92,
+       0.88
+      ],
+      "detector_score": 0.6,
+      "pixels": 23169,
+      "weight": 0.3,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Gray fabric cubicle partition wall",
+      "box_xyxy": [
+       0.08,
+       0.25,
+       0.34,
+       0.55
+      ],
+      "detector_score": 0.45,
+      "pixels": 79015,
+      "weight": 0.047,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Gray fabric cubicle partition wall",
+      "box_xyxy": [
+       0.63,
+       0.4,
+       0.88,
+       0.6
+      ],
+      "detector_score": 0.45,
+      "pixels": 85341,
+      "weight": 0.085,
+      "kept": true,
+      "reason": "",
+      "used": true
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "neutral_patches",
+    "is_fallback": true,
+    "family": null,
+    "cct_k": null,
+    "cct_uncertainty_k": null,
+    "confidence": 0.646,
+    "white_rgb": [
+     0.725045,
+     1.0,
+     0.473068
+    ],
+    "notes": [
+     "skipped spectral: no camera sensitivity data"
+    ],
+    "correction": "camera_matrix",
+    "adaptation_degree": 1.0,
+    "camera_curves": null,
+    "camera_curves_reason": null
+   },
+   "seconds": 19.1,
+   "ground_truth": {
+    "truth_white_rgb": [
+     0.691857,
+     1.0,
+     0.491135
+    ],
+    "ours": {
+     "angular_error_deg": 1.57,
+     "delta_e00": 6.66
+    },
+    "gray_world": {
+     "angular_error_deg": 2.03,
+     "delta_e00": 7.25
+    },
+    "before": {
+     "angular_error_deg": 8.41,
+     "delta_e00": 10.68
+    }
+   }
+  },
+  {
+   "id": "lab-dark-stage",
+   "title": "Spot-lit stage on a black background",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_7890.CR3",
+   "camera": "Canon EOS Rebel T8i",
+   "input_mode": "raw",
+   "size": [
+    2048,
+    1367
+   ],
+   "images": {
+    "ours": "assets/cases/lab-dark-stage/ours.jpg",
+    "gray_world": "assets/cases/lab-dark-stage/gray_world.jpg",
+    "before": "assets/cases/lab-dark-stage/before.jpg",
+    "overlay": "assets/cases/lab-dark-stage/overlay.jpg",
+    "thumb": "assets/cases/lab-dark-stage/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "indoor",
+    "time_of_day": "unknown (controlled studio/lab lighting, no windows visible)",
+    "weather": "not applicable (indoor)",
+    "light_sources": [],
+    "hypotheses": [
+     {
+      "family": "blackbody",
+      "cct_range_k": [
+       3000.0,
+       5000.0
+      ],
+      "confidence": 0.5
+     },
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       4500.0,
+       6500.0
+      ],
+      "confidence": 0.45
+     }
+    ],
+    "candidates": [
+     {
+      "label": "neutral_surface",
+      "description": "White/light-gray matte-satin side face of the turntable base in the foreground",
+      "usable": true,
+      "confidence": 0.6,
+      "concerns": [
+       "slightly glossy finish",
+       "pinkish sheen/reflection on left portion",
+       "falloff toward darker right side",
+       "small dark hole near center"
+      ],
+      "boxes": [
+       [
+        0.43,
+        0.76,
+        0.58,
+        0.85
+       ],
+       [
+        0.33,
+        0.77,
+        0.39,
+        0.84
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White printed squares and markers of the checkerboard calibration target",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "fine pattern interleaved with black squares makes clean sampling difficult",
+       "partially occluded by CD and black masked region",
+       "possible ink/paper tint"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Top glossy surface of the turntable platter",
+      "usable": false,
+      "confidence": 0.2,
+      "concerns": [
+       "glossy reflective surface",
+       "reflects dark surroundings and colored target frame",
+       "seen at grazing angle"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "This is a dark indoor lab/studio setup on an optical breadboard with a turntable, a checkerboard calibration target in a red frame, and a CD showing diffraction colors; no light source is visible, so the illuminant is presumably a studio lamp, either halogen (blackbody, ~3000-5000 K) or a daylight-balanced LED (~4500-6500 K), with roughly equal priors. The best neutral reference is the matte white side face of the turntable, sampled in its evenly lit central section while avoiding the pink sheen on the left, the darker right falloff, and the small hole. The white checker squares are nominally neutral but too finely interleaved with black and partly occluded to sample reliably, and the glossy platter top reflects its surroundings, so both are marked unusable. The red frame and the iridescent CD are not neutral references. The user asked for neutral, so full correction (strength 1) is applied.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "neutral_surface",
+      "description": "White/light-gray matte-satin side face of the turntable base in the foreground",
+      "box_xyxy": [
+       0.43,
+       0.76,
+       0.58,
+       0.85
+      ],
+      "detector_score": 0.6,
+      "pixels": 25135,
+      "weight": 0.3,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White/light-gray matte-satin side face of the turntable base in the foreground",
+      "box_xyxy": [
+       0.33,
+       0.77,
+       0.39,
+       0.84
+      ],
+      "detector_score": 0.6,
+      "pixels": 4154,
+      "weight": 0.249,
+      "kept": true,
+      "reason": "",
+      "used": true
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "neutral_patches",
+    "is_fallback": true,
+    "family": null,
+    "cct_k": null,
+    "cct_uncertainty_k": null,
+    "confidence": 0.399,
+    "white_rgb": [
+     0.632769,
+     1.0,
+     0.589478
+    ],
+    "notes": [
+     "skipped spectral: no camera sensitivity data"
+    ],
+    "correction": "camera_matrix",
+    "adaptation_degree": 1.0,
+    "camera_curves": null,
+    "camera_curves_reason": null
+   },
+   "seconds": 20.3,
+   "ground_truth": {
+    "truth_white_rgb": [
+     0.600393,
+     1.0,
+     0.611708
+    ],
+    "ours": {
+     "angular_error_deg": 1.69,
+     "delta_e00": 6.98
+    },
+    "gray_world": {
+     "angular_error_deg": 2.69,
+     "delta_e00": 7.73
+    },
+    "before": {
+     "angular_error_deg": 2.1,
+     "delta_e00": 7.07
+    }
+   }
+  },
+  {
+   "id": "dining-room",
+   "title": "Dining room at dusk, keeping the mood",
+   "caption": "",
+   "intent": "keep the warm, cozy evening ambiance",
+   "source_file": "5C31C55C-64D2-4293-B897-FB560DA6A907.PNG",
+   "camera": null,
+   "input_mode": "raster",
+   "size": [
+    1087,
+    1447
+   ],
+   "images": {
+    "ours": "assets/cases/dining-room/ours.jpg",
+    "gray_world": "assets/cases/dining-room/gray_world.jpg",
+    "before": "assets/cases/dining-room/before.jpg",
+    "overlay": "assets/cases/dining-room/overlay.jpg",
+    "thumb": "assets/cases/dining-room/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "indoor",
+    "time_of_day": "evening / golden hour",
+    "weather": "unknown (likely clear, low warm sun through window)",
+    "light_sources": [
+     "candle-style pendant chandelier with warm bulbs",
+     "two wall-mounted picture lights above artworks",
+     "window with blinds and bamboo shade (low warm daylight)",
+     "table candles"
+    ],
+    "hypotheses": [
+     {
+      "family": "blackbody",
+      "cct_range_k": [
+       2200.0,
+       3000.0
+      ],
+      "confidence": 0.65
+     },
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       4000.0,
+       5500.0
+      ],
+      "confidence": 0.25
+     },
+     {
+      "family": "blackbody",
+      "cct_range_k": [
+       1800.0,
+       2200.0
+      ],
+      "confidence": 0.1
+     }
+    ],
+    "candidates": [
+     {
+      "label": "foliage",
+      "description": "Olive tree in woven basket at left and potted plant on table",
+      "usable": false,
+      "confidence": 0.35,
+      "concerns": [
+       "likely artificial plants",
+       "olive leaves are naturally gray-green, atypical",
+       "small leaves with mixed shadow"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Painted wall behind table and on right side",
+      "usable": false,
+      "confidence": 0.4,
+      "concerns": [
+       "wall paint appears beige/cream, tinted",
+       "strong gradient from mixed warm lamps and window light",
+       "picture-light hot spots"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White baseboard trim along left wall",
+      "usable": true,
+      "confidence": 0.4,
+      "concerns": [
+       "thin strip, partially in shadow",
+       "may be off-white"
+      ],
+      "boxes": [
+       [
+        0.1,
+        0.66,
+        0.2,
+        0.68
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White window blinds and sheer curtains",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "backlit by window, different illuminant from room lamps",
+       "curtains appear cream",
+       "translucent"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Ceiling",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "strong gradient and shadows from chandelier",
+       "reflects warm wall color"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "preserve_ambiance",
+     "strength": 0.4
+    },
+    "rationale": "This is an indoor dining room lit mainly by a candle-style pendant with warm bulbs, picture lights over the artwork, and actual candles, so a warm blackbody illuminant around 2200-3000 K is most likely. A window with blinds adds some low evening daylight, giving a secondary daylight hypothesis. Good neutral references are scarce. The walls and curtains look cream or beige and have gradients from the mixed light, and the plants appear artificial with gray-green olive leaves. Only a small strip of white baseboard is a weakly usable neutral. The user wants to keep the warm, cozy evening mood, so I mapped the request to preserve_ambiance with a modest strength of 0.4. This removes some excess cast while keeping most of the warmth.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "neutral_surface",
+      "description": "White baseboard trim along left wall",
+      "box_xyxy": [
+       0.1,
+       0.66,
+       0.2,
+       0.68
+      ],
+      "detector_score": 0.4,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "shades_of_gray",
+    "is_fallback": true,
+    "family": null,
+    "cct_k": null,
+    "cct_uncertainty_k": null,
+    "confidence": 0.2,
+    "white_rgb": [
+     1.307041,
+     1.0,
+     0.936779
+    ],
+    "notes": [
+     "skipped spectral: no usable reference patches",
+     "skipped neutral_patches: no usable neutral patches"
+    ],
+    "correction": "bradford",
+    "adaptation_degree": 0.4,
+    "camera_curves": "sRGB-equivalent (CIE 1931)",
+    "camera_curves_reason": "display-referred input: linear sRGB as sensor"
+   },
+   "seconds": 14.8
+  },
+  {
+   "id": "festival-night",
+   "title": "Festival hall under mixed stage lighting",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_2997.DNG",
+   "camera": "Apple iPhone 16 Pro",
+   "input_mode": "raw",
+   "size": [
+    2048,
+    1536
+   ],
+   "images": {
+    "ours": "assets/cases/festival-night/ours.jpg",
+    "gray_world": "assets/cases/festival-night/gray_world.jpg",
+    "before": "assets/cases/festival-night/before.jpg",
+    "overlay": "assets/cases/festival-night/overlay.jpg",
+    "thumb": "assets/cases/festival-night/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "indoor",
+    "time_of_day": "evening/night",
+    "weather": "not applicable (indoor)",
+    "light_sources": [
+     "ceiling spotlights/downlights",
+     "decorative string lights on stage and walls",
+     "colored LED stage lights near altar",
+     "overhead hall lighting"
+    ],
+    "hypotheses": [
+     {
+      "family": "blackbody",
+      "cct_range_k": [
+       2800.0,
+       4000.0
+      ],
+      "confidence": 0.55
+     },
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       4000.0,
+       5500.0
+      ],
+      "confidence": 0.4
+     }
+    ],
+    "candidates": [
+     {
+      "label": "skin",
+      "description": "Faces of the four people in the foreground selfie, frontally lit by hall lighting",
+      "usable": true,
+      "confidence": 0.6,
+      "concerns": [
+       "possible mixed lighting from colored stage lights",
+       "varied skin tones"
+      ],
+      "boxes": [
+       [
+        0.6,
+        0.6,
+        0.7,
+        0.7
+       ],
+       [
+        0.36,
+        0.6,
+        0.42,
+        0.68
+       ],
+       [
+        0.49,
+        0.48,
+        0.55,
+        0.55
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Off-white/cream embroidered kurta worn by woman on right",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "fabric may be cream-tinted",
+       "embroidery and sequins cause sparkle highlights",
+       "folds and shading"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Gray hall floor",
+      "usable": true,
+      "confidence": 0.4,
+      "concerns": [
+       "glossy reflections of lights",
+       "may be slightly tinted"
+      ],
+      "boxes": [
+       [
+        0.86,
+        0.6,
+        0.97,
+        0.7
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White painted ceiling and upper walls",
+      "usable": false,
+      "confidence": 0.25,
+      "concerns": [
+       "dim and underexposed",
+       "uneven lighting with shadows"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "This is an indoor festival hall (Navratri/garba event) at night lit by ceiling spotlights plus warm decorative string lights and some colored LEDs at the altar; no windows or sky are visible, so artificial light dominates, likely warm-white to neutral LED or halogen, giving a blackbody prior around 2800-4000 K with a secondary neutral-white LED (daylight-like 4000-5500 K) hypothesis. Faces in the foreground are the most reliable references, lit fairly evenly from the front, though colored stage light could contaminate them slightly. The gray floor is a usable but weaker neutral given glossy reflections; the cream kurta and dim ceiling are unreliable. The user asked for neutral, so full correction is applied.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "skin",
+      "description": "Faces of the four people in the foreground selfie, frontally lit by hall lighting",
+      "box_xyxy": [
+       0.6,
+       0.6,
+       0.7,
+       0.7
+      ],
+      "detector_score": 0.6,
+      "pixels": 6463,
+      "weight": 0.029,
+      "kept": true,
+      "reason": "needs this camera's spectral curves",
+      "used": false
+     },
+     {
+      "label": "skin",
+      "description": "Faces of the four people in the foreground selfie, frontally lit by hall lighting",
+      "box_xyxy": [
+       0.36,
+       0.6,
+       0.42,
+       0.68
+      ],
+      "detector_score": 0.6,
+      "pixels": 4398,
+      "weight": 0.027,
+      "kept": true,
+      "reason": "needs this camera's spectral curves",
+      "used": false
+     },
+     {
+      "label": "skin",
+      "description": "Faces of the four people in the foreground selfie, frontally lit by hall lighting",
+      "box_xyxy": [
+       0.49,
+       0.48,
+       0.55,
+       0.55
+      ],
+      "detector_score": 0.6,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Gray hall floor",
+      "box_xyxy": [
+       0.86,
+       0.6,
+       0.97,
+       0.7
+      ],
+      "detector_score": 0.4,
+      "pixels": 3,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 3 valid pixels",
+      "used": false
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "shades_of_gray",
+    "is_fallback": true,
+    "family": null,
+    "cct_k": null,
+    "cct_uncertainty_k": null,
+    "confidence": 0.2,
+    "white_rgb": [
+     1.054547,
+     1.0,
+     1.011954
+    ],
+    "notes": [
+     "skipped spectral: no camera sensitivity data",
+     "skipped neutral_patches: no usable neutral patches"
+    ],
+    "correction": "bradford",
+    "adaptation_degree": 1.0,
+    "camera_curves": null,
+    "camera_curves_reason": null
+   },
+   "seconds": 18.8
+  },
+  {
+   "id": "bluebird-garden",
+   "title": "Eastern bluebird on a shrub",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_2947.DNG",
+   "camera": "Apple iPhone 16 Pro",
+   "input_mode": "raw",
+   "size": [
+    1536,
+    2048
+   ],
+   "images": {
+    "ours": "assets/cases/bluebird-garden/ours.jpg",
+    "gray_world": "assets/cases/bluebird-garden/gray_world.jpg",
+    "before": "assets/cases/bluebird-garden/before.jpg",
+    "overlay": "assets/cases/bluebird-garden/overlay.jpg",
+    "thumb": "assets/cases/bluebird-garden/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "outdoor",
+    "time_of_day": "daytime",
+    "weather": "overcast, hazy/foggy",
+    "light_sources": [
+     "diffuse overcast sky (not directly visible)"
+    ],
+    "hypotheses": [
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       6000.0,
+       7500.0
+      ],
+      "confidence": 0.8
+     },
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       5000.0,
+       6000.0
+      ],
+      "confidence": 0.2
+     }
+    ],
+    "candidates": [
+     {
+      "label": "foliage",
+      "description": "Healthy green leaves of the tree canopy and shrubs in the upper and middle background",
+      "usable": true,
+      "confidence": 0.55,
+      "concerns": [
+       "heavy haze/low contrast washes out saturation",
+       "some yellowing autumn leaves mixed in the canopy"
+      ],
+      "boxes": [
+       [
+        0.05,
+        0.3,
+        0.3,
+        0.45
+       ],
+       [
+        0.62,
+        0.3,
+        0.85,
+        0.42
+       ],
+       [
+        0.25,
+        0.55,
+        0.48,
+        0.72
+       ]
+      ]
+     },
+     {
+      "label": "foliage",
+      "description": "Red/burgundy autumn leaves of the small sapling under the bird",
+      "usable": false,
+      "confidence": 0.2,
+      "concerns": [
+       "autumn coloration, not typical green foliage"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "foliage",
+      "description": "Dry yellowish grass along the bottom edge",
+      "usable": false,
+      "confidence": 0.2,
+      "concerns": [
+       "dry/straw-colored grass",
+       "small area at image edge"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "The scene is an outdoor garden with a bluebird perched on a red-leaved sapling, lit by soft shadowless diffuse light consistent with an overcast or foggy day, so a cool-ish CIE daylight around 6000-7500 K is the main prior. The image has a strong milky haze that lowers contrast and saturation, so color cues are weak. The only usable reference is the green tree and shrub foliage in the background, though mixed yellow autumn leaves and haze reduce confidence. The red sapling leaves and dry grass are atypical and are marked unusable. No skin, concrete, paper, snow, visible cloud, or neutral man-made surfaces are present. The user asked for neutral correction at full strength.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "foliage",
+      "description": "Healthy green leaves of the tree canopy and shrubs in the upper and middle background",
+      "box_xyxy": [
+       0.05,
+       0.3,
+       0.3,
+       0.45
+      ],
+      "detector_score": 0.55,
+      "pixels": 22904,
+      "weight": 0.048,
+      "kept": true,
+      "reason": "needs this camera's spectral curves",
+      "used": false
+     },
+     {
+      "label": "foliage",
+      "description": "Healthy green leaves of the tree canopy and shrubs in the upper and middle background",
+      "box_xyxy": [
+       0.62,
+       0.3,
+       0.85,
+       0.42
+      ],
+      "detector_score": 0.55,
+      "pixels": 16494,
+      "weight": 0.033,
+      "kept": true,
+      "reason": "needs this camera's spectral curves",
+      "used": false
+     },
+     {
+      "label": "foliage",
+      "description": "Healthy green leaves of the tree canopy and shrubs in the upper and middle background",
+      "box_xyxy": [
+       0.25,
+       0.55,
+       0.48,
+       0.72
+      ],
+      "detector_score": 0.55,
+      "pixels": 83746,
+      "weight": 0.045,
+      "kept": true,
+      "reason": "needs this camera's spectral curves",
+      "used": false
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "shades_of_gray",
+    "is_fallback": true,
+    "family": null,
+    "cct_k": null,
+    "cct_uncertainty_k": null,
+    "confidence": 0.2,
+    "white_rgb": [
+     1.192838,
+     1.0,
+     0.886467
+    ],
+    "notes": [
+     "skipped spectral: no camera sensitivity data",
+     "skipped neutral_patches: no usable neutral patches"
+    ],
+    "correction": "bradford",
+    "adaptation_degree": 1.0,
+    "camera_curves": null,
+    "camera_curves_reason": null
+   },
+   "seconds": 20.9
+  },
+  {
+   "id": "bluebird-feeder",
+   "title": "Bluebird at a feeder, through a window screen",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_3036.DNG",
+   "camera": "Apple iPhone 16 Pro",
+   "input_mode": "raw",
+   "size": [
+    1536,
+    2048
+   ],
+   "images": {
+    "ours": "assets/cases/bluebird-feeder/ours.jpg",
+    "gray_world": "assets/cases/bluebird-feeder/gray_world.jpg",
+    "before": "assets/cases/bluebird-feeder/before.jpg",
+    "overlay": "assets/cases/bluebird-feeder/overlay.jpg",
+    "thumb": "assets/cases/bluebird-feeder/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "mixed",
+    "time_of_day": "daytime",
+    "weather": "overcast",
+    "light_sources": [
+     "diffuse overcast daylight through window/screen"
+    ],
+    "hypotheses": [
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       5500.0,
+       7500.0
+      ],
+      "confidence": 0.8
+     },
+     {
+      "family": "blackbody",
+      "cct_range_k": [
+       4500.0,
+       6000.0
+      ],
+      "confidence": 0.1
+     }
+    ],
+    "candidates": [
+     {
+      "label": "foliage",
+      "description": "Reddish-brown autumn leaves of a small tree at left",
+      "usable": false,
+      "confidence": 0.2,
+      "concerns": [
+       "autumn foliage, not green",
+       "blurred through screen"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Gray-green painted metal feeder roof",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "tinted gray-green paint, not neutral",
+       "specular ridges"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White posts/poles in background yard",
+      "usable": true,
+      "confidence": 0.4,
+      "concerns": [
+       "small and blurred",
+       "seen through window screen with veiling haze"
+      ],
+      "boxes": [
+       [
+        0.91,
+        0.3,
+        0.955,
+        0.58
+       ],
+       [
+        0.71,
+        0.17,
+        0.76,
+        0.3
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Dark gray plastic feeder tray",
+      "usable": false,
+      "confidence": 0.25,
+      "concerns": [
+       "dark, low signal",
+       "glossy reflections",
+       "may be slightly tinted"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "The photo is taken from indoors through a window screen looking at an outdoor bird feeder on a deck under flat, shadowless overcast daylight, so a cloudy daylight illuminant around 5500-7500 K is the main prior. The image has a strong warm/hazy veil from the screen and glass, which should not be mistaken for warm light. Good references are scarce: foliage is autumn-colored, the feeder roof is a tinted gray-green, and the tray is dark and glossy, so only the small white background posts are offered as tentative neutral references. The user asked for neutral, so full correction is applied.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "neutral_surface",
+      "description": "White posts/poles in background yard",
+      "box_xyxy": [
+       0.91,
+       0.3,
+       0.955,
+       0.58
+      ],
+      "detector_score": 0.4,
+      "pixels": 32449,
+      "weight": 0.2,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White posts/poles in background yard",
+      "box_xyxy": [
+       0.71,
+       0.17,
+       0.76,
+       0.3
+      ],
+      "detector_score": 0.4,
+      "pixels": 21764,
+      "weight": 0.2,
+      "kept": true,
+      "reason": "",
+      "used": true
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "neutral_patches",
+    "is_fallback": true,
+    "family": null,
+    "cct_k": null,
+    "cct_uncertainty_k": null,
+    "confidence": 0.321,
+    "white_rgb": [
+     1.09011,
+     1.0,
+     0.91019
+    ],
+    "notes": [
+     "skipped spectral: no camera sensitivity data"
+    ],
+    "correction": "bradford",
+    "adaptation_degree": 1.0,
+    "camera_curves": null,
+    "camera_curves_reason": null
+   },
+   "seconds": 23.9
+  },
+  {
+   "id": "flycatcher-feeder",
+   "title": "Flycatcher at the same feeder",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_3039.DNG",
+   "camera": "Apple iPhone 16 Pro",
+   "input_mode": "raw",
+   "size": [
+    1536,
+    2048
+   ],
+   "images": {
+    "ours": "assets/cases/flycatcher-feeder/ours.jpg",
+    "gray_world": "assets/cases/flycatcher-feeder/gray_world.jpg",
+    "before": "assets/cases/flycatcher-feeder/before.jpg",
+    "overlay": "assets/cases/flycatcher-feeder/overlay.jpg",
+    "thumb": "assets/cases/flycatcher-feeder/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "outdoor",
+    "time_of_day": "daytime",
+    "weather": "overcast or hazy, diffuse light with no hard shadows",
+    "light_sources": [
+     "diffuse skylight (sky not visible)"
+    ],
+    "hypotheses": [
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       5500.0,
+       7500.0
+      ],
+      "confidence": 0.8
+     },
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       4500.0,
+       5500.0
+      ],
+      "confidence": 0.2
+     }
+    ],
+    "candidates": [
+     {
+      "label": "foliage",
+      "description": "Red/maroon autumn maple leaves on a young tree at left",
+      "usable": false,
+      "confidence": 0.2,
+      "concerns": [
+       "autumn foliage, not green",
+       "seen through window screen with haze"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Gray corrugated metal roof of bird feeder",
+      "usable": true,
+      "confidence": 0.45,
+      "concerns": [
+       "seen through insect screen which adds veiling haze",
+       "possible slight tint of painted metal",
+       "ridged surface with shading variations"
+      ],
+      "boxes": [
+       [
+        0.68,
+        0.24,
+        0.85,
+        0.33
+       ],
+       [
+        0.86,
+        0.22,
+        0.97,
+        0.33
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Weathered wooden feeder table top",
+      "usable": false,
+      "confidence": 0.2,
+      "concerns": [
+       "wood is naturally tinted brown/gray",
+       "possibly wet",
+       "screen haze"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "The scene is an outdoor backyard bird feeder photographed through an insect screen, with dry ground and an autumn maple; there are no hard shadows, suggesting overcast diffuse daylight around 5500-7500 K. The photo has a strong warm/magenta haze from the screen and low contrast, which should not be trusted as the illuminant. The leaves are autumn red, so foliage is unusable, and the wooden table is inherently tinted. The gray metal feeder roof is the best near-neutral reference, though the screen veil and possible paint tint lower confidence. The user asked for neutral correction at full strength.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "neutral_surface",
+      "description": "Gray corrugated metal roof of bird feeder",
+      "box_xyxy": [
+       0.68,
+       0.24,
+       0.85,
+       0.33
+      ],
+      "detector_score": 0.45,
+      "pixels": 16938,
+      "weight": 0.225,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Gray corrugated metal roof of bird feeder",
+      "box_xyxy": [
+       0.86,
+       0.22,
+       0.97,
+       0.33
+      ],
+      "detector_score": 0.45,
+      "pixels": 7686,
+      "weight": 0.225,
+      "kept": true,
+      "reason": "",
+      "used": true
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "neutral_patches",
+    "is_fallback": true,
+    "family": null,
+    "cct_k": null,
+    "cct_uncertainty_k": null,
+    "confidence": 0.359,
+    "white_rgb": [
+     0.954044,
+     1.0,
+     0.995549
+    ],
+    "notes": [
+     "skipped spectral: no camera sensitivity data"
+    ],
+    "correction": "bradford",
+    "adaptation_degree": 1.0,
+    "camera_curves": null,
+    "camera_curves_reason": null
+   },
+   "seconds": 21.6
+  },
+  {
+   "id": "backlit-house",
+   "title": "Backlit portrait, sun in frame",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_3050.DNG",
+   "camera": "Apple iPhone 16 Pro",
+   "input_mode": "raw",
+   "size": [
+    1536,
+    2048
+   ],
+   "images": {
+    "ours": "assets/cases/backlit-house/ours.jpg",
+    "gray_world": "assets/cases/backlit-house/gray_world.jpg",
+    "before": "assets/cases/backlit-house/before.jpg",
+    "overlay": "assets/cases/backlit-house/overlay.jpg",
+    "thumb": "assets/cases/backlit-house/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "outdoor",
+    "time_of_day": "midday",
+    "weather": "clear, sunny",
+    "light_sources": [
+     "sun (direct, in frame, backlighting the scene)",
+     "blue sky"
+    ],
+    "hypotheses": [
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       5000.0,
+       7500.0
+      ],
+      "confidence": 0.85
+     },
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       7500.0,
+       10000.0
+      ],
+      "confidence": 0.15
+     }
+    ],
+    "candidates": [
+     {
+      "label": "skin",
+      "description": "Faces and arms of the two people standing in front of the house",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "backlit, mostly in shadow",
+       "lit by blue skylight rather than direct sun",
+       "very dark, low signal"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "concrete",
+      "description": "Driveway pavement in the foreground",
+      "usable": false,
+      "confidence": 0.35,
+      "concerns": [
+       "in shadow from backlighting",
+       "lit by blue skylight",
+       "sparkly highlights from sun glare",
+       "darkened gradient"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White window trim and garage-area white trim on gray vinyl siding",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "facade in shade facing away from sun",
+       "small thin regions near edges",
+       "skylight-dominated illumination"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "Gray vinyl siding on house facades",
+      "usable": false,
+      "confidence": 0.35,
+      "concerns": [
+       "shaded side facing camera",
+       "siding may be tinted gray-blue",
+       "lit mainly by skylight"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White vinyl fence at right edge near trees",
+      "usable": false,
+      "confidence": 0.25,
+      "concerns": [
+       "small region",
+       "partially shaded",
+       "near image edge"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "foliage",
+      "description": "Trees at right background behind the woman",
+      "usable": false,
+      "confidence": 0.25,
+      "concerns": [
+       "backlit and in shadow",
+       "small area",
+       "may include dry/autumn leaves"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "The scene is an outdoor suburban driveway under a clear sky at midday, with the sun directly in frame strongly backlighting the house, people, and cars. The primary illuminant is daylight around 5000-7500 K, though everything facing the camera is in shade and lit mainly by bluish skylight, which could push effective CCT higher. Because of the extreme backlighting, all candidate reference materials (skin, pavement, white trim, gray siding, fence, foliage) are in shadow, dark, or lit by skylight rather than the main sun, so none are marked usable; the correction should rely on the daylight prior. The user requested neutral, so full correction is applied.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": []
+   },
+   "physics": {
+    "estimator": "shades_of_gray",
+    "is_fallback": true,
+    "family": null,
+    "cct_k": null,
+    "cct_uncertainty_k": null,
+    "confidence": 0.2,
+    "white_rgb": [
+     0.994194,
+     1.0,
+     1.003182
+    ],
+    "notes": [
+     "skipped spectral: no camera sensitivity data",
+     "skipped neutral_patches: no usable neutral patches"
+    ],
+    "correction": "bradford",
+    "adaptation_degree": 1.0,
+    "camera_curves": null,
+    "camera_curves_reason": null
+   },
+   "seconds": 6.3
+  },
+  {
+   "id": "sunny-driveway",
+   "title": "Late-morning sun, people and cars",
+   "caption": "",
+   "intent": "neutral",
+   "source_file": "IMG_3051.DNG",
+   "camera": "Apple iPhone 16 Pro",
+   "input_mode": "raw",
+   "size": [
+    1536,
+    2048
+   ],
+   "images": {
+    "ours": "assets/cases/sunny-driveway/ours.jpg",
+    "gray_world": "assets/cases/sunny-driveway/gray_world.jpg",
+    "before": "assets/cases/sunny-driveway/before.jpg",
+    "overlay": "assets/cases/sunny-driveway/overlay.jpg",
+    "thumb": "assets/cases/sunny-driveway/thumb.jpg"
+   },
+   "ai": {
+    "source": "vlm",
+    "model": "claude-opus-5-5",
+    "environment": "outdoor",
+    "time_of_day": "afternoon, sun high-to-mid elevation",
+    "weather": "clear, sunny",
+    "light_sources": [
+     "sun (upper right, backlighting the scene)",
+     "clear blue sky"
+    ],
+    "hypotheses": [
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       5000.0,
+       7000.0
+      ],
+      "confidence": 0.85
+     },
+     {
+      "family": "daylight",
+      "cct_range_k": [
+       7000.0,
+       10000.0
+      ],
+      "confidence": 0.15
+     }
+    ],
+    "candidates": [
+     {
+      "label": "foliage",
+      "description": "lawn grass in lower right foreground, in shadow and appearing dark/dull",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "mostly in shadow from backlit sun",
+       "underexposed, color unclear",
+       "possibly dry or patchy grass"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "skin",
+      "description": "faces and arms of the two people, backlit and in shade",
+      "usable": false,
+      "confidence": 0.35,
+      "concerns": [
+       "subjects in shade lit mainly by blue skylight",
+       "underexposed"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "concrete",
+      "description": "driveway concrete beneath people and car, in shade",
+      "usable": true,
+      "confidence": 0.5,
+      "concerns": [
+       "in open shade, likely bluish skylight",
+       "possibly stained by tire marks"
+      ],
+      "boxes": [
+       [
+        0.02,
+        0.86,
+        0.1,
+        0.95
+       ],
+       [
+        0.6,
+        0.83,
+        0.72,
+        0.88
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "white garage door, shaded side of house",
+      "usable": true,
+      "confidence": 0.55,
+      "concerns": [
+       "in shade relative to sun",
+       "may be slightly off-white"
+      ],
+      "boxes": [
+       [
+        0.62,
+        0.6,
+        0.84,
+        0.7
+       ],
+       [
+        0.75,
+        0.72,
+        0.85,
+        0.78
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "white window trim and round gable vent on right house",
+      "usable": true,
+      "confidence": 0.45,
+      "concerns": [
+       "thin regions",
+       "shaded facade"
+      ],
+      "boxes": [
+       [
+        0.73,
+        0.23,
+        0.8,
+        0.27
+       ]
+      ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "gray vinyl siding on house facades",
+      "usable": false,
+      "confidence": 0.3,
+      "concerns": [
+       "painted gray may have blue tint",
+       "shaded facade"
+      ],
+      "boxes": []
+     }
+    ],
+    "intent": {
+     "adaptation": "neutral",
+     "strength": 1.0
+    },
+    "rationale": "The scene is an outdoor clear-sky shot with the sun visible in the upper right, so the subjects and house facade are backlit and lit largely by skylight in open shade, implying daylight around 5000-7000 K with some possibility of higher bluish CCT in the shade. The image is underexposed and muted. The best neutral references are the white garage door and white window trim, plus the dry driveway concrete, all shaded but under the same skylight as the subjects; skin and grass are too dark and shaded to be reliable, and the gray siding may be intrinsically tinted. The user requested neutral, so full correction is applied.",
+    "detector": "claude-opus-5-5 boxes",
+    "segmenter": "facebook/sam-vit-base",
+    "regions": [
+     {
+      "label": "concrete",
+      "description": "driveway concrete beneath people and car, in shade",
+      "box_xyxy": [
+       0.02,
+       0.86,
+       0.1,
+       0.95
+      ],
+      "detector_score": 0.5,
+      "pixels": 3019,
+      "weight": 0.021,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "concrete",
+      "description": "driveway concrete beneath people and car, in shade",
+      "box_xyxy": [
+       0.6,
+       0.83,
+       0.72,
+       0.88
+      ],
+      "detector_score": 0.5,
+      "pixels": 6725,
+      "weight": 0.026,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "white garage door, shaded side of house",
+      "box_xyxy": [
+       0.62,
+       0.6,
+       0.84,
+       0.7
+      ],
+      "detector_score": 0.55,
+      "pixels": 10790,
+      "weight": 0.042,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "white garage door, shaded side of house",
+      "box_xyxy": [
+       0.75,
+       0.72,
+       0.85,
+       0.78
+      ],
+      "detector_score": 0.55,
+      "pixels": 4294,
+      "weight": 0.021,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "white window trim and round gable vent on right house",
+      "box_xyxy": [
+       0.73,
+       0.23,
+       0.8,
+       0.27
+      ],
+      "detector_score": 0.45,
+      "pixels": 6538,
+      "weight": 0.128,
+      "kept": true,
+      "reason": "",
+      "used": true
+     }
+    ]
+   },
+   "physics": {
+    "estimator": "neutral_patches",
+    "is_fallback": true,
+    "family": null,
+    "cct_k": null,
+    "cct_uncertainty_k": null,
+    "confidence": 0.087,
+    "white_rgb": [
+     0.92108,
+     1.0,
+     1.155498
+    ],
+    "notes": [
+     "skipped spectral: no camera sensitivity data"
+    ],
+    "correction": "bradford",
+    "adaptation_degree": 1.0,
+    "camera_curves": null,
+    "camera_curves_reason": null
+   },
+   "seconds": 20.5
+  }
+ ],
+ "pipeline": {
+  "vlm": "claude-opus-5-5",
+  "detector": "vlm",
+  "segmenter": "facebook/sam-vit-base",
+  "processing_long_edge_px": 2048
+ }
+}
