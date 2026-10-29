@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 
@@ -27,9 +27,11 @@ def main() -> None:
 ConfigOption = Annotated[Path | None, typer.Option("--config", help="YAML config file.")]
 
 
-def _load(config_path: Path | None, verbose: bool) -> AppConfig:
+def _load(
+    config_path: Path | None, verbose: bool, overrides: dict[str, Any] | None = None
+) -> AppConfig:
     logging.basicConfig(level=logging.INFO if verbose else logging.WARNING, format="%(message)s")
-    return load_config(config_path)
+    return load_config(config_path, overrides)
 
 
 @app.command()
@@ -38,11 +40,18 @@ def correct(
     output_dir: Annotated[Path | None, typer.Option(help="Defaults to outputs/<stem>.")] = None,
     camera: Annotated[str | None, typer.Option(help="Force a camera's sensitivity curves.")] = None,
     intent: Annotated[str | None, typer.Option(help='E.g. "keep the warm evening mood".')] = None,
+    vlm: Annotated[str | None, typer.Option(help="none | ollama | anthropic")] = None,
+    detector: Annotated[str | None, typer.Option(help="none | manual | transformers")] = None,
     config_path: ConfigOption = None,
     verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
 ) -> None:
     """Correct the colors of PHOTO and write images and a report."""
-    config = _load(config_path, verbose)
+    overrides: dict[str, Any] = {}
+    if vlm:
+        overrides["context"] = {"client": vlm}
+    if detector:
+        overrides["detection"] = {"detector": detector}
+    config = _load(config_path, verbose, overrides)
     result = build_pipeline(config).run(photo, camera=camera, intent=intent)
     target_dir = output_dir or config.output.directory / photo.stem
     written = write_outputs(result, target_dir, config)
