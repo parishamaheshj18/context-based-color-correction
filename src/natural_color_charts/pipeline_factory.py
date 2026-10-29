@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from natural_color_charts.camera.repository import CameraSensitivityRepository
 from natural_color_charts.camera.selector import CameraSensitivitySelector
@@ -56,11 +57,13 @@ from natural_color_charts.estimation.statistical import (
     ShadesOfGrayEstimator,
     WhitePatchEstimator,
 )
+from natural_color_charts.gui.session import MatchSession, chart_swatches
 from natural_color_charts.io.loaders import (
     RasterImageLoader,
     RawImageLoader,
     SuffixDispatchingLoader,
 )
+from natural_color_charts.io.preview import downscale_image
 from natural_color_charts.pipeline import ColorCorrectionPipeline, PipelineStages
 from natural_color_charts.spectral.bootstrap_priors import build_bootstrap_priors
 from natural_color_charts.spectral.datasets import (
@@ -324,4 +327,26 @@ def build_pipeline(config: AppConfig) -> ColorCorrectionPipeline:
         build_grid(config),
         config.io.preview_long_edge_px,
         config.correction.adaptation_transform,
+    )
+
+
+def build_match_session(
+    config: AppConfig,
+    photo: Path,
+    intent: str | None,
+    processing_long_edge_px: int,
+) -> MatchSession:
+    """A matching-GUI session for one photo, downscaled for interactive speed."""
+    grid = build_grid(config)
+    names, reflectances = chart_reflectances(config.correction.training_set, grid)
+    swatches = chart_swatches(
+        names, reflectances, cie_1931_cmfs(grid), standard_illuminant_spd("D65", grid)
+    )
+    image = downscale_image(build_loader(config).load(photo), processing_long_edge_px)
+    return MatchSession(
+        build_pipeline(config),
+        build_default_context_provider(config),
+        image,
+        swatches,
+        intent,
     )

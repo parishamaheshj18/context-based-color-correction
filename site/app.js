@@ -8,8 +8,8 @@ const SITE = {
 
 const SERIES = [
   { key: "ours", label: "This project", color: "var(--series-ours)" },
-  { key: "gray_world", label: "Gray world (classic AWB)", color: "var(--series-gray-world)" },
-  { key: "before", label: "Camera as-shot", color: "var(--series-before)" },
+  { key: "gray_world", label: "Gray world", color: "var(--series-gray-world)" },
+  { key: "before", label: "Camera", color: "var(--series-before)" },
 ];
 const LABELS = { foliage: "Foliage", skin: "Skin", concrete: "Concrete", paper: "White paper", snow: "Snow", cloud: "Cloud", neutral_surface: "Neutral surface" };
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -168,212 +168,55 @@ function accuracyTable(cases) {
   return el("table", { class: "data-table" }, [el("thead", {}, [head]), el("tbody", {}, rows)]);
 }
 
-function spectrumChart(spectrum, caption) {
-  const width = 560, height = 220, margin = { top: 12, right: 12, bottom: 34, left: 40 };
-  const innerW = width - margin.left - margin.right, innerH = height - margin.top - margin.bottom;
-  const wl = spectrum.wavelengths_nm;
-  const x = (v) => margin.left + ((v - wl[0]) / (wl.at(-1) - wl[0])) * innerW;
-  const y = (v) => margin.top + innerH * (1 - v / 1.05);
-  const path = (values) => values.map((v, i) => `${i ? "L" : "M"}${x(wl[i]).toFixed(1)},${y(v).toFixed(1)}`).join("");
-  const root = svg("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": caption });
-  for (const v of [0, 0.5, 1]) {
-    root.append(svg("line", { class: "gridline", x1: margin.left, x2: width - margin.right, y1: y(v), y2: y(v) }));
-    root.append(svg("text", { x: margin.left - 6, y: y(v) + 4, "text-anchor": "end", text: v.toFixed(1) }));
-  }
-  for (const v of [400, 500, 600, 700]) root.append(svg("text", { x: x(v), y: height - 12, "text-anchor": "middle", text: `${v} nm` }));
-  root.append(svg("path", { d: path(spectrum.d65_relative_power), fill: "none", stroke: "var(--text-muted)", "stroke-width": 2, "stroke-dasharray": "5 4" }));
-  root.append(svg("path", { d: path(spectrum.relative_power), fill: "none", stroke: "var(--series-ours)", "stroke-width": 2, "stroke-linejoin": "round" }));
-  const cross = svg("line", { y1: margin.top, y2: margin.top + innerH, stroke: "var(--text-muted)", "stroke-width": 1, visibility: "hidden" });
-  const hit = svg("rect", { x: margin.left, y: margin.top, width: innerW, height: innerH, fill: "transparent" });
-  root.append(cross, hit);
-  hit.addEventListener("pointermove", (e) => {
-    const box = root.getBoundingClientRect();
-    const svgX = ((e.clientX - box.left) / box.width) * width;
-    const i = Math.max(0, Math.min(wl.length - 1, Math.round(((svgX - margin.left) / innerW) * (wl.length - 1))));
-    cross.setAttribute("x1", x(wl[i])); cross.setAttribute("x2", x(wl[i])); cross.setAttribute("visibility", "visible");
-    showTooltip(e, `${wl[i]} nm`, [
-      ["var(--series-ours)", spectrum.relative_power[i].toFixed(2), "Estimated light"],
-      ["var(--text-muted)", spectrum.d65_relative_power[i].toFixed(2), "D65 daylight (target)"],
-    ]);
-  });
-  hit.addEventListener("pointerleave", () => { cross.setAttribute("visibility", "hidden"); hideTooltip(); });
-  return el("figure", { class: "chart", style: "margin:0 0 0.75rem" }, [
-    el("div", { class: "legend" }, [
-      el("span", {}, [el("i", { class: "line", style: "background:var(--series-ours)" }), "Estimated light"]),
-      el("span", {}, [el("i", { class: "dashed" }), "D65 daylight (target white)"]),
-    ]),
-    root,
-    el("figcaption", { class: "note", text: caption }),
-  ]);
+// ---------- case ----------
+function lightText(physics) {
+  if (!physics.cct_k) return null;
+  const kind = physics.family === "blackbody" ? "tungsten-like" : "daylight";
+  return `Light ≈ ${fmt.kelvin(physics.cct_k)}, ${kind}`;
 }
 
-// ---------- case card ----------
-function tabSet(definitions) {
-  const tabs = el("div", { class: "tabs", role: "tablist" });
-  const panels = [];
-  definitions.forEach((def, i) => {
-    const id = `${def.id}-panel`;
-    const button = el("button", { role: "tab", "aria-selected": i === 0 ? "true" : "false", "aria-controls": id, id: `${def.id}-tab` }, [
-      def.kind ? el("span", { class: `dot ${def.kind}`, "aria-hidden": "true" }) : null,
-      def.label,
-    ]);
-    const panel = el("div", { class: "panel", role: "tabpanel", id, "aria-labelledby": `${def.id}-tab`, hidden: i !== 0 }, def.content());
-    button.addEventListener("click", () => {
-      tabs.querySelectorAll("button").forEach((b) => b.setAttribute("aria-selected", "false"));
-      panels.forEach((p) => (p.hidden = true));
-      button.setAttribute("aria-selected", "true");
-      panel.hidden = false;
-    });
-    tabs.append(button);
-    panels.push(panel);
-  });
-  return [tabs, ...panels];
-}
-
-function aiPanel(c) {
+function details(c) {
   const ai = c.ai;
-  const used = ai.source === "vlm";
-  const dl = el("dl", {}, [
-    el("dt", { text: "Setting" }), el("dd", { text: [ai.environment, ai.time_of_day, ai.weather].filter((v) => v && v !== "unknown").join(" · ") || "not determined" }),
-    el("dt", { text: "Light sources" }), el("dd", { text: ai.light_sources.length ? ai.light_sources.join(", ") : "none named" }),
-    el("dt", { text: "Light guess" }), el("dd", { text: ai.hypotheses.filter((h) => h.confidence > 0).map((h) => `${h.family} ${h.cct_range_k[0]}–${h.cct_range_k[1]} K (${fmt.pct(h.confidence)})`).join("; ") || "no prior" }),
-    el("dt", { text: "Your intent" }), el("dd", { text: `${ai.intent.adaptation.replace("_", " ")}${ai.intent.adaptation === "preserve_ambiance" ? `, ${fmt.pct(ai.intent.strength)} correction` : ""}` }),
-  ]);
-  const materials = el("ul", { class: "materials" }, ai.candidates.map((m) =>
-    el("li", {}, [
-      el("span", { class: `verdict ${m.usable ? "yes" : "no"}`, text: m.usable ? "✓ trust" : "✗ reject" }),
+  const picks = el("ul", { class: "picks" }, ai.candidates.map((m) =>
+    el("li", { class: m.usable ? "yes" : "no" }, [
+      el("span", { class: "mark", text: m.usable ? "✓" : "✗", "aria-label": m.usable ? "trusted" : "rejected" }),
       el("span", {}, [el("strong", { text: LABELS[m.label] ?? m.label }), m.description ? ` — ${m.description}` : ""]),
-      m.concerns.length ? el("small", { text: `Concerns: ${m.concerns.join("; ")}` }) : null,
     ]),
   ));
-  return [
-    used ? null : el("p", { class: "note", text: "No vision model was used for this case; all materials were assumed possible." }),
-    ai.rationale ? el("blockquote", { class: "rationale" }, [ai.rationale, el("cite", { text: `${ai.model ?? "model"}, answering in a strict JSON schema` })]) : null,
-    dl,
-    el("h4", { text: "Reference materials the model proposed", style: "margin:0 0 0.5rem;font-size:0.95rem" }),
-    materials,
-  ];
-}
-
-function regionsPanel(c) {
-  const rows = c.ai.regions.map((r, i) =>
-    el("tr", {}, [
-      el("td", {}, [
-        el("strong", { text: LABELS[r.label] ?? r.label }),
-        // Several boxes can share one description; show it on the first of them only.
-        r.description && r.description !== c.ai.regions[i - 1]?.description ? el("div", { class: "note", text: r.description }) : null,
-      ]),
-      el("td", { text: r.detector_score?.toFixed(2) ?? "–" }),
-      el("td", { text: r.pixels.toLocaleString() }),
-      el("td", { text: r.kept ? r.weight.toFixed(2) : "–" }),
-      el("td", {}, [r.used ? el("span", { class: "chip good", text: "used" }) : el("span", { class: "chip bad", text: r.reason || "not used" })]),
-    ]),
-  );
-  return [
-    el("figure", { class: "overlay-figure" }, [
-      el("img", { src: c.images.overlay, alt: `${c.title}: reference regions chosen by the AI`, loading: "lazy" }),
-      el("figcaption", { text: `Masks from ${c.ai.detector} + ${c.ai.segmenter}, tinted by material; stronger tint = more trusted. Red = rejected.${c.ground_truth ? " The black box is the hidden color chart." : ""}` }),
-    ]),
-    rows.length
-      ? el("div", { class: "table-scroll" }, [
-          el("table", { class: "data-table" }, [
-            el("thead", {}, [el("tr", {}, ["Material", "AI confidence", "Pixels", "Weight", "Status"].map((t) => el("th", { text: t })))]),
-            el("tbody", {}, rows),
-          ]),
-        ])
-      : el("p", { class: "note", text: "No usable reference regions were found, so the estimate fell back to image statistics." }),
-  ];
-}
-
-function physicsPanel(c) {
-  const p = c.physics;
-  const metrics = el("div", { class: "metric-row" }, [
-    p.cct_k ? el("div", { class: "metric" }, [el("strong", { text: `${fmt.kelvin(p.cct_k)}${p.cct_uncertainty_k ? ` ± ${Math.round(p.cct_uncertainty_k)}` : ""}` }), el("span", { text: `${p.family} light` })]) : null,
-    el("div", { class: "metric" }, [el("strong", { text: p.estimator.replaceAll("_", " ") }), el("span", { text: p.is_fallback ? "estimator (fallback)" : "estimator" })]),
-    el("div", { class: "metric" }, [el("strong", { text: fmt.pct(p.confidence) }), el("span", { text: "confidence" })]),
-    el("div", { class: "metric" }, [el("strong", { text: p.correction.replaceAll("_", " ") }), el("span", { text: "color matrix" })]),
-  ]);
-  return [
-    metrics,
-    p.spectrum ? spectrumChart(p.spectrum, `Light spectrum fitted to the reference materials (${p.family}).`) : null,
-    el("p", { class: "note", text: p.camera_curves ? `Camera curves: ${p.camera_curves} (${p.camera_curves_reason}).` : "No spectral curves for this camera, so the camera's own color matrix was used." }),
-    ...p.notes.filter((n) => !n.startsWith("skipped")).map((n) => el("p", { class: "note", text: n })),
-  ];
-}
-
-function truthPanel(c) {
   const gt = c.ground_truth;
-  return [
-    el("div", { class: "metric-row" }, SERIES.map((s) =>
-      el("div", { class: "metric" }, [el("strong", { text: fmt.deg(gt[s.key].angular_error_deg) }), el("span", { text: s.label })]),
-    )),
-    el("p", { class: "note", text: "Angular error between each method's estimate of the light and the light measured on the chart's gray patches. The chart was hidden from every stage of the pipeline." }),
-    el("p", { class: "note", text: `ΔE00 on the 24 patches: ${SERIES.map((s) => `${s.label} ${gt[s.key].delta_e00.toFixed(1)}`).join(", ")}. Patch color accuracy is limited by the camera's factory color matrix, which all three share.` }),
-  ];
+  return el("details", { class: "case-details" }, [
+    el("summary", { text: "What Claude saw" }),
+    el("div", { class: "details-grid" }, [
+      el("img", { src: c.images.overlay, alt: `${c.title}: regions Claude chose`, loading: "lazy" }),
+      el("div", {}, [
+        ai.rationale ? el("blockquote", { class: "rationale", text: ai.rationale }) : null,
+        picks,
+        gt ? el("p", { class: "note", text: `Error vs. hidden chart: ${SERIES.map((s) => `${s.label} ${fmt.deg(gt[s.key].angular_error_deg)}`).join(" · ")}` }) : null,
+      ]),
+    ]),
+  ]);
 }
 
 function caseCard(c) {
-  const baselines = [["before", c.input_mode === "raster" ? "Original" : "Camera as-shot"], ["gray_world", "Gray world"]];
-  const slider = compareSlider(c.images.ours, c.images.before, "This project", baselines[0][1], c.title);
-  const switcher = el("div", { class: "baseline-switch", role: "group", "aria-label": "Compare against" }, ["Compare against:"]);
-  baselines.forEach(([key, label], i) => {
-    const button = el("button", { "aria-pressed": i === 0 ? "true" : "false", text: label });
-    button.addEventListener("click", () => {
-      switcher.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
-      button.setAttribute("aria-pressed", "true");
-      slider.setBefore(c.images[key], label);
-    });
-    switcher.append(button);
-  });
-  const tags = el("div", { class: "case-tags" }, [
-    c.camera ? el("span", { class: "chip", text: c.camera }) : null,
-    el("span", { class: "chip", text: c.input_mode === "raw" ? "RAW" : "JPEG/PNG (approximate)" }),
-    c.ground_truth ? el("span", { class: "chip good", text: `chart-verified · ${fmt.deg(c.ground_truth.ours.angular_error_deg)} error` }) : null,
-    c.ai.source === "vlm" ? el("span", { class: "chip ai", text: "AI context" }) : null,
-  ]);
-  const tabs = [
-    { id: `${c.id}-ai`, label: "AI reasoning", kind: "ai", content: () => aiPanel(c) },
-    { id: `${c.id}-regions`, label: "Regions", kind: "ai", content: () => regionsPanel(c) },
-    { id: `${c.id}-physics`, label: "Physics", kind: "physics", content: () => physicsPanel(c) },
-  ];
-  if (c.ground_truth) tabs.push({ id: `${c.id}-truth`, label: "Ground truth", content: () => truthPanel(c) });
+  const beforeLabel = c.input_mode === "raster" ? "Original" : "Camera";
+  const slider = compareSlider(c.images.ours, c.images.before, "Corrected", beforeLabel, c.title);
+  const meta = [c.camera, lightText(c.physics)].filter(Boolean).join(" · ");
   return el("article", { class: "case", id: c.id }, [
-    el("div", { class: "case-head" }, [el("div", {}, [el("h3", { text: c.title }), c.caption ? el("p", { text: c.caption }) : null]), tags]),
-    el("div", {}, [slider.root, switcher]),
-    el("div", {}, tabSet(tabs)),
+    el("div", { class: "case-head" }, [el("h3", { text: c.title }), meta ? el("p", { text: meta }) : null]),
+    slider.root,
+    details(c),
   ]);
 }
 
 // ---------- page ----------
-function mean(values) { return values.reduce((a, b) => a + b, 0) / values.length; }
-
-function renderHero(cases) {
-  const charted = cases.filter((c) => c.ground_truth);
-  const stats = document.getElementById("hero-stats");
-  if (charted.length) {
-    const avg = (key) => mean(charted.map((c) => c.ground_truth[key].angular_error_deg));
-    stats.append(
-      el("li", {}, [el("strong", { text: fmt.deg(avg("ours")) }), el("span", { text: `mean error, this project (${charted.length} chart scenes)` })]),
-      el("li", {}, [el("strong", { text: fmt.deg(avg("gray_world")) }), el("span", { text: "gray world, the classic auto white balance" })]),
-      el("li", {}, [el("strong", { text: String(cases.length) }), el("span", { text: "real photos, RAW and JPEG" })]),
-    );
-  }
-  const featured = charted.length
-    ? charted.reduce((best, c) => (c.ground_truth.before.angular_error_deg - c.ground_truth.ours.angular_error_deg > best.ground_truth.before.angular_error_deg - best.ground_truth.ours.angular_error_deg ? c : best))
-    : cases[0];
-  if (!featured) return;
-  const slider = compareSlider(featured.images.ours, featured.images.before, "This project", "Camera as-shot", featured.title);
-  document.getElementById("hero-figure").append(slider.root, el("figcaption", { text: `${featured.title}. Drag to compare; details in the gallery below.` }));
-}
-
 function renderAccuracy(cases) {
   const container = document.getElementById("accuracy-chart");
   const charted = cases.filter((c) => c.ground_truth);
   if (!charted.length) { document.getElementById("accuracy").hidden = true; return; }
   const table = accuracyTable(charted);
   table.hidden = true;
-  const toggle = el("button", { class: "toggle-table", text: "Show as table" });
-  toggle.addEventListener("click", () => { table.hidden = !table.hidden; toggle.textContent = table.hidden ? "Show as table" : "Hide table"; });
+  const toggle = el("button", { class: "toggle-table", text: "Table" });
+  toggle.addEventListener("click", () => { table.hidden = !table.hidden; });
   container.append(
     el("div", { class: "chart-header" }, [
       el("div", { class: "legend" }, SERIES.map((s) => el("span", {}, [el("i", { style: `background:${s.color}` }), s.label]))),
@@ -382,23 +225,23 @@ function renderAccuracy(cases) {
     el("div", { class: "chart" }, [accuracyChart(charted)]),
     table,
   );
-  document.getElementById("accuracy-footnote").textContent =
-    "Angular error between the estimated and the measured light color, in degrees. “Camera as-shot” is the white balance the photographer locked in (5200 K).";
+}
+
+function showToolScreenshot() {
+  const shot = document.getElementById("match-tool-shot");
+  const reveal = () => { document.getElementById("match-tool").hidden = false; };
+  if (shot.complete && shot.naturalWidth) reveal();
+  else shot.addEventListener("load", reveal, { once: true });
 }
 
 async function main() {
   const repo = document.getElementById("repo-link");
   if (SITE.repoUrl) repo.href = SITE.repoUrl; else repo.remove();
-  const response = await fetch("data/cases.json");
-  const data = await response.json();
-  const cases = data.cases;
-  if (data.pipeline?.vlm) {
-    document.querySelectorAll(".stage.ai .kind")[0].textContent = `AI · ${data.pipeline.vlm}`;
-  }
-  renderHero(cases);
-  renderAccuracy(cases);
-  document.getElementById("cases").append(...cases.map(caseCard));
-  document.getElementById("footer-meta").textContent = `Built by ${SITE.author}. Every number on this page is generated by the code in the repository.`;
+  showToolScreenshot();
+  const data = await (await fetch("data/cases.json")).json();
+  renderAccuracy(data.cases);
+  document.getElementById("cases").append(...data.cases.map(caseCard));
+  document.getElementById("footer-meta").textContent = `Built by ${SITE.author} · Python, colour-science, Claude, Segment Anything`;
 }
 
 main().catch((error) => {
