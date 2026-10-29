@@ -22,6 +22,7 @@ from natural_color_charts.domain import (
     PreviewImage,
     ReferenceRegion,
     SceneContext,
+    WavelengthGrid,
 )
 from natural_color_charts.estimation.base import EstimationInput, IlluminantEstimator
 from natural_color_charts.io.loaders import ImageLoader
@@ -43,6 +44,7 @@ class PipelineResult:
     estimate: IlluminantEstimate
     transform: CorrectionTransform
     rendered: RenderedImage
+    grid: WavelengthGrid
 
 
 @dataclass(frozen=True, eq=False)
@@ -63,9 +65,14 @@ class ColorCorrectionPipeline:
     """Runs the stages in order for one image."""
 
     def __init__(
-        self, stages: PipelineStages, preview_long_edge_px: int, adaptation_transform: str
+        self,
+        stages: PipelineStages,
+        grid: WavelengthGrid,
+        preview_long_edge_px: int,
+        adaptation_transform: str,
     ) -> None:
         self._stages = stages
+        self._grid = grid
         self._preview_px = preview_long_edge_px
         self._adaptation_transform = adaptation_transform
 
@@ -104,4 +111,5 @@ class ColorCorrectionPipeline:
             estimate=outcome.estimate,
             transform=transform,
             rendered=stages.renderer.render(image, transform),
+            grid=self._grid,
         )

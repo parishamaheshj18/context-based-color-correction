@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 from typing import Annotated, Any
@@ -9,10 +10,16 @@ from typing import Annotated, Any
 import typer
 
 from natural_color_charts.config import AppConfig, load_config
+from natural_color_charts.evaluation.runner import (
+    BenchmarkRunner,
+    format_summary_table,
+    write_results,
+)
 from natural_color_charts.io.writers import write_image8, write_tiff16
 from natural_color_charts.pipeline import PipelineResult
 from natural_color_charts.pipeline_factory import build_grid, build_pipeline, build_repository
 from natural_color_charts.reporting.report import build_report, write_report
+from natural_color_charts.reporting.visualization import render_overlay, save_comparison
 from natural_color_charts.spectral.library_reader import build_priors_from_library
 from natural_color_charts.spectral.priors import save_prior
 
@@ -24,7 +31,18 @@ def main() -> None:
     """Context-aware color correction without a color checker."""
 
 
+DEFAULT_BASELINES = ("gray_world", "white_patch", "shades_of_gray", "gray_edge", "as_shot")
+
 ConfigOption = Annotated[Path | None, typer.Option("--config", help="YAML config file.")]
+
+
+def _stage_overrides(vlm: str | None, detector: str | None) -> dict[str, Any]:
+    overrides: dict[str, Any] = {}
+    if vlm:
+        overrides["context"] = {"client": vlm}
+    if detector:
+        overrides["detection"] = {"detector": detector}
+    return overrides
 
 
 def _load(
@@ -46,12 +64,7 @@ def correct(
     verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
 ) -> None:
     """Correct the colors of PHOTO and write images and a report."""
-    overrides: dict[str, Any] = {}
-    if vlm:
-        overrides["context"] = {"client": vlm}
-    if detector:
-        overrides["detection"] = {"detector": detector}
-    config = _load(config_path, verbose, overrides)
+    config = _load(config_path, verbose, _stage_overrides(vlm, detector))
     result = build_pipeline(config).run(photo, camera=camera, intent=intent)
     target_dir = output_dir or config.output.directory / photo.stem
     written = write_outputs(result, target_dir, config)
@@ -83,6 +96,28 @@ def build_priors_command(
         )
 
 
+@app.command()
+def evaluate(
+    dataset_dir: Annotated[Path, typer.Argument(exists=True, file_okay=False)],
+    ablation: Annotated[list[str] | None, typer.Option(help="Repeatable; see ABLATIONS.")] = None,
+    baseline: Annotated[list[str] | None, typer.Option(help="Repeatable estimator name.")] = None,
+    output_dir: Annotated[Path | None, typer.Option()] = None,
+    vlm: Annotated[str | None, typer.Option(help="none | ollama | anthropic")] = None,
+    detector: Annotated[str | None, typer.Option(help="none | manual | transformers")] = None,
+    config_path: ConfigOption = None,
+    verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
+) -> None:
+    """Benchmark the pipeline, ablations, and baselines on DATASET_DIR (Stage 11)."""
+    config = _load(config_path, verbose, _stage_overrides(vlm, detector))
+    results = BenchmarkRunner(config).run(
+        dataset_dir, ablation or ["full"], baseline or list(DEFAULT_BASELINES)
+    )
+    target = output_dir or config.output.directory / f"evaluation_{dataset_dir.name}"
+    _, summary_path = write_results(target, results)
+    typer.echo(format_summary_table(json.loads(summary_path.read_text())))
+    typer.echo(f"\nDetails: {target}")
+
+
 def write_outputs(result: PipelineResult, directory: Path, config: AppConfig) -> list[Path]:
     """Write corrected images and report.json into directory."""
     encoded = result.rendered.encoded_srgb
@@ -90,6 +125,10 @@ def write_outputs(result: PipelineResult, directory: Path, config: AppConfig) ->
         write_tiff16(directory / "corrected.tif", encoded),
         write_image8(directory / "corrected.png", encoded),
         write_image8(directory / "corrected.jpg", encoded, config.output.jpeg_quality),
+        write_image8(
+            directory / "overlay.png", render_overlay(result, config.output.overlay_alpha_max) / 255
+        ),
+        save_comparison(result, directory / "comparison.png"),
         write_report(directory / "report.json", build_report(result)),
     ]
 

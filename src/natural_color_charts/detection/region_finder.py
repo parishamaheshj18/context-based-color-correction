@@ -17,7 +17,12 @@ from natural_color_charts.detection.base import (
     ReferenceDetector,
     Segmenter,
 )
-from natural_color_charts.domain import LinearImage, ReferenceRegion, SceneContext
+from natural_color_charts.domain import (
+    LinearImage,
+    ReferenceClass,
+    ReferenceRegion,
+    SceneContext,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +41,9 @@ class ReferenceRegionFinder:
         detector: ReferenceDetector,
         segmenter: Segmenter,
         refiners: Sequence[MaskRefiner],
+        excluded_labels: Sequence[ReferenceClass] = (),
     ) -> None:
+        self._excluded = frozenset(excluded_labels)
         self._detector = detector
         self._segmenter = segmenter
         self._refiners = list(refiners)
@@ -45,7 +52,9 @@ class ReferenceRegionFinder:
         self, image: LinearImage, preview: PreviewImage, context: SceneContext
     ) -> list[ReferenceRegion]:
         """Regions for every usable reference candidate in the context."""
-        usable = [c for c in context.reference_candidates if c.usable]
+        usable = [
+            c for c in context.reference_candidates if c.usable and c.label not in self._excluded
+        ]
         if not usable:
             return []
         request = DetectionRequest(preview, [c.label for c in usable], image.source_path)

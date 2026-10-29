@@ -7,6 +7,7 @@ import difflib
 import logging
 
 from natural_color_charts.camera.repository import (
+    SRGB_EQUIVALENT_NAME,
     CameraSensitivityRepository,
     normalize_camera_name,
 )
@@ -23,14 +24,21 @@ class CameraSensitivitySelector:
         repository: CameraSensitivityRepository,
         fuzzy_cutoff: float,
         use_same_make_fallback: bool,
+        default_request: str | None = None,
     ) -> None:
         self._repository = repository
+        self._default_request = default_request
         self._fuzzy_cutoff = fuzzy_cutoff
         self._use_same_make_fallback = use_same_make_fallback
         self._by_normalized = {normalize_camera_name(n): n for n in repository.list_cameras()}
 
     def select(self, image: LinearImage, requested: str | None = None) -> CameraSensitivity | None:
         """Return a sensitivity, or None when only the camera matrix path is possible."""
+        requested = requested or self._default_request
+        if requested == SRGB_EQUIVALENT_NAME:
+            return dataclasses.replace(
+                self._repository.srgb_equivalent(), selection_reason="requested generic curves"
+            )
         if requested:
             match = self._find(requested)
             if match is None:
