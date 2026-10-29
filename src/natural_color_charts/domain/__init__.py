@@ -6,7 +6,7 @@ from natural_color_charts.domain.illuminant import (
     IlluminantEstimate,
     normalize_white,
 )
-from natural_color_charts.domain.image import ImageMetadata, InputMode, LinearImage
+from natural_color_charts.domain.image import ImageMetadata, InputMode, LinearImage, PreviewImage
 from natural_color_charts.domain.regions import Detection, PatchMeasurement, ReferenceRegion
 from natural_color_charts.domain.scene import (
     NEUTRAL_CLASSES,
@@ -38,6 +38,7 @@ __all__ = [
     "LinearImage",
     "Matrix3x3",
     "PatchMeasurement",
+    "PreviewImage",
     "ReferenceCandidate",
     "ReferenceClass",
     "ReferenceRegion",

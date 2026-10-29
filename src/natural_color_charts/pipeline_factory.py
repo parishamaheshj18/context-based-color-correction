@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from natural_color_charts.camera.repository import CameraSensitivityRepository
 from natural_color_charts.camera.selector import CameraSensitivitySelector
-from natural_color_charts.config import AppConfig, EstimationConfig
+from natural_color_charts.config import AppConfig, DetectionConfig, EstimationConfig
+from natural_color_charts.context.base import (
+    DefaultSceneContextProvider,
+    KeywordIntentParser,
+    SceneContextProvider,
+)
 from natural_color_charts.correction.base import CorrectionBuilder, FallbackCorrectionBuilder
 from natural_color_charts.correction.matrix_builders import (
     BradfordCorrectionBuilder,
@@ -12,6 +17,15 @@ from natural_color_charts.correction.matrix_builders import (
 )
 from natural_color_charts.correction.renderer import SrgbRenderer
 from natural_color_charts.correction.spectral_builder import SpectralCorrectionMatrixBuilder
+from natural_color_charts.detection.base import ReferenceDetector, Segmenter
+from natural_color_charts.detection.patch_statistics import PatchStatisticsCalculator
+from natural_color_charts.detection.region_finder import ReferenceRegionFinder
+from natural_color_charts.detection.simple import (
+    BoxSegmenter,
+    ManualRegionDetector,
+    NullDetector,
+    SkinPixelRefiner,
+)
 from natural_color_charts.domain import WavelengthGrid
 from natural_color_charts.estimation.base import FallbackIlluminantEstimator, IlluminantEstimator
 from natural_color_charts.estimation.statistical import (
@@ -26,7 +40,7 @@ from natural_color_charts.io.loaders import (
     RawImageLoader,
     SuffixDispatchingLoader,
 )
-from natural_color_charts.pipeline import ColorCorrectionPipeline
+from natural_color_charts.pipeline import ColorCorrectionPipeline, PipelineStages
 from natural_color_charts.spectral.datasets import (
     chart_reflectances,
     cie_1931_cmfs,
@@ -136,6 +150,55 @@ def build_correction_builder(config: AppConfig) -> CorrectionBuilder:
     )
 
 
+def build_context_provider(config: AppConfig) -> SceneContextProvider:
+    """Scene context without a VLM: all reference classes, uninformative lighting priors."""
+    return DefaultSceneContextProvider(
+        families=config.context.default_families,
+        estimation_config=config.estimation,
+        candidate_confidence=config.context.default_candidate_confidence,
+        intent_parser=KeywordIntentParser(config.context.default_ambiance_strength),
+    )
+
+
+def build_detector(config: DetectionConfig) -> ReferenceDetector:
+    """Detector chosen by config; model-based detectors load weights here."""
+    if config.detector == "manual":
+        return ManualRegionDetector(config.manual_sidecar_suffix)
+    if config.detector == "transformers":
+        from natural_color_charts.detection.transformers_models import (
+            TransformersZeroShotDetector,
+        )
+
+        return TransformersZeroShotDetector(
+            model_id=config.detector_model,
+            device=config.device,
+            prompts=config.prompts,
+            score_threshold=config.score_threshold,
+            max_per_label=config.max_regions_per_label,
+            iou_threshold=config.iou_threshold,
+        )
+    return NullDetector()
+
+
+def build_segmenter(config: DetectionConfig) -> Segmenter:
+    """Segmenter chosen by config."""
+    if config.segmenter == "sam":
+        from natural_color_charts.detection.transformers_models import TransformersSamSegmenter
+
+        return TransformersSamSegmenter(config.segmenter_model, config.device)
+    return BoxSegmenter(config.box_inset_fraction)
+
+
+def build_region_finder(config: AppConfig) -> ReferenceRegionFinder:
+    """Detection, segmentation, and skin refinement."""
+    detection = config.detection
+    return ReferenceRegionFinder(
+        detector=build_detector(detection),
+        segmenter=build_segmenter(detection),
+        refiners=[SkinPixelRefiner(detection.skin_cr_range, detection.skin_cb_range)],
+    )
+
+
 def build_pipeline(config: AppConfig) -> ColorCorrectionPipeline:
     """Assemble the full pipeline from configuration."""
     renderer = SrgbRenderer(
@@ -143,11 +206,16 @@ def build_pipeline(config: AppConfig) -> ColorCorrectionPipeline:
         config.render.exposure_target,
         config.render.normalize_raster_exposure,
     )
-    return ColorCorrectionPipeline(
+    stages = PipelineStages(
         loader=build_loader(config),
         sensitivity_selector=build_selector(config),
+        context_provider=build_context_provider(config),
+        region_finder=build_region_finder(config),
+        patch_calculator=PatchStatisticsCalculator(config.patches),
         estimator=build_estimator(config),
         correction_builder=build_correction_builder(config),
         renderer=renderer,
-        adaptation_transform=config.correction.adaptation_transform,
+    )
+    return ColorCorrectionPipeline(
+        stages, config.io.preview_long_edge_px, config.correction.adaptation_transform
     )

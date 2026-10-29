@@ -39,6 +39,9 @@ detection:
   segmenter_model: facebook/sam-vit-base
   score_threshold: 0.2
   max_regions_per_label: 3
+  iou_threshold: 0.5
+  box_inset_fraction: 0.1
+  manual_sidecar_suffix: .regions.json
   skin_cr_range: [133, 173]
   skin_cb_range: [77, 127]
   prompts:
