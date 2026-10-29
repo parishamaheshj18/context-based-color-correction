@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Natural Color Charts: context-aware color correction</title>
+  <meta name="description" content="A vision-language model reads the scene and picks materials it can trust; physics turns them into a color correction. Before/after results on real RAW photos, with color-checker ground truth.">
+  <meta property="og:title" content="Natural Color Charts">
+  <meta property="og:description" content="Context-aware color correction without a color checker: AI reads the scene, physics corrects the pixels.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='16' height='16' fill='%232a78d6'/%3E%3Crect x='16' width='16' height='16' fill='%23eb6834'/%3E%3Crect y='16' width='16' height='16' fill='%231baf7a'/%3E%3Crect x='16' y='16' width='16' height='16' fill='%23bdbcb6'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top">Natural Color Charts</a>
+    <nav aria-label="Sections">
+      <a href="#how">Where AI is used</a>
+      <a href="#accuracy">Accuracy</a>
+      <a href="#gallery">Gallery</a>
+      <a id="repo-link" href="#" class="button-ghost">Code on GitHub</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">Computational photography · Vision-language models · Color science</p>
+        <h1>Color correction that understands the scene</h1>
+        <p class="lede">
+          Cameras guess the color of light from pixel statistics, and fail when a scene is
+          dominated by one color or lit by tungsten, LEDs, or shade. This project lets a
+          vision-language model <em>read the scene</em>: which surfaces are white paper,
+          gray concrete, foliage, skin, and which of them can be trusted. Physics then turns
+          those surfaces into a color correction, as if they were patches on a color chart.
+        </p>
+        <ul class="hero-stats" id="hero-stats" aria-label="Headline results"></ul>
+      </div>
+      <figure class="hero-figure" id="hero-figure"></figure>
+    </section>
+
+    <section id="how" class="band">
+      <h2>Where the AI is used</h2>
+      <p class="section-lede">
+        Two stages use learned models. Both make <strong>decisions</strong>: what is in the
+        scene, where it is, and whether to trust it. Every output pixel is produced by one
+        global 3×3 color matrix fitted with physics, so no image content is ever generated.
+      </p>
+      <ol class="pipeline" aria-label="Pipeline stages">
+        <li class="stage physics"><span class="kind">Physics</span><strong>Decode RAW</strong><span>Linear sensor RGB, no camera processing</span></li>
+        <li class="stage ai"><span class="kind">AI · Claude</span><strong>Read the scene</strong><span>Indoor or outdoor, light sources, which materials are present and whether each is trustworthy</span></li>
+        <li class="stage ai"><span class="kind">AI · OWLv2 + SAM</span><strong>Find the materials</strong><span>Open-vocabulary detection and pixel masks for the trusted materials</span></li>
+        <li class="stage physics"><span class="kind">Physics</span><strong>Measure patches</strong><span>Reject clipped, specular, and shadowed pixels; robust color per region</span></li>
+        <li class="stage physics"><span class="kind">Physics</span><strong>Fit the light</strong><span>Daylight / tungsten spectra fitted to reflectance priors, outliers rejected</span></li>
+        <li class="stage physics"><span class="kind">Physics</span><strong>Correct &amp; render</strong><span>Spectral 3×3 color matrix, optional mood-preserving adaptation</span></li>
+      </ol>
+      <p class="aside">
+        In each gallery card, the <span class="chip ai">AI reasoning</span> tab shows the model's
+        exact answer, and <span class="chip ai">Regions</span> shows the pixels it chose.
+      </p>
+    </section>
+
+    <section id="accuracy">
+      <h2>Measured accuracy</h2>
+      <p class="section-lede">
+        Four lab photos contain a ColorChecker. The chart is <strong>blacked out before any
+        stage runs</strong> (the AI never sees it) and used only afterwards to measure the
+        true light color. Lower is better; under 1° is hard to see, over 3° is a visible cast.
+      </p>
+      <div id="accuracy-chart" class="chart-card"></div>
+      <p class="footnote" id="accuracy-footnote"></p>
+    </section>
+
+    <section id="gallery">
+      <h2>Gallery</h2>
+      <p class="section-lede">
+        Drag the slider to compare. Switch the baseline between the camera's own white
+        balance and the classic gray-world algorithm.
+      </p>
+      <div id="cases"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>
+      <strong>Natural Color Charts</strong> · Python, NumPy/SciPy, colour-science, rawpy,
+      Claude (vision), OWLv2 and SAM (Hugging Face Transformers).
+    </p>
+    <p id="footer-meta"></p>
+  </footer>
+
+  <div id="tooltip" class="tooltip" role="status" hidden></div>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

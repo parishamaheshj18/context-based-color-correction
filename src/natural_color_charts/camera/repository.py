@@ -31,8 +31,18 @@ def normalize_camera_name(name: str) -> str:
 
     EXIF often repeats the make ("NIKON CORPORATION" + "NIKON D5100").
     """
-    tokens = [t for t in re.findall(r"[a-z0-9]+", name.lower()) if t not in CORPORATE_WORDS]
+    tokens = [t for t in re.findall(r"[a-z]+|[0-9]+", name.lower()) if t not in CORPORATE_WORDS]
     return " ".join(dict.fromkeys(tokens))
+
+
+def compact_camera_name(name: str) -> str:
+    """Normalized name without spaces, so "iPhone12ProMAX" equals "iPhone 12 Pro Max"."""
+    return normalize_camera_name(name).replace(" ", "")
+
+
+def model_numbers(name: str) -> frozenset[str]:
+    """Digit groups in a camera name; cameras with different model numbers never match."""
+    return frozenset(re.findall(r"[0-9]+", name))
 
 
 def srgb_equivalent_sensitivity(grid: WavelengthGrid) -> SpectralArray:
@@ -48,6 +58,42 @@ def read_sensitivity_csv(path: Path, grid: WavelengthGrid) -> SpectralArray:
         rows = rows[1:]
     table = np.array([[float(value) for value in row[:4]] for row in rows])
     return resample_spectrum(table[:, 0], table[:, 1:4].T, grid)
+
+
+def read_headerless_table(
+    rows: list[list[float]], start_nm: float, step_nm: float, grid: WavelengthGrid
+) -> SpectralArray:
+    """R, G, B columns sampled every step_nm from start_nm, as in the Oh-lab smartphone database."""
+    table = np.array([row[:3] for row in rows], dtype=float)
+    wavelengths = start_nm + step_nm * np.arange(table.shape[0], dtype=np.float64)
+    return resample_spectrum(wavelengths, table.T, grid)
+
+
+def read_sensitivity_xlsx(path: Path) -> list[list[float]]:
+    """Numeric rows of the first worksheet (needs openpyxl)."""
+    try:
+        import openpyxl
+    except ImportError as error:
+        raise ImportError("Reading .xlsx sensitivities needs: pip install openpyxl") from error
+    sheet = openpyxl.load_workbook(path, read_only=True, data_only=True).worksheets[0]
+    return [
+        [float(v) for v in row[:3]]
+        for row in sheet.iter_rows(values_only=True)
+        if row and all(isinstance(v, int | float) for v in row[:3])
+    ]
+
+
+def read_numeric_text(path: Path) -> list[list[float]]:
+    """Whitespace-separated numeric rows; returns [] if any line is not numeric."""
+    rows = []
+    for line in path.read_text().splitlines():
+        if not line.strip():
+            continue
+        fields = line.split()
+        if not all(_is_number(field) for field in fields):
+            return []
+        rows.append([float(field) for field in fields])
+    return rows
 
 
 def read_jiang_database(path: Path, grid: WavelengthGrid) -> dict[str, SpectralArray]:
@@ -71,8 +117,16 @@ def _is_number(text: str) -> bool:
 class CameraSensitivityRepository:
     """Loads sensitivities from data files and colour-science, normalized to a peak of 1."""
 
-    def __init__(self, grid: WavelengthGrid, directory: Path, include_builtin: bool) -> None:
+    def __init__(
+        self,
+        grid: WavelengthGrid,
+        directory: Path,
+        include_builtin: bool,
+        headerless_start_nm: float = 400.0,
+        headerless_step_nm: float = 10.0,
+    ) -> None:
         self._grid = grid
+        self._headerless = (headerless_start_nm, headerless_step_nm)
         self._curves: dict[str, SpectralArray] = {}
         if include_builtin:
             self._curves.update(builtin_camera_sensitivities(grid))
@@ -85,8 +139,18 @@ class CameraSensitivityRepository:
         curves: dict[str, SpectralArray] = {}
         for path in sorted(directory.glob("*.csv")):
             curves[path.stem.replace("_", " ")] = read_sensitivity_csv(path, self._grid)
+        start, step = self._headerless
+        for path in sorted(directory.glob("*.xlsx")):
+            if not path.name.startswith("~$"):
+                curves[path.stem] = read_headerless_table(
+                    read_sensitivity_xlsx(path), start, step, self._grid
+                )
         for path in sorted(directory.glob("*.txt")):
-            curves.update(read_jiang_database(path, self._grid))
+            rows = read_numeric_text(path)
+            if rows and len(rows[0]) == 3:
+                curves[path.stem] = read_headerless_table(rows, start, step, self._grid)
+            else:
+                curves.update(read_jiang_database(path, self._grid))
         return curves
 
     def list_cameras(self) -> list[str]:

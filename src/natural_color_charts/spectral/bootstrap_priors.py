@@ -41,7 +41,9 @@ def chart_patches(grid: WavelengthGrid, names: set[str]) -> SpectralArray:
 
 def cie_test_color_sample(name: str, grid: WavelengthGrid) -> SpectralArray:
     """A CIE 1995 test color sample, e.g. TCS13 (skin) or TCS14 (leaf green)."""
-    sd = SDS_TCS["CIE 1995"][name]
+    # colour-science 0.4.7 groups the samples by edition; 0.4.6 keys them directly.
+    samples = SDS_TCS.get("CIE 1995", SDS_TCS)
+    sd = samples[name]
     return resample_spectrum(sd.wavelengths, sd.values, grid)
 
 

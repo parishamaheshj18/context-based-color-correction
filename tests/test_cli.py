@@ -28,3 +28,15 @@ def test_parse_setting_builds_nested_override():
 
     assert parse_setting("detection.device=cuda") == {"detection": {"device": "cuda"}}
     assert parse_setting("patches.min_valid_pixels=50") == {"patches": {"min_valid_pixels": 50}}
+
+
+def test_load_dotenv_never_overrides_environment(tmp_path, monkeypatch):
+    from natural_color_charts.cli import load_dotenv
+
+    (tmp_path / ".env").write_text("# comment\nNCC_TEST_A='from file'\nNCC_TEST_B=file\n")
+    monkeypatch.setenv("NCC_TEST_B", "from env")
+    monkeypatch.delenv("NCC_TEST_A", raising=False)
+    load_dotenv(tmp_path / ".env")
+    import os
+
+    assert os.environ["NCC_TEST_A"] == "from file" and os.environ["NCC_TEST_B"] == "from env"

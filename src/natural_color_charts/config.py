@@ -32,6 +32,8 @@ class IoConfig(_Section):
 class CameraConfig(_Section):
     sensitivity_dir: Path
     include_builtin: bool
+    headerless_start_nm: float
+    headerless_step_nm: float
     fuzzy_match_cutoff: float
     use_same_make_fallback: bool
     force_camera: str | None
@@ -50,6 +52,7 @@ class AnthropicConfig(_Section):
 
 class ContextConfig(_Section):
     client: Literal["none", "ollama", "anthropic"]
+    cache_dir: Path | None
     max_retries: int
     preview_long_edge_px: int
     default_families: list[str]

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from collections import Counter
 from pathlib import Path
 from typing import Annotated, Any
@@ -32,6 +33,7 @@ from natural_color_charts.pipeline_factory import (
     build_repository,
 )
 from natural_color_charts.reporting.report import build_report, to_jsonable, write_report
+from natural_color_charts.reporting.showcase import ShowcaseBuilder
 from natural_color_charts.reporting.visualization import render_overlay, save_comparison
 from natural_color_charts.spectral.library_reader import build_priors_from_library
 from natural_color_charts.spectral.priors import save_prior
@@ -42,6 +44,17 @@ app = typer.Typer(help="Context-aware color correction without a color checker."
 @app.callback()
 def main() -> None:
     """Context-aware color correction without a color checker."""
+    load_dotenv(Path(".env"))
+
+
+def load_dotenv(path: Path) -> None:
+    """Set KEY=VALUE lines from a git-ignored .env file, never overriding the environment."""
+    if not path.exists():
+        return
+    for line in path.read_text().splitlines():
+        key, separator, value = line.strip().partition("=")
+        if separator and key and not key.startswith("#"):
+            os.environ.setdefault(key.strip(), value.strip().strip("'\""))
 
 
 DEFAULT_BASELINES = ("gray_world", "white_patch", "shades_of_gray", "gray_edge", "as_shot")
@@ -178,6 +191,21 @@ def label_references(
     write_supervised_records(target / "sft.jsonl", records)
     counts = Counter(label.helpfulness.value for label in all_labels)
     typer.echo(f"{len(all_labels)} references: {dict(counts)} -> {target}")
+
+
+@app.command()
+def showcase(
+    manifest: Annotated[Path, typer.Argument(exists=True, dir_okay=False)] = Path(
+        "showcase/cases.yaml"
+    ),
+    site_dir: Annotated[Path, typer.Option(help="Static site root.")] = Path("site"),
+    case: Annotated[list[str] | None, typer.Option(help="Rebuild only these case ids.")] = None,
+    verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
+) -> None:
+    """Build the showcase site's images and data from a manifest of test photos."""
+    logging.basicConfig(level=logging.INFO if verbose else logging.WARNING, format="%(message)s")
+    path = ShowcaseBuilder.from_manifest(manifest, site_dir).build(set(case) if case else None)
+    typer.echo(f"Wrote {path}")
 
 
 def write_outputs(result: PipelineResult, directory: Path, config: AppConfig) -> list[Path]:

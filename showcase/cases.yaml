@@ -1,0 +1,80 @@
+# Showcase manifest: `ncc showcase` turns these photos into site/data/cases.json and site/assets.
+# Charts are hidden from every stage and used only for scoring (corners = centers of patches
+# 1, 6, 19, 24 in normalized image coordinates; mask_box = region blacked out before inference).
+
+processing_long_edge_px: 2048
+display_long_edge_px: 1600
+
+config_overrides:
+  io: {raw_half_size: true}
+  camera: {sensitivity_dir: Data}
+  context: {client: anthropic, cache_dir: showcase/vlm_cache}
+  detection: {detector: transformers, segmenter: sam, device: cpu}
+
+cases:
+  - id: lab-tabletop
+    title: Lab tabletop, camera locked at 5200 K
+    image: Data/ColorChart Images/IMG_7861.CR3
+    intent: neutral
+    chart:
+      corners: [[0.1925, 0.2998], [0.4104, 0.2998], [0.1925, 0.3868], [0.4104, 0.3868]]
+      mask_box: [0.1144, 0.0896, 0.4925, 0.4316]
+
+  - id: lab-tabletop-tinted
+    title: Same scene, tinted fill light
+    image: Data/ColorChart Images/IMG_7866.CR3
+    intent: neutral
+    chart:
+      corners: [[0.1249, 0.3360], [0.3438, 0.3360], [0.1249, 0.4233], [0.3438, 0.4233]]
+      mask_box: [0.0448, 0.1262, 0.4229, 0.4648]
+
+  - id: lab-shelf-warm
+    title: Warm room light on a shelf
+    image: Data/ColorChart Images/IMG_7879.CR3
+    intent: neutral
+    chart:
+      corners: [[0.4914, 0.3124], [0.5754, 0.3124], [0.4914, 0.3811], [0.5754, 0.3811]]
+      mask_box: [0.4582, 0.1418, 0.6092, 0.4154]
+
+  - id: lab-dark-stage
+    title: Spot-lit stage on a black background
+    image: Data/ColorChart Images/IMG_7890.CR3
+    intent: neutral
+    chart:
+      corners: [[0.2321, 0.5448], [0.3513, 0.5413], [0.2324, 0.6502], [0.3536, 0.6463]]
+      mask_box: [0.1826, 0.2935, 0.3934, 0.7015]
+
+  - id: dining-room
+    title: Dining room at dusk, keeping the mood
+    image: Data/ColorChart Images/5C31C55C-64D2-4293-B897-FB560DA6A907.PNG
+    intent: keep the warm, cozy evening ambiance
+
+  - id: festival-night
+    title: Festival hall under mixed stage lighting
+    image: Data/ColorChart Images/IMG_2997.DNG
+    intent: neutral
+
+  - id: bluebird-garden
+    title: Eastern bluebird on a shrub
+    image: Data/ColorChart Images/IMG_2947.DNG
+    intent: neutral
+
+  - id: bluebird-feeder
+    title: Bluebird at a feeder, through a window screen
+    image: Data/ColorChart Images/IMG_3036.DNG
+    intent: neutral
+
+  - id: flycatcher-feeder
+    title: Flycatcher at the same feeder
+    image: Data/ColorChart Images/IMG_3039.DNG
+    intent: neutral
+
+  - id: backlit-house
+    title: Backlit portrait, sun in frame
+    image: Data/ColorChart Images/IMG_3050.DNG
+    intent: neutral
+
+  - id: sunny-driveway
+    title: Late-morning sun, people and cars
+    image: Data/ColorChart Images/IMG_3051.DNG
+    intent: neutral

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 from natural_color_charts.camera.repository import CameraSensitivityRepository
 from natural_color_charts.camera.selector import CameraSensitivitySelector
 from natural_color_charts.config import (
@@ -18,6 +20,7 @@ from natural_color_charts.context.base import (
 )
 from natural_color_charts.context.clients import (
     AnthropicClient,
+    CachedVisionLanguageClient,
     OllamaClient,
     VisionLanguageClient,
 )
@@ -97,8 +100,13 @@ def build_families(config: AppConfig, names: list[str] | None = None) -> list[Il
 
 def build_repository(config: AppConfig) -> CameraSensitivityRepository:
     """Sensitivity repository over the configured data directory."""
+    camera = config.camera
     return CameraSensitivityRepository(
-        build_grid(config), config.camera.sensitivity_dir, config.camera.include_builtin
+        build_grid(config),
+        camera.sensitivity_dir,
+        camera.include_builtin,
+        camera.headerless_start_nm,
+        camera.headerless_step_nm,
     )
 
 
@@ -197,12 +205,25 @@ def build_default_context_provider(config: AppConfig) -> DefaultSceneContextProv
 
 
 def build_vlm_client(config: ContextConfig) -> VisionLanguageClient | None:
-    """The configured VLM client, or None when scene analysis runs without one."""
+    """The configured VLM client, wrapped in the answer cache when cache_dir is set."""
+    client: VisionLanguageClient | None = None
+    model = ""
     if config.client == "ollama":
-        return OllamaClient(config.ollama.host, config.ollama.model, config.ollama.timeout_s)
-    if config.client == "anthropic":
-        return AnthropicClient(config.anthropic.model, config.anthropic.max_tokens)
-    return None
+        client = OllamaClient(config.ollama.host, config.ollama.model, config.ollama.timeout_s)
+        model = config.ollama.model
+    elif config.client == "anthropic":
+        model = config.anthropic.model
+        client = (
+            AnthropicClient(model, config.anthropic.max_tokens) if _has_anthropic_key() else None
+        )
+    if config.cache_dir is not None and config.client != "none":
+        return CachedVisionLanguageClient(client, model, config.cache_dir)
+    return client
+
+
+def _has_anthropic_key() -> bool:
+    # Without a key the cache can still answer; a live client would only fail.
+    return bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
 
 
 def build_context_provider(config: AppConfig) -> SceneContextProvider:
@@ -256,13 +277,18 @@ def build_region_finder(config: AppConfig) -> ReferenceRegionFinder:
     )
 
 
-def build_pipeline(config: AppConfig) -> ColorCorrectionPipeline:
-    """Assemble the full pipeline from configuration."""
-    renderer = SrgbRenderer(
+def build_renderer(config: AppConfig) -> SrgbRenderer:
+    """Stage 9 renderer."""
+    return SrgbRenderer(
         config.render.exposure_percentile,
         config.render.exposure_target,
         config.render.normalize_raster_exposure,
     )
+
+
+def build_pipeline(config: AppConfig) -> ColorCorrectionPipeline:
+    """Assemble the full pipeline from configuration."""
+    renderer = build_renderer(config)
     stages = PipelineStages(
         loader=build_loader(config),
         sensitivity_selector=build_selector(config),

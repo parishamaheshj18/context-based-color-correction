@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import logging
 import urllib.request
+from pathlib import Path
 from typing import Any, Protocol
 
 logger = logging.getLogger(__name__)
@@ -21,6 +23,42 @@ class VisionLanguageClient(Protocol):
     name: str
 
     def complete_json(self, image_png: bytes, prompt: str, schema: dict[str, Any]) -> str: ...
+
+
+class CachedVisionLanguageClient:
+    """Stores each answer on disk keyed by model, image, prompt, and schema.
+
+    Re-running a showcase or benchmark then costs nothing, and the exact model output can be
+    committed and shown.
+    """
+
+    def __init__(self, inner: VisionLanguageClient | None, model: str, cache_dir: Path) -> None:
+        self._inner = inner
+        self._model = model
+        self._cache_dir = cache_dir
+        self.name = inner.name if inner else "cache"
+
+    def cache_path(self, image_png: bytes, prompt: str, schema: dict[str, Any]) -> Path:
+        digest = hashlib.sha256()
+        for part in (
+            self._model.encode(),
+            image_png,
+            prompt.encode(),
+            json.dumps(schema, sort_keys=True).encode(),
+        ):
+            digest.update(hashlib.sha256(part).digest())
+        return self._cache_dir / f"{digest.hexdigest()[:24]}.json"
+
+    def complete_json(self, image_png: bytes, prompt: str, schema: dict[str, Any]) -> str:
+        path = self.cache_path(image_png, prompt, schema)
+        if path.exists():
+            return str(json.loads(path.read_text())["response"])
+        if self._inner is None:
+            raise VlmError(f"No cached answer at {path} and no live client configured")
+        response = self._inner.complete_json(image_png, prompt, schema)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"model": self._model, "response": response}, indent=2))
+        return response
 
 
 class OllamaClient:

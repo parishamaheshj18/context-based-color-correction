@@ -101,3 +101,18 @@ def test_schema_requires_every_property():
 
     check(response_json_schema())
     assert set(response_json_schema()["properties"]) == set(SceneAnalysisResponse.model_fields)
+
+
+def test_cached_client_answers_once_then_from_disk(tmp_path):
+    from natural_color_charts.context.clients import CachedVisionLanguageClient
+
+    inner = _ScriptedClient([json.dumps(VALID)])
+    cached = CachedVisionLanguageClient(inner, "model-x", tmp_path)
+    image = b"\x89PNG fake"
+    first = cached.complete_json(image, "prompt", {"type": "object"})
+    second = cached.complete_json(image, "prompt", {"type": "object"})
+    assert first == second and inner.replies == []
+    offline = CachedVisionLanguageClient(None, "model-x", tmp_path)
+    assert offline.complete_json(image, "prompt", {"type": "object"}) == first
+    with pytest.raises(VlmError):
+        offline.complete_json(image, "other prompt", {"type": "object"})
