@@ -11,6 +11,8 @@ from numpy.typing import NDArray
 
 from natural_color_charts.domain.spectral import Matrix3x3, RgbVector
 
+PreviewImage = NDArray[np.uint8]
+
 
 class InputMode(StrEnum):
     """How the pixel values relate to the sensor."""

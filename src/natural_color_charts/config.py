@@ -66,6 +66,9 @@ class DetectionConfig(_Section):
     segmenter_model: str
     score_threshold: float
     max_regions_per_label: int
+    iou_threshold: float
+    box_inset_fraction: float
+    manual_sidecar_suffix: str
     skin_cr_range: tuple[int, int]
     skin_cb_range: tuple[int, int]
     prompts: dict[str, list[str]]

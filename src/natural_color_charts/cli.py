@@ -35,12 +35,13 @@ def correct(
     photo: Annotated[Path, typer.Argument(exists=True, dir_okay=False)],
     output_dir: Annotated[Path | None, typer.Option(help="Defaults to outputs/<stem>.")] = None,
     camera: Annotated[str | None, typer.Option(help="Force a camera's sensitivity curves.")] = None,
+    intent: Annotated[str | None, typer.Option(help='E.g. "keep the warm evening mood".')] = None,
     config_path: ConfigOption = None,
     verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
 ) -> None:
     """Correct the colors of PHOTO and write images and a report."""
     config = _load(config_path, verbose)
-    result = build_pipeline(config).run(photo, camera=camera)
+    result = build_pipeline(config).run(photo, camera=camera, intent=intent)
     target_dir = output_dir or config.output.directory / photo.stem
     written = write_outputs(result, target_dir, config)
     for path in written:
