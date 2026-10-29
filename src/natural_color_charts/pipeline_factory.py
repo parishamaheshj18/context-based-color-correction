@@ -108,6 +108,7 @@ def build_selector(config: AppConfig) -> CameraSensitivitySelector:
         build_repository(config),
         config.camera.fuzzy_match_cutoff,
         config.camera.use_same_make_fallback,
+        config.camera.force_camera,
     )
 
 
@@ -251,6 +252,7 @@ def build_region_finder(config: AppConfig) -> ReferenceRegionFinder:
         detector=build_detector(detection),
         segmenter=build_segmenter(detection),
         refiners=[SkinPixelRefiner(detection.skin_cr_range, detection.skin_cb_range)],
+        excluded_labels=[ReferenceClass(name) for name in detection.excluded_classes],
     )
 
 
@@ -272,5 +274,8 @@ def build_pipeline(config: AppConfig) -> ColorCorrectionPipeline:
         renderer=renderer,
     )
     return ColorCorrectionPipeline(
-        stages, config.io.preview_long_edge_px, config.correction.adaptation_transform
+        stages,
+        build_grid(config),
+        config.io.preview_long_edge_px,
+        config.correction.adaptation_transform,
     )

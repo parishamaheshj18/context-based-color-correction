@@ -67,6 +67,8 @@ class PatchStatisticsCalculator:
                 rejection_reason=f"only {pixels.shape[0]} valid pixels",
             )
         rgb = self.robust_color(pixels)
+        if not self._config.use_reliability_weights:
+            return PatchMeasurement(region.label, rgb, int(pixels.shape[0]), 1.0, index)
         weight = (
             region.candidate_confidence
             * self._size_factor(pixels.shape[0])

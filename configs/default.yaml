@@ -15,6 +15,7 @@ camera:
   include_builtin: true
   fuzzy_match_cutoff: 0.6
   use_same_make_fallback: false
+  force_camera: null        # e.g. "sRGB-equivalent (CIE 1931)" for the generic-curves ablation
 
 context:
   client: none            # none | ollama | anthropic
@@ -42,6 +43,7 @@ detection:
   iou_threshold: 0.5
   box_inset_fraction: 0.1
   manual_sidecar_suffix: .regions.json
+  excluded_classes: []
   skin_cr_range: [133, 173]
   skin_cb_range: [77, 127]
   prompts:
@@ -63,6 +65,7 @@ patches:
   full_weight_pixels: 5000
   full_weight_luminance: 0.05
   outdoor_paper_factor: 0.5
+  use_reliability_weights: true
   class_prior_strength:
     paper: 0.9
     snow: 0.9

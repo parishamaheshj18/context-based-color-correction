@@ -34,6 +34,7 @@ class CameraConfig(_Section):
     include_builtin: bool
     fuzzy_match_cutoff: float
     use_same_make_fallback: bool
+    force_camera: str | None
 
 
 class OllamaConfig(_Section):
@@ -69,6 +70,7 @@ class DetectionConfig(_Section):
     iou_threshold: float
     box_inset_fraction: float
     manual_sidecar_suffix: str
+    excluded_classes: list[str]
     skin_cr_range: tuple[int, int]
     skin_cb_range: tuple[int, int]
     prompts: dict[str, list[str]]
@@ -85,6 +87,7 @@ class PatchConfig(_Section):
     full_weight_pixels: int
     full_weight_luminance: float
     outdoor_paper_factor: float
+    use_reliability_weights: bool
     class_prior_strength: dict[str, float]
 
 
