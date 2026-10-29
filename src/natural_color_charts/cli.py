@@ -11,7 +11,7 @@ import typer
 from natural_color_charts.config import AppConfig, load_config
 from natural_color_charts.io.writers import write_image8, write_tiff16
 from natural_color_charts.pipeline import PipelineResult
-from natural_color_charts.pipeline_factory import build_pipeline
+from natural_color_charts.pipeline_factory import build_pipeline, build_repository
 from natural_color_charts.reporting.report import build_report, write_report
 
 app = typer.Typer(help="Context-aware color correction without a color checker.")
@@ -34,16 +34,24 @@ def _load(config_path: Path | None, verbose: bool) -> AppConfig:
 def correct(
     photo: Annotated[Path, typer.Argument(exists=True, dir_okay=False)],
     output_dir: Annotated[Path | None, typer.Option(help="Defaults to outputs/<stem>.")] = None,
+    camera: Annotated[str | None, typer.Option(help="Force a camera's sensitivity curves.")] = None,
     config_path: ConfigOption = None,
     verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
 ) -> None:
     """Correct the colors of PHOTO and write images and a report."""
     config = _load(config_path, verbose)
-    result = build_pipeline(config).run(photo)
+    result = build_pipeline(config).run(photo, camera=camera)
     target_dir = output_dir or config.output.directory / photo.stem
     written = write_outputs(result, target_dir, config)
     for path in written:
         typer.echo(str(path))
+
+
+@app.command("list-cameras")
+def list_cameras(config_path: ConfigOption = None) -> None:
+    """List cameras with spectral sensitivity data."""
+    for name in build_repository(_load(config_path, verbose=False)).list_cameras():
+        typer.echo(name)
 
 
 def write_outputs(result: PipelineResult, directory: Path, config: AppConfig) -> list[Path]:

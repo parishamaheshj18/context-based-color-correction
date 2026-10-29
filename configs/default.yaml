@@ -14,6 +14,7 @@ camera:
   sensitivity_dir: data/camera_sensitivities
   include_builtin: true
   fuzzy_match_cutoff: 0.6
+  use_same_make_fallback: false
 
 context:
   client: none            # none | ollama | anthropic
