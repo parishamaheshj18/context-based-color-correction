@@ -18,6 +18,7 @@ CRITIQUE = {
     "references": [{"id": "U1", "verdict": "wrong", "reason": "cream, not white"}],
     "remaining_cast": "warm",
     "cast_severity": 0.4,
+    "artifacts": ["sky at the top turned blotchy white"],
     "suggestions": ["use the gray pavement at the bottom"],
     "acceptable": False,
 }
@@ -71,6 +72,7 @@ def test_critic_returns_a_structured_critique():
     critique = VlmCritic(client, 1).critique(b"\x89PNG...", "EVIDENCE", "keep the mood")
     assert critique.cast_severity == 0.4 and not critique.acceptable
     assert critique.verdicts[0].reference_id == "U1" and critique.verdicts[0].verdict == "wrong"
+    assert critique.artifacts == ("sky at the top turned blotchy white",)
     assert "EVIDENCE" in client.prompts[0] and "keep the mood" in client.prompts[0]
     assert next(iter(critique_json_schema()["properties"])) == "observations"
 

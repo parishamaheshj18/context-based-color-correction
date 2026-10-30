@@ -154,6 +154,7 @@ class RenderConfig(_Section):
     exposure_percentile: float
     exposure_target: float
     normalize_raster_exposure: bool
+    highlight_knee: float
 
 
 class OutputConfig(_Section):

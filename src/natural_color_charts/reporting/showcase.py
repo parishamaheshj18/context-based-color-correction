@@ -19,7 +19,6 @@ import yaml
 from numpy.typing import NDArray
 from PIL import Image
 
-from natural_color_charts.colorimetry import encode_srgb
 from natural_color_charts.config import AppConfig, load_config
 from natural_color_charts.correction.adaptation import apply_adaptation_degree
 from natural_color_charts.domain import (
@@ -28,7 +27,6 @@ from natural_color_charts.domain import (
     IlluminantEstimate,
     InputMode,
     LinearImage,
-    normalize_white,
 )
 from natural_color_charts.estimation.base import EstimationInput
 from natural_color_charts.estimation.statistical import GrayWorldEstimator
@@ -237,20 +235,10 @@ class ShowcaseBuilder:
             # The correction before any critique, to show what the agents changed.
             first = review.rounds[0].result.transform
             renders["first_pass"] = (first, self._renderer.render(image, first, gain).encoded_srgb)
-        if image.mode is InputMode.RASTER:
-            renders["before"] = (None, encode_srgb(image.rgb))
-        else:
-            white = image.metadata.as_shot_white_rgb
-            as_shot = IlluminantEstimate(
-                white_rgb=normalize_white(white if white is not None else np.ones(3)),
-                method="as_shot",
-                confidence=1.0,
-            )
-            transform = self._transform_for(as_shot, image, sensitivity)
-            renders["before"] = (
-                transform,
-                self._renderer.render(image, transform, gain).encoded_srgb,
-            )
+        before = self._pipeline.as_shot_transform(image, sensitivity)
+        # A phone file's "before" is the file itself, with no white estimate of its own to score.
+        scored = None if image.mode is InputMode.RASTER else before
+        renders["before"] = (scored, self._renderer.render(image, before, gain).encoded_srgb)
         return renders
 
     def _transform_for(
@@ -411,6 +399,7 @@ class ShowcaseBuilder:
                     "delivered": number - 1 == review.best_index,
                     "sheet": f"assets/cases/{case.case_id}/{sheet}",
                     "rationale": round_.context.rationale,
+                    "highlights": round_.highlights,
                     "references": [
                         {
                             "id": e.reference_id,

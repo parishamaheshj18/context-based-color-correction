@@ -13,9 +13,9 @@ from tests.pipeline.test_user_anchors import NAMES, _default_context, _scene
 GRAYS = ["neutral 8 (.23 D)", "neutral 5 (.70 D)", "neutral 6.5 (.44 D)"]
 
 
-def _critique(severity, acceptable=False, verdicts=()):
+def _critique(severity, acceptable=False, verdicts=(), artifacts=()):
     cast = "warm" if severity else "none"
-    return Critique("looks fine", tuple(verdicts), cast, severity, (), acceptable)
+    return Critique("looks fine", tuple(verdicts), cast, severity, (), acceptable, tuple(artifacts))
 
 
 class ScriptedCritic:
@@ -98,6 +98,16 @@ def test_an_equally_rated_revision_counts_as_no_improvement(scene):
     critic = ScriptedCritic([_critique(0.3), _critique(0.08), _critique(0.08)])
     outcome = _run(scene, _loop(scene, critic, ScriptedReviser(), max_rounds=5))
     assert len(outcome.rounds) == 3 and outcome.best_index == 1
+
+
+def test_an_artifact_keeps_the_agents_working(scene):
+    critic = ScriptedCritic(
+        [_critique(0.05, True, artifacts=["sky turned white"]), _critique(0.04, True)]
+    )
+    outcome = _run(scene, _loop(scene, critic, ScriptedReviser()))
+    assert len(outcome.rounds) == 2
+    assert outcome.rounds[0].highlights.startswith("Highlights:")
+    assert "Highlights:" in critic.calls[0]
 
 
 def test_a_doubtful_reference_keeps_the_agents_working(scene):

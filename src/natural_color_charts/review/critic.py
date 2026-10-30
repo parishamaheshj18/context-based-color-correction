@@ -30,10 +30,12 @@ foliage look natural; is a cast left, and where; does any reference disagree wit
 or with its material. Then give every reference a verdict: "consistent", "doubtful", or \
 "wrong" (not that material, lit by a different light, or a mistaken user match), with a short \
 reason. Give remaining_cast and cast_severity from 0 (perfect) to 1 (badly off). In \
-suggestions, name concrete fixes: missed materials that could serve as references (say where), \
-references to drop, or a different light source. Set acceptable to true only if a careful \
-photo editor would leave this white balance alone. Be critical: do not assume the correction \
-is right."""
+artifacts, list every visible problem the correction introduced that the as-shot photo does \
+not have, and where: blown or blotchy highlights, a sky turned white or cyan, banding, hue \
+shifts in bright areas; [] if none. In suggestions, name concrete fixes: missed materials \
+that could serve as references (say where), references to drop, or a different light source. \
+Set acceptable to true only if a careful photo editor would leave this correction alone; any \
+artifact rules that out. Be critical: do not assume the correction is right."""
 
 CastName = Literal["none", "warm", "cool", "green", "magenta", "mixed"]
 VerdictName = Literal["consistent", "doubtful", "wrong"]
@@ -56,6 +58,7 @@ class CritiqueResponse(_Strict):
     references: list[VerdictResponse]
     remaining_cast: CastName
     cast_severity: float = Field(ge=0.0, le=1.0)
+    artifacts: list[str]
     suggestions: list[str]
     acceptable: bool
 
@@ -67,6 +70,7 @@ class CritiqueResponse(_Strict):
             cast_severity=self.cast_severity,
             suggestions=tuple(self.suggestions),
             acceptable=self.acceptable,
+            artifacts=tuple(self.artifacts),
         )
 
 
@@ -95,6 +99,7 @@ def critique_json_schema() -> dict[str, Any]:
             "references": {"type": "array", "items": verdict},
             "remaining_cast": {"type": "string", "enum": list(get_args(CastName))},
             "cast_severity": {"type": "number"},
+            "artifacts": {"type": "array", "items": string},
             "suggestions": {"type": "array", "items": string},
             "acceptable": {"type": "boolean"},
         }
@@ -109,6 +114,7 @@ def describe_critique(critique: Critique) -> str:
         f"{'acceptable' if critique.acceptable else 'not acceptable'}.",
         f"Observations: {critique.observations}",
         *(f"{v.reference_id}: {v.verdict} ({v.reason})" for v in critique.verdicts),
+        *(f"Artifact: {a}" for a in critique.artifacts),
         *(f"Suggestion: {s}" for s in critique.suggestions),
     ]
     return "\n".join(lines)

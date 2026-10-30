@@ -346,6 +346,8 @@ def build_renderer(config: AppConfig) -> SrgbRenderer:
         config.render.exposure_percentile,
         config.render.exposure_target,
         config.render.normalize_raster_exposure,
+        config.render.highlight_knee,
+        config.io.saturation_threshold,
     )
 
 

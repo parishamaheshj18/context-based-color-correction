@@ -107,6 +107,7 @@ def write_review(outcome: ReviewOutcome, directory: Path) -> list[Path]:
                 "user_match_trust": [a.trust for a in round_.anchors],
                 "scene_context": to_jsonable(round_.context),
                 "evidence": to_jsonable(round_.evidence),
+                "highlights": round_.highlights,
                 "critique": to_jsonable(round_.critique),
             }
         )

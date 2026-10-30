@@ -14,7 +14,12 @@ import cv2
 import numpy as np
 from numpy.typing import NDArray
 
-from natural_color_charts.colorimetry import XYZ_TO_LINEAR_SRGB, encode_srgb, xyz_to_lab
+from natural_color_charts.colorimetry import (
+    XYZ_TO_LINEAR_SRGB,
+    apply_matrix,
+    encode_srgb,
+    xyz_to_lab,
+)
 from natural_color_charts.domain import (
     PatchMeasurement,
     ReferenceClass,
@@ -133,6 +138,27 @@ def describe_evidence(items: Sequence[ReferenceEvidence]) -> str:
     return "\n".join(lines)
 
 
+def describe_highlights(result: PipelineResult) -> str:
+    """How much of the photo the correction pushed past the display maximum, and where.
+
+    Those pixels are rolled off, not clipped, but large bright areas are where a correction
+    most often looks wrong, so the critic is told where to look.
+    """
+    image = result.image
+    linear = apply_matrix(image.rgb, XYZ_TO_LINEAR_SRGB @ result.transform.camera_to_xyz)
+    pushed = (linear * result.rendered.exposure_gain).max(axis=2) > 1.0
+    if pushed.mean() < 0.001:
+        return "Highlights: the correction pushed no part of the photo past the display maximum."
+    height = pushed.shape[0]
+    thirds = [pushed[i * height // 3 : (i + 1) * height // 3].mean() for i in range(3)]
+    where = ("top", "middle", "bottom")[int(np.argmax(thirds))]
+    return (
+        f"Highlights: the correction pushed {pushed.mean():.1%} of the photo past the display "
+        f"maximum (rolled off smoothly), mostly in the {where} third; "
+        f"{image.saturation_mask.mean():.1%} was already at the maximum in the file."
+    )
+
+
 def cast_words(delta_a: float, delta_b: float, threshold: float = 1.0) -> list[str]:
     """Plain words for a color difference in a* (green-magenta) and b* (blue-yellow)."""
     words = []
@@ -148,7 +174,9 @@ def render_review_sheet(
 ) -> NDArray[np.uint8]:
     """Before | after with numbered reference boxes, above a strip of swatch pairs."""
     half = (width_px - GAP_PX) // 2
-    before = _fit_width(result.preview, half)
+    # The as-shot render shares the correction's exposure and tone steps, so only color differs.
+    as_shot = to_uint8(result.as_shot.encoded_srgb) if result.as_shot else result.preview
+    before = _fit_width(as_shot, half)
     rendered = to_uint8(result.rendered.encoded_srgb)
     size = (before.shape[1], before.shape[0])
     after = np.asarray(cv2.resize(rendered, size, interpolation=cv2.INTER_AREA), np.uint8)

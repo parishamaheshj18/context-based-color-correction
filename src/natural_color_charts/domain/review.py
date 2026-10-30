@@ -66,3 +66,4 @@ class Critique:
     cast_severity: float
     suggestions: tuple[str, ...]
     acceptable: bool
+    artifacts: tuple[str, ...] = ()  # visible problems the correction introduced, e.g. a blown sky

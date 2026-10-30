@@ -215,6 +215,7 @@ main > section { padding: 3rem clamp(1rem, 4vw, 3rem); max-width: 1120px; margin
 .rounds li strong { color: var(--text-primary); }
 .rounds li.delivered { border-color: var(--accent-physics); }
 .badge { font-size: 0.75rem; font-weight: 650; color: var(--accent-physics); }
+.artifact-tag, .artifacts { color: var(--bad); font-weight: 600; }
 .verdict { margin-left: 0.4rem; font-size: 0.8rem; padding: 0 0.4rem; border-radius: 6px; border: 1px solid var(--border); white-space: nowrap; }
 .verdict.consistent { color: var(--good); }
 .verdict.doubtful, .verdict.wrong { color: var(--bad); }

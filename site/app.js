@@ -287,6 +287,7 @@ function roundsTimeline(review) {
     const text = critique ? `severity ${critique.cast_severity.toFixed(2)}, ${cast}` : "critic unavailable";
     return el("li", { class: r.delivered ? "delivered" : "" }, [
       el("strong", { text: `Round ${r.round}` }), el("span", { text }),
+      critique?.artifacts?.length ? el("span", { class: "artifact-tag", text: "⚠ artifacts" }) : null,
       r.delivered ? el("span", { class: "badge", text: "delivered" }) : null,
     ]);
   }));
@@ -331,6 +332,7 @@ function reviewDetails(c) {
         el("div", {}, [
           delivered.critique ? el("h4", { text: "Agent 2 · Critic" }) : null,
           delivered.critique ? quote(delivered.critique.observations) : null,
+          delivered.critique?.artifacts?.length ? el("p", { class: "note artifacts", text: `⚠ ${delivered.critique.artifacts.join(" · ")}` }) : null,
           el("h4", { text: "Agent 1 · Scene analyst" }),
           delivered.rationale ? quote(delivered.rationale) : null,
           el("h4", { text: "Surfaces used" }),

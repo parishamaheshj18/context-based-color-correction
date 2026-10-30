@@ -80,7 +80,9 @@ def test_partial_adaptation_moves_white_between_source_and_target():
 def test_renderer_outputs_neutral_gray_for_gray_patch():
     image = make_image(np.tile(WHITE * 0.2, (4, 4, 1)), InputMode.RAW)
     transform = BradfordCorrectionBuilder().build(_estimate(), image, None)
-    rendered = SrgbRenderer(98.0, 0.5, normalize_raster=False).render(image, transform)
+    rendered = SrgbRenderer(
+        98.0, 0.5, normalize_raster=False, highlight_knee=0.9, saturation_threshold=0.98
+    ).render(image, transform)
     pixel = rendered.linear_srgb[0, 0]
     np.testing.assert_allclose(pixel, [0.5, 0.5, 0.5], atol=1e-5)
     assert rendered.exposure_gain > 1

@@ -7,7 +7,10 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
+
 from natural_color_charts.camera.selector import CameraSensitivitySelector
+from natural_color_charts.colorimetry import D65_WHITE_XYZ, LINEAR_SRGB_TO_XYZ
 from natural_color_charts.context.base import SceneContextProvider
 from natural_color_charts.correction.adaptation import adaptation_degree, apply_adaptation_degree
 from natural_color_charts.correction.base import CorrectionBuilder
@@ -19,6 +22,7 @@ from natural_color_charts.domain import (
     CameraSensitivity,
     CorrectionTransform,
     IlluminantEstimate,
+    InputMode,
     LinearImage,
     PatchMeasurement,
     PreviewImage,
@@ -26,6 +30,7 @@ from natural_color_charts.domain import (
     SceneContext,
     UserColorAnchor,
     WavelengthGrid,
+    normalize_white,
 )
 from natural_color_charts.estimation.base import EstimationInput, IlluminantEstimator
 from natural_color_charts.io.loaders import ImageLoader
@@ -49,6 +54,7 @@ class PipelineResult:
     rendered: RenderedImage
     grid: WavelengthGrid
     neutral_transform: CorrectionTransform | None = None  # before intent's partial adaptation
+    as_shot: RenderedImage | None = None  # the camera's own colors, rendered like the correction
 
 
 @dataclass(frozen=True, eq=False)
@@ -132,6 +138,10 @@ class ColorCorrectionPipeline:
         logger.info(
             "Estimated white %s via %s", outcome.estimate.white_rgb, outcome.estimate.method
         )
+        rendered = stages.renderer.render(image, transform)
+        as_shot = stages.renderer.render(
+            image, self.as_shot_transform(image, sensitivity), rendered.exposure_gain
+        )
         return PipelineResult(
             image=image,
             preview=preview,
@@ -141,10 +151,26 @@ class ColorCorrectionPipeline:
             patches=outcome.patches or patches,
             estimate=outcome.estimate,
             transform=transform,
-            rendered=stages.renderer.render(image, transform),
+            rendered=rendered,
             grid=self._grid,
             neutral_transform=neutral,
+            as_shot=as_shot,
         )
+
+    def as_shot_transform(
+        self, image: LinearImage, sensitivity: CameraSensitivity | None
+    ) -> CorrectionTransform:
+        """The camera's own white balance as a transform, so "as shot" renders like a correction."""
+        if image.mode is InputMode.RASTER:
+            # A display-referred file is already balanced, and its linear values are linear sRGB.
+            return CorrectionTransform(LINEAR_SRGB_TO_XYZ, D65_WHITE_XYZ, D65_WHITE_XYZ, "as_shot")
+        white = image.metadata.as_shot_white_rgb
+        estimate = IlluminantEstimate(
+            white_rgb=normalize_white(white if white is not None else np.ones(3)),
+            method="as_shot",
+            confidence=1.0,
+        )
+        return self._stages.correction_builder.build(estimate, image, sensitivity)
 
     def estimate_illuminant(
         self,

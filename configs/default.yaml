@@ -127,6 +127,7 @@ render:
   exposure_percentile: 98.0
   exposure_target: 0.85
   normalize_raster_exposure: false
+  highlight_knee: 0.9       # linear level where highlights start rolling off toward 1 (hue kept)
 
 output:
   directory: outputs

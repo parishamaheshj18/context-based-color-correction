@@ -56,6 +56,10 @@ flowchart LR
    is measured in the camera's raw, linear values.
 3. **Physics corrects.** From the camera's spectral sensitivity and each material's reflectance
    spectrum, the pipeline fits the light's spectrum and builds one global 3×3 color matrix.
+   Every version of a photo (as shot, baselines, corrected) is then rendered the same way: one
+   exposure and a hue-preserving highlight roll-off instead of a hard clip, so a before/after
+   differs only in color. RAW files are decoded straight to linear values; only already
+   tone-mapped HEIC/JPEG files are linearized.
 4. **Agent 2 critiques.** An independent Claude call sees the before and after, with every surface
    shown next to its true color and the measured difference, and judges each one.
 5. **Revise or deliver.** Agent 1 reads the critique and revises its references. The loop stops when
@@ -67,7 +71,7 @@ flowchart LR
 | | Agent 1 · Scene analyst | Agent 2 · Critic |
 |---|---|---|
 | **Sees** | The photo and the user's request; when revising, the critic's feedback and the measurements | A review sheet: before/after with numbered boxes, and each surface's corrected color beside its true color, with ΔE |
-| **Returns** | Light hypotheses, reference surfaces with boxes and confidence, intent; when revising, also a trust score (0–1) for each of the user's color matches | A verdict per surface (consistent, doubtful or wrong), the remaining cast and its severity, suggestions, accept or not |
+| **Returns** | Light hypotheses, reference surfaces with boxes and confidence, intent; when revising, also a trust score (0–1) for each of the user's color matches | A verdict per surface (consistent, doubtful or wrong), the remaining cast and its severity, any artifacts the correction introduced, suggestions, accept or not |
 | **Code** | [`context/analyzer.py`](src/natural_color_charts/context/analyzer.py) | [`review/critic.py`](src/natural_color_charts/review/critic.py) |
 
 **Design choices that keep the agents honest:**
@@ -80,7 +84,8 @@ flowchart LR
 - **The critic is independent.** It never sees Agent 1's reasoning, so it cannot just agree. Agent 1
   is told the critic can be wrong too, and explains its disagreements.
 - **Only improvements are kept.** A revision that doesn't beat the best round ends the loop
-  ([`review/loop.py`](src/natural_color_charts/review/loop.py)).
+  ([`review/loop.py`](src/natural_color_charts/review/loop.py)). A round with a doubtful
+  surface or a visible artifact (for example a blown sky) is never accepted.
 - **The human goes first, the agents decide.** In the matching window you click pixels whose true
   chart color you know. The agents can lower their trust in, or ignore, a match that disagrees
   with the rest of the scene.
@@ -90,39 +95,48 @@ flowchart LR
 
 ## Results
 
-All 10 photos were corrected by the full agent loop (22 critic reviews in total). Two of
-them contain a color chart, which is blacked out before either agent sees the photo and used
-only for scoring. Each cell is the error in the estimated light color (degrees) / the mean
-color error on the chart's 24 patches (ΔE00); lower is better.
+All 10 photos were corrected by the full agent loop (23 critic reviews). Two contain a color
+chart, which is blacked out before either agent sees the photo and used only for scoring. Each
+cell is the error in the estimated light color (degrees) / the mean color error on the chart's
+24 patches (ΔE00); lower is better.
 
-| Photo (chart hidden from the agents) | Camera | Gray world | Before agent review | **With agent review** |
+| Photo (chart hidden from the agents) | Camera | Gray world | **This project** |
+|---|---|---|---|
+| Warm room light on a shelf (Canon EOS Rebel T8i) | 8.41° / 10.7 | 2.03° / 7.2 | **1.56° / 6.7** |
+| Spot-lit stage on a black background (Canon EOS Rebel T8i) | 2.10° / 7.1 | 2.69° / 7.7 | **1.71° / 7.0** |
+
+Two photos are spot checks, not a benchmark. On both, this build's critic kept the first
+correction. The critic is a model, so its calls vary between runs: in an earlier build it flagged
+the office photo's gray fabric wall as "likely beige-tinted", Agent 1 dropped it, and the error
+fell from 1.56° to 1.42°.
+
+How the loop behaved on every photo (severity: 0 is perfect, 1 is badly off; ⚠ = the critic
+listed a visible artifact). The critic's rating improved through revision on 5 of 10 photos.
+
+| Photo | Camera | Critic severity per round | Delivered | Why the loop stopped |
 |---|---|---|---|---|
-| Warm room light on a shelf (Canon EOS Rebel T8i) | 8.41° / 10.7 | 2.03° / 7.2 | 1.56° / 6.7 | **1.42° / 6.6** |
-| Spot-lit stage on a black background (Canon EOS Rebel T8i) | 2.10° / 7.1 | 2.69° / 7.7 | 1.71° / 7.0 | **1.71° / 7.0** |
+| Warm room light on a shelf | Canon EOS Rebel T8i | 0.10 → 0.10 | round 1 | the last revision did not improve on round 1 |
+| Spot-lit stage on a black background | Canon EOS Rebel T8i | 0.05 | round 1 | the critic accepted the correction |
+| Eastern bluebird on a shrub | Apple iPhone 16 Pro | 0.60 ⚠ → 0.60 ⚠ | round 1 | the last revision did not improve on round 1 |
+| Forest trail in deep shade | Apple iPhone 16 Pro | 0.25 → 0.25 | round 1 | the last revision did not improve on round 1 |
+| Conservatory fountain under a glass roof | Apple iPhone 14 Pro Max | 0.12 → 0.08 → 0.10 | round 2 | the last revision did not improve on round 2 |
+| Red roses in a kitchen | Apple iPhone 13 Pro | 0.12 → 0.08 | round 2 | the critic accepted the correction |
+| Bronze sculpture in a tropical garden | Apple iPhone 13 Pro | 0.08 → 0.07 → 0.05 | round 3 | the critic accepted the correction |
+| Friends at a lake overlook | Apple iPhone 13 Pro | 0.20 ⚠ → 0.08 ⚠ → 0.15 ⚠ | round 2 | the last revision did not improve on round 2 |
+| Group photo at a waterfall | FUJIFILM X-T30 | 0.08 → 0.10 | round 1 | the last revision did not improve on round 1 |
+| Riverside trail on a sunny afternoon | unknown | 0.12 → 0.08 → 0.05 | round 3 | the round limit was reached |
 
-On the warm office photo the critic flagged the gray fabric wall as doubtful; Agent 1 dropped it as
-"likely beige-tinted", and the error fell from 1.56° to 1.42°. On the dark stage the critic accepted
-the first correction. Two photos are only spot checks, not a benchmark.
-
-How the loop behaved on every photo (severity: 0 is perfect, 1 is badly off):
-
-| Photo | Camera | Rounds | Critic severity per round | Why the loop stopped |
-|---|---|---|---|---|
-| Warm room light on a shelf | Canon EOS Rebel T8i | 2 | 0.15 → 0.08 | the critic accepted the correction |
-| Spot-lit stage on a black background | Canon EOS Rebel T8i | 1 | 0.07 | the critic accepted the correction |
-| Eastern bluebird on a shrub | Apple iPhone 16 Pro | 2 | 0.65 → 0.65 | the last revision did not improve on round 1 |
-| Forest trail in deep shade | Apple iPhone 16 Pro | 3 | 0.20 → 0.15 → 0.15 | the last revision did not improve on round 2 |
-| Conservatory fountain under a glass roof | Apple iPhone 14 Pro Max | 2 | 0.10 → 0.12 | the last revision did not improve on round 1 |
-| Red roses in a kitchen | Apple iPhone 13 Pro | 2 | 0.10 → 0.08 | the critic accepted the correction |
-| Bronze sculpture in a tropical garden | Apple iPhone 13 Pro | 3 | 0.10 → 0.08 → 0.08 | the last revision did not improve on round 2 |
-| Friends at a lake overlook | Apple iPhone 13 Pro | 3 | 0.12 → 0.10 → 0.08 | the round limit was reached |
-| Group photo at a waterfall | FUJIFILM X-T30 | 2 | 0.10 → 0.15 | the last revision did not improve on round 1 |
-| Riverside trail on a sunny afternoon | unknown | 2 | 0.10 → 0.10 | the last revision did not improve on round 1 |
-
-The hardest case is the bluebird: leaves are its only reference, and using leaves requires the
+**The hardest case** is the bluebird: leaves are its only reference, and using leaves requires the
 camera's spectral curves, which don't exist for the iPhone 16 Pro. The physics falls back to a
 statistical estimate, and the critic correctly flags the result as too cool. Assuming another
 iPhone's curves made it far worse (severity 0.95), so that shortcut was rejected.
+
+**A bug the critic helped find.** An earlier build turned vivid blue skies in phone photos white:
+a rendering rule meant for clipped RAW sensor pixels was also firing on phone files, where one
+channel at its maximum is just a saturated color. The critic had noticed ("the skylight panes now
+look blown") but was only asked about white balance. Now every version of a photo is rendered the
+same way with a hue-preserving highlight roll-off, and the critic must list any artifact the
+correction introduces, which blocks acceptance.
 
 Browse every photo, round and critique in the
 **[gallery](https://parishamaheshj18.github.io/context-based-color-correction/#gallery)**.
@@ -176,7 +190,7 @@ src/natural_color_charts/
 └── pipeline.py   stage orchestration; pipeline_factory.py builds it from the config
 site/             the static website (GitHub Pages)
 showcase/         the photo manifest and cached agent answers
-tests/            124 tests (pytest)
+tests/            130 tests (pytest)
 ```
 
 The architecture follows SOLID: every stage is a small `typing.Protocol`, concrete classes are

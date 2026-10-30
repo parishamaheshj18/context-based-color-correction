@@ -31,6 +31,7 @@ from natural_color_charts.review.critic import describe_critique
 from natural_color_charts.review.evidence import (
     ReviewEvidenceBuilder,
     describe_evidence,
+    describe_highlights,
     render_review_sheet,
 )
 
@@ -68,6 +69,7 @@ class ReviewRound:
     evidence: tuple[ReferenceEvidence, ...]
     sheet: NDArray[np.uint8]
     critique: Critique | None
+    highlights: str = ""
 
     @property
     def severity(self) -> float:
@@ -151,11 +153,14 @@ class AgenticCorrectionLoop:
         intent: str | None,
     ) -> ReviewRound:
         evidence = self._evidence.build(result)
+        highlights = describe_highlights(result)
         sheet = render_review_sheet(result, evidence, self._sheet_px)
         critique = self._critic.critique(
-            encode_png(sheet, max(sheet.shape[:2])), describe_evidence(evidence), intent
+            encode_png(sheet, max(sheet.shape[:2])),
+            f"{describe_evidence(evidence)}\n{highlights}",
+            intent,
         )
-        return ReviewRound(result, context, anchors, evidence, sheet, critique)
+        return ReviewRound(result, context, anchors, evidence, sheet, critique, highlights)
 
     def _stop_reason(self, rounds: Sequence[ReviewRound], best: int) -> str | None:
         """Why the loop should stop now, or None to revise again."""
@@ -166,7 +171,7 @@ class AgenticCorrectionLoop:
         # that does, and the critic's doubts about it would only steer from a worse start.
         if best != len(rounds) - 1:
             return f"the last revision did not improve on round {best + 1}"
-        in_doubt = any(v.verdict != "consistent" for v in critique.verdicts)
+        in_doubt = critique.artifacts or any(v.verdict != "consistent" for v in critique.verdicts)
         if critique.acceptable and critique.cast_severity <= self._acceptable and not in_doubt:
             return "the critic accepted the correction"
         if len(rounds) >= self._max_rounds:
@@ -178,7 +183,11 @@ def revision_feedback(rounds: Sequence[ReviewRound]) -> str:
     """Measurements and critique of the latest round, plus how earlier rounds were rated."""
     round_ = rounds[-1]
     assert round_.critique is not None
-    parts = [describe_evidence(round_.evidence), describe_critique(round_.critique)]
+    parts = [
+        describe_evidence(round_.evidence),
+        round_.highlights,
+        describe_critique(round_.critique),
+    ]
     if len(rounds) > 1:
         scores = ", ".join(f"round {i + 1}: {r.severity:.2f}" for i, r in enumerate(rounds))
         parts.append(f"Reviewer severity so far ({scores}); lower is better.")
