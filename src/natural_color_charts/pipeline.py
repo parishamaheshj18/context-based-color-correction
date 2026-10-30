@@ -48,6 +48,7 @@ class PipelineResult:
     transform: CorrectionTransform
     rendered: RenderedImage
     grid: WavelengthGrid
+    neutral_transform: CorrectionTransform | None = None  # before intent's partial adaptation
 
 
 @dataclass(frozen=True, eq=False)
@@ -125,9 +126,9 @@ class ColorCorrectionPipeline:
         outcome = stages.estimator.estimate(
             EstimationInput(image=image, patches=patches, context=context, sensitivity=sensitivity)
         )
-        transform = stages.correction_builder.build(outcome.estimate, image, sensitivity)
+        neutral = stages.correction_builder.build(outcome.estimate, image, sensitivity)
         degree = adaptation_degree(context.user_intent)
-        transform = apply_adaptation_degree(transform, degree, self._adaptation_transform)
+        transform = apply_adaptation_degree(neutral, degree, self._adaptation_transform)
         logger.info(
             "Estimated white %s via %s", outcome.estimate.white_rgb, outcome.estimate.method
         )
@@ -142,6 +143,7 @@ class ColorCorrectionPipeline:
             transform=transform,
             rendered=stages.renderer.render(image, transform),
             grid=self._grid,
+            neutral_transform=neutral,
         )
 
     def estimate_illuminant(

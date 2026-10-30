@@ -67,6 +67,14 @@ class ContextConfig(_Section):
     anthropic: AnthropicConfig
 
 
+class ReviewConfig(_Section):
+    max_rounds: int
+    critic_model: str | None
+    acceptable_severity: float
+    min_spread_delta_e: float
+    sheet_width_px: int
+
+
 class DetectionConfig(_Section):
     detector: Literal["none", "manual", "vlm", "transformers"]
     segmenter: Literal["box", "sam"]
@@ -170,6 +178,7 @@ class AppConfig(_Section):
     io: IoConfig
     camera: CameraConfig
     context: ContextConfig
+    review: ReviewConfig
     detection: DetectionConfig
     patches: PatchConfig
     priors: PriorConfig

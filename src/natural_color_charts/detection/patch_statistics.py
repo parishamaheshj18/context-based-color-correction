@@ -91,8 +91,9 @@ class PatchStatisticsCalculator:
             return 1.0
         quality = self._size_factor(count) * self._exposure_factor(rgb)
         if region.source == "user":
-            # The user vouches for the color, so trust comes from them, not the class prior.
-            return float(self._config.user_anchor_weight * quality)
+            # The user vouches for the color, so trust comes from them (as the review agent
+            # judged it), not the class prior.
+            return float(self._config.user_anchor_weight * quality * region.candidate_confidence)
         return float(
             region.candidate_confidence * quality * self._class_strength(region.label, context)
         )

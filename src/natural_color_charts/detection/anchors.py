@@ -50,7 +50,7 @@ class AnchorRegionBuilder:
                     mask=upscale_mask(mask, image.width, image.height),
                     detector_score=1.0,
                     box_xyxy=anchor.box_xyxy,
-                    candidate_confidence=1.0,
+                    candidate_confidence=anchor.trust,
                     description=f"you: {self._names[anchor.chart_patch_index]}",
                     source="user",
                     known_reflectance=self._reflectances[anchor.chart_patch_index],

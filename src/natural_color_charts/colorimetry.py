@@ -53,6 +53,17 @@ def luminance_from_linear_srgb(image_rgb: NDArray[np.floating]) -> NDArray[np.fl
     return np.asarray(image_rgb, dtype=np.float32) @ weights
 
 
+def xyz_to_lab(xyz: NDArray[np.floating], white_xyz: RgbVector) -> NDArray[np.float64]:
+    """CIE 1976 L*a*b* of XYZ (last axis) relative to white_xyz."""
+    ratio = np.asarray(xyz, dtype=np.float64) / np.asarray(white_xyz, dtype=np.float64)
+    delta = 6 / 29
+    f = np.where(ratio > delta**3, np.cbrt(ratio), ratio / (3 * delta**2) + 4 / 29)
+    return np.stack(
+        [116 * f[..., 1] - 16, 500 * (f[..., 0] - f[..., 1]), 200 * (f[..., 1] - f[..., 2])],
+        axis=-1,
+    )
+
+
 def xyz_to_xy(xyz: RgbVector) -> NDArray[np.float64]:
     """CIE 1931 chromaticity coordinates of an XYZ triplet."""
     xyz = np.asarray(xyz, dtype=np.float64)

@@ -11,7 +11,9 @@ from typing import Any
 import numpy as np
 
 from natural_color_charts.domain import PatchMeasurement
+from natural_color_charts.io.writers import write_image8
 from natural_color_charts.pipeline import PipelineResult
+from natural_color_charts.review.loop import ReviewOutcome
 
 
 def to_jsonable(value: Any) -> Any:
@@ -89,6 +91,27 @@ def _camera_section(result: PipelineResult) -> dict[str, Any] | None:
         "selection_reason": sensitivity.selection_reason,
         "is_approximate": sensitivity.is_approximate,
     }
+
+
+def write_review(outcome: ReviewOutcome, directory: Path) -> list[Path]:
+    """review.json with every round's evidence and critique, plus the sheet the critic saw."""
+    rounds = []
+    paths = []
+    for number, round_ in enumerate(outcome.rounds, start=1):
+        paths.append(write_image8(directory / f"review_round{number}.png", round_.sheet / 255))
+        rounds.append(
+            {
+                "round": number,
+                "delivered": number - 1 == outcome.best_index,
+                "illuminant": to_jsonable(round_.result.estimate),
+                "user_match_trust": [a.trust for a in round_.anchors],
+                "scene_context": to_jsonable(round_.context),
+                "evidence": to_jsonable(round_.evidence),
+                "critique": to_jsonable(round_.critique),
+            }
+        )
+    paths.insert(0, write_report(directory / "review.json", {"rounds": rounds}))
+    return paths
 
 
 def write_report(path: Path, report: dict[str, Any]) -> Path:

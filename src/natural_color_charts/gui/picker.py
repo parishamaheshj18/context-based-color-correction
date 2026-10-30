@@ -21,6 +21,8 @@ from matplotlib.widgets import Button
 from natural_color_charts.domain import BoxXyxy, UserColorAnchor
 from natural_color_charts.gui.session import MatchSession, corrected_uint8, describe
 from natural_color_charts.io.writers import write_image8
+from natural_color_charts.reporting.report import write_review
+from natural_color_charts.review.loop import review_summary
 
 YOU, CLAUDE, PENDING = "#eb6834", "#6250d6", "#ffffff"
 CHART_COLUMNS = 6
@@ -165,12 +167,16 @@ class MatchPicker:
 
     def correct(self) -> Path:
         """Correct, save, and show the result next to the original."""
-        self._message = "Correcting..."
+        self._message = "Correcting (the agents review and refine; this can take a minute)..."
         self.redraw()
         self.figure.canvas.flush_events()
+        self._session.review = None
         result = self._session.correct(self.anchors, sorted(self.ignored))
         lines = describe(result)
         self._output_dir.mkdir(parents=True, exist_ok=True)
+        if self._session.review is not None:
+            lines += review_summary(self._session.review)
+            write_review(self._session.review, self._output_dir)
         saved = write_image8(
             self._output_dir / "corrected.jpg", result.rendered.encoded_srgb, self._jpeg_quality
         )

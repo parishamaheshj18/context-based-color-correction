@@ -65,6 +65,9 @@ from natural_color_charts.io.loaders import (
 )
 from natural_color_charts.io.preview import downscale_image
 from natural_color_charts.pipeline import ColorCorrectionPipeline, PipelineStages
+from natural_color_charts.review.critic import VlmCritic
+from natural_color_charts.review.evidence import ReviewEvidenceBuilder
+from natural_color_charts.review.loop import AgenticCorrectionLoop
 from natural_color_charts.spectral.bootstrap_priors import build_bootstrap_priors
 from natural_color_charts.spectral.datasets import (
     chart_reflectances,
@@ -243,6 +246,55 @@ def build_context_provider(config: AppConfig) -> SceneContextProvider:
     )
 
 
+def build_evidence_builder(config: AppConfig) -> ReviewEvidenceBuilder:
+    """Measures references against their materials under the correction's target light."""
+    grid = build_grid(config)
+    return ReviewEvidenceBuilder(
+        build_priors(config),
+        cie_1931_cmfs(grid),
+        standard_illuminant_spd(config.correction.target_illuminant, grid),
+        config.review.min_spread_delta_e,
+    )
+
+
+def build_review_loop(
+    config: AppConfig, pipeline: ColorCorrectionPipeline
+) -> AgenticCorrectionLoop | None:
+    """The critic-and-revise agent loop, or None when it is off or no VLM is configured."""
+    context = config.context
+    client = build_vlm_client(context)
+    if config.review.max_rounds <= 0 or client is None:
+        return None
+    critic_client = client
+    if config.review.critic_model:
+        model = config.review.critic_model
+        critic_client = (
+            build_vlm_client(
+                context.model_copy(
+                    update={
+                        "anthropic": context.anthropic.model_copy(update={"model": model}),
+                        "ollama": context.ollama.model_copy(update={"model": model}),
+                    }
+                )
+            )
+            or client
+        )
+    return AgenticCorrectionLoop(
+        pipeline=pipeline,
+        reviser=VlmSceneContextAnalyzer(
+            client,
+            build_default_context_provider(config),
+            context.max_retries,
+            context.preview_long_edge_px,
+        ),
+        critic=VlmCritic(critic_client, context.max_retries),
+        evidence_builder=build_evidence_builder(config),
+        max_rounds=config.review.max_rounds,
+        acceptable_severity=config.review.acceptable_severity,
+        sheet_width_px=config.review.sheet_width_px,
+    )
+
+
 def build_detector(config: DetectionConfig) -> ReferenceDetector:
     """Detector chosen by config; model-based detectors load weights here."""
     if config.detector == "manual":
@@ -343,10 +395,12 @@ def build_match_session(
         names, reflectances, cie_1931_cmfs(grid), standard_illuminant_spd("D65", grid)
     )
     image = downscale_image(build_loader(config).load(photo), processing_long_edge_px)
+    pipeline = build_pipeline(config)
     return MatchSession(
-        build_pipeline(config),
+        pipeline,
         build_default_context_provider(config),
         image,
         swatches,
         intent,
+        build_review_loop(config, pipeline),
     )

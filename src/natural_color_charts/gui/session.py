@@ -19,6 +19,7 @@ from natural_color_charts.domain import (
 )
 from natural_color_charts.io.writers import to_uint8
 from natural_color_charts.pipeline import ColorCorrectionPipeline, PipelineResult
+from natural_color_charts.review.loop import AgenticCorrectionLoop, ReviewOutcome
 
 
 class Swatch(NamedTuple):
@@ -41,7 +42,11 @@ def chart_swatches(
 
 
 class MatchSession:
-    """Holds one loaded photo; Claude's answer is kept so the user can ignore some of its picks."""
+    """Holds one loaded photo; Claude's answer is kept so the user can ignore some of its picks.
+
+    With a review loop, the user's matches and ignores are the first word, not the last: the
+    agents then correct, critique, and revise, and may overrule them.
+    """
 
     def __init__(
         self,
@@ -50,6 +55,7 @@ class MatchSession:
         image: LinearImage,
         swatches: list[Swatch],
         intent: str | None,
+        review_loop: AgenticCorrectionLoop | None = None,
     ) -> None:
         self._pipeline = pipeline
         self._default_context = default_context
@@ -57,7 +63,9 @@ class MatchSession:
         self.preview = pipeline.render_preview(image)
         self.swatches = swatches
         self._intent = intent
+        self._review_loop = review_loop
         self.claude: SceneContext | None = None
+        self.review: ReviewOutcome | None = None
 
     def ask_claude(self) -> SceneContext:
         """Scene analysis by the configured VLM; falls back to the default context on failure."""
@@ -68,15 +76,23 @@ class MatchSession:
         self, anchors: Sequence[UserColorAnchor], ignored: Sequence[int] = ()
     ) -> PipelineResult:
         """Correct with the user's matches plus Claude's picks, minus the ones the user ignored."""
-        return self._pipeline.run_with_context(
-            self._image, self.preview, self._context(set(ignored)), anchors=anchors
+        context = self._context(set(ignored))
+        if self._review_loop is None or context.source != "vlm":
+            return self._pipeline.run_with_context(
+                self._image, self.preview, context, anchors=anchors
+            )
+        self.review = self._review_loop.run(
+            self._image, self.preview, context, anchors, self._intent
         )
+        return self.review.result
 
     def _context(self, ignored: set[int]) -> SceneContext:
         if self.claude is None:
             return self._default_context.analyze(self.preview, self._intent)
         candidates = tuple(
-            dataclasses.replace(c, usable=False) if i in ignored else c
+            dataclasses.replace(c, usable=False, concerns=(*c.concerns, "ignored by the user"))
+            if i in ignored
+            else c
             for i, c in enumerate(self.claude.reference_candidates)
         )
         return dataclasses.replace(self.claude, reference_candidates=candidates)

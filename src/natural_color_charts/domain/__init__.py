@@ -13,6 +13,7 @@ from natural_color_charts.domain.regions import (
     ReferenceRegion,
     UserColorAnchor,
 )
+from natural_color_charts.domain.review import Critique, ReferenceEvidence, ReferenceVerdict
 from natural_color_charts.domain.scene import (
     NEUTRAL_CLASSES,
     SCENE_CLASSES,
@@ -39,6 +40,7 @@ __all__ = [
     "BoxXyxy",
     "CameraSensitivity",
     "CorrectionTransform",
+    "Critique",
     "Detection",
     "IlluminantEstimate",
     "IlluminantHypothesis",
@@ -50,7 +52,9 @@ __all__ = [
     "PreviewImage",
     "ReferenceCandidate",
     "ReferenceClass",
+    "ReferenceEvidence",
     "ReferenceRegion",
+    "ReferenceVerdict",
     "RgbVector",
     "SceneContext",
     "SpectralArray",

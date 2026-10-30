@@ -33,7 +33,14 @@ context:
     timeout_s: 180
   anthropic:
     model: claude-opus-5-5
-    max_tokens: 2048
+    max_tokens: 4096        # a revision repeats the whole scene answer
+
+review:                   # agent loop: an independent critic judges each correction
+  max_rounds: 3             # critiques per photo; 0 turns the loop off. Needs a context client.
+  critic_model: null        # null = the context model; a different model is a more independent critic
+  acceptable_severity: 0.10 # stop once the critic accepts, doubts no reference, and rates the cast at most this
+  min_spread_delta_e: 2.0   # ΔE*ab within which any reference counts as matching its material
+  sheet_width_px: 1568      # width of the before/after review sheet the critic sees
 
 detection:
   detector: none          # none | manual | vlm (boxes from scene analysis) | transformers

@@ -32,9 +32,15 @@ from natural_color_charts.pipeline_factory import (
     build_match_session,
     build_pipeline,
     build_repository,
+    build_review_loop,
 )
 from natural_color_charts.reporting.overlay import render_overlay
-from natural_color_charts.reporting.report import build_report, to_jsonable, write_report
+from natural_color_charts.reporting.report import (
+    build_report,
+    to_jsonable,
+    write_report,
+    write_review,
+)
 from natural_color_charts.reporting.showcase import ShowcaseBuilder
 from natural_color_charts.reporting.visualization import save_comparison
 from natural_color_charts.spectral.library_reader import build_priors_from_library
@@ -111,11 +117,26 @@ def correct(
     config_path: ConfigOption = None,
     verbose: Annotated[bool, typer.Option("--verbose", "-v")] = False,
 ) -> None:
-    """Correct the colors of PHOTO and write images and a report."""
+    """Correct the colors of PHOTO and write images and a report.
+
+    With a VLM configured, an independent critic reviews each correction and the scene
+    analysis revises it (see the review section of the config).
+    """
     config = _load(config_path, verbose, _stage_overrides(vlm, detector, settings))
-    result = build_pipeline(config).run(photo, camera=camera, intent=intent)
+    pipeline = build_pipeline(config)
     target_dir = output_dir or config.output.directory / photo.stem
-    written = write_outputs(result, target_dir, config)
+    loop = build_review_loop(config, pipeline)
+    if loop is None:
+        written = write_outputs(
+            pipeline.run(photo, camera=camera, intent=intent), target_dir, config
+        )
+    else:
+        image = build_loader(config).load(photo)
+        preview = pipeline.render_preview(image)
+        context = pipeline.analyze_scene(preview, intent)
+        outcome = loop.run(image, preview, context, intent=intent, camera=camera)
+        written = write_outputs(outcome.result, target_dir, config)
+        written += write_review(outcome, target_dir)
     for path in written:
         typer.echo(str(path))
 

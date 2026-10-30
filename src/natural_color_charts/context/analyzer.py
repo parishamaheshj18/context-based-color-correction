@@ -5,14 +5,22 @@ from __future__ import annotations
 import dataclasses
 import io
 import logging
+from typing import Any, TypeVar
 
 from PIL import Image
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from natural_color_charts.context.base import SceneContextProvider
 from natural_color_charts.context.clients import VisionLanguageClient, VlmError
-from natural_color_charts.context.schema import SceneAnalysisResponse, response_json_schema
+from natural_color_charts.context.schema import (
+    RevisionResponse,
+    SceneAnalysisResponse,
+    response_json_schema,
+    revision_json_schema,
+)
 from natural_color_charts.domain import PreviewImage, SceneContext
+
+ResponseT = TypeVar("ResponseT", bound=BaseModel)
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +56,31 @@ User request: {intent}
 
 Put a one-paragraph explanation of your judgment in rationale."""
 
+REVISION_PROMPT = """\
+{scene_prompt}
+
+You analyzed this photo before and the system corrected it with your answer. Your previous \
+answer was:
+{previous}
+
+{feedback}
+
+Revise your answer to fix what went wrong: drop, add, or re-box references, change their \
+confidence, or change the illuminant hypotheses. A material whose measured color is far \
+outside its typical spread is either not that material or not lit by the main light. The \
+reviewer can be wrong too: keep what the measurements support, and explain in rationale \
+where you disagree.
+
+{match_note}"""
+
+MATCH_NOTE = """\
+The user made {count} color match(es), U1 to U{count}: each is a pixel they say truly has the \
+color of a chart patch. Users make mistakes (a cream wall matched to white, a patch in shade \
+or colored light, a mis-click). For each match give trust 1 when it agrees with the scene \
+and the other references, lower when doubtful, or 0 to ignore it, with a reason."""
+
+NO_MATCH_NOTE = "The user made no color matches; return user_match_decisions as []."
+
 
 def encode_png(preview: PreviewImage, long_edge_px: int) -> bytes:
     """PNG bytes of the preview, downscaled to long_edge_px."""
@@ -74,21 +107,70 @@ class VlmSceneContextAnalyzer:
         self._preview_px = preview_long_edge_px
 
     def analyze(self, preview: PreviewImage, intent_text: str | None) -> SceneContext:
-        image_png = encode_png(preview, self._preview_px)
         prompt = SCENE_PROMPT.format(intent=intent_text or "(none)")
-        schema = response_json_schema()
-        for attempt in range(self._max_retries + 1):
-            try:
-                text = self._client.complete_json(image_png, prompt, schema)
-                return SceneAnalysisResponse.model_validate_json(text).to_domain()
-            except ValidationError as error:
-                logger.warning("VLM response failed validation (attempt %d)", attempt + 1)
-                prompt = _with_correction(prompt, error)
-            except VlmError as error:
-                logger.warning("VLM call failed (attempt %d): %s", attempt + 1, error)
+        response = request_validated(
+            self._client,
+            encode_png(preview, self._preview_px),
+            prompt,
+            response_json_schema(),
+            SceneAnalysisResponse,
+            self._max_retries,
+        )
+        if response is not None:
+            return response.to_domain()
         logger.warning("Falling back to default scene context")
         fallback = self._fallback.analyze(preview, intent_text)
         return _note_fallback(fallback, self._client.name)
+
+    def revise(
+        self,
+        preview: PreviewImage,
+        intent_text: str | None,
+        previous: SceneContext,
+        feedback: str,
+        match_count: int,
+    ) -> tuple[SceneContext, dict[int, float]] | None:
+        """A revised context and per-match trust after review feedback; None if the VLM fails."""
+        note = MATCH_NOTE.format(count=match_count) if match_count else NO_MATCH_NOTE
+        prompt = REVISION_PROMPT.format(
+            scene_prompt=SCENE_PROMPT.format(intent=intent_text or "(none)"),
+            previous=SceneAnalysisResponse.from_domain(previous).model_dump_json(),
+            feedback=feedback,
+            match_note=note,
+        )
+        response = request_validated(
+            self._client,
+            encode_png(preview, self._preview_px),
+            prompt,
+            revision_json_schema(),
+            RevisionResponse,
+            self._max_retries,
+        )
+        if response is None:
+            return None
+        trust = {i: t for i, t in response.match_trust().items() if 0 <= i < match_count}
+        return response.to_domain(), trust
+
+
+def request_validated(
+    client: VisionLanguageClient,
+    image_png: bytes,
+    prompt: str,
+    schema: dict[str, Any],
+    response_type: type[ResponseT],
+    max_retries: int,
+) -> ResponseT | None:
+    """Ask until the answer validates, telling the model what was wrong; None if it never does."""
+    for attempt in range(max_retries + 1):
+        try:
+            text = client.complete_json(image_png, prompt, schema)
+            return response_type.model_validate_json(text)
+        except ValidationError as error:
+            logger.warning("VLM response failed validation (attempt %d)", attempt + 1)
+            prompt = _with_correction(prompt, error)
+        except VlmError as error:
+            logger.warning("VLM call failed (attempt %d): %s", attempt + 1, error)
+    return None
 
 
 def _with_correction(prompt: str, error: ValidationError) -> str:

@@ -15,10 +15,15 @@ __all__ = ["BoxXyxy", "Detection", "PatchMeasurement", "ReferenceRegion", "UserC
 
 @dataclass(frozen=True)
 class UserColorAnchor:
-    """A region the user says truly has the color of one ColorChecker patch (0-23)."""
+    """A region the user says truly has the color of one ColorChecker patch (0-23).
+
+    trust scales the match's weight; the review agent lowers it, or sets 0 to drop it, when
+    the match disagrees with the rest of the scene.
+    """
 
     box_xyxy: BoxXyxy
     chart_patch_index: int
+    trust: float = 1.0
 
 
 @dataclass(frozen=True)
