@@ -210,11 +210,7 @@ GitHub Actions for CI and Pages.
 
 - **Only 2 of the 10 showcase photos contain a color chart**, so the numbers above are spot checks,
   not a benchmark. The next step is a run on a public dataset such as Gehler–Shi or NUS 8-camera.
-- **Camera curves.** Spectral sensitivity data is available for a set of phone cameras (the
-  author's own dataset, not included here) and two cameras that ship with `colour-science`.
-  Without it (for example for the Canon EOS Rebel T8i), the spectral fit is skipped and a
-  simpler neutral-surface estimate plus the camera's own matrix are used, which leaves a visible
-  ΔE00 of about 6–7 even when the white balance is close.
+- **Camera curves.** Spectral sensitivity data is available for a set of phone cameras(my own dataset is not included here) and two cameras that ship with `colour science`. Without it (for example for the Canon EOS Rebel T8i), the spectral fit is skipped and a simpler neutral-surface estimate plus the camera's own matrix are used, which leaves a visible ΔE00 of about 6–7 even when the white balance is close.
 - **Processed photos.** HEIC and JPEG files are already white-balanced and tone-mapped by the
   camera, so they are corrected in an approximate mode; RAW gives the best results.
 - **Reflectance priors** are starter versions built from color-chart spectra. Measured libraries
