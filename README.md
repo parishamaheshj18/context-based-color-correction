@@ -143,34 +143,61 @@ Browse every photo, round and critique in the
 
 ## Try it
 
-Requires Python 3.11+ and an Anthropic API key for the agents.
+Tested on a fresh clone with Python 3.11. You need Python 3.11 or newer, and an
+[Anthropic API key](https://console.anthropic.com/) to run the agents.
+
+**1. Install.** Linux, Windows and Apple Silicon Macs get prebuilt packages, so this takes a
+minute or two. On Intel Macs, `rawpy` compiles LibRaw from source, which took about 12 minutes
+in testing and needs the Xcode Command Line Tools (`xcode-select --install`).
 
 ```bash
 git clone https://github.com/parishamaheshj18/context-based-color-correction.git
 cd context-based-color-correction
-python -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[anthropic,heic,dev]"
-echo "ANTHROPIC_API_KEY=sk-ant-..." > .env      # git-ignored
-
-# Correct one photo with both agents; writes corrected images, report.json,
-# review.json and the review sheets the critic saw to outputs/<photo>/
-ncc correct photo.dng --vlm anthropic --detector vlm
-
-# Open the matching window: your color matches first, then the agents take over
-ncc match photo.dng
-
-# Rebuild the website from showcase/cases.yaml (needs the photos it lists,
-# which are not in the repository; cached agent answers make reruns free)
-ncc showcase
-
-# Run the tests, linter and type checker
-pytest && ruff check src tests && mypy src
 ```
 
-Every setting, including the number of review rounds and the critic model, lives in
-[`configs/default.yaml`](configs/default.yaml) and can be overridden on the command line, for
-example `--set review.max_rounds=1`. Without an API key the pipeline still runs with a
-model-free default context and the classic baselines.
+**2. Add your API key.** The `.env` file is git-ignored.
+
+```bash
+echo "ANTHROPIC_API_KEY=sk-ant-..." > .env
+```
+
+**3. Correct a photo with both agents.** This uses a photo already in the repository. It takes
+about a minute and at most 6 Claude calls (up to 3 review rounds).
+
+```bash
+ncc correct site/assets/cases/kitchen-roses/before.jpg --vlm anthropic --detector vlm --output-dir outputs/roses
+```
+
+`outputs/roses/` then holds:
+
+| File | What it is |
+|---|---|
+| `corrected.jpg`, `.png`, `.tif` | The corrected photo (the TIFF is 16-bit) |
+| `comparison.png` | Before and after, side by side |
+| `overlay.png` | The surfaces the agents used as references |
+| `review_round1.png`, ... | The sheet the critic saw in each round |
+| `review.json` | Every round's measurements and critique, and why the loop stopped |
+| `report.json` | The light estimate, color matrix, references and their weights |
+
+For your own photos, RAW files (DNG, CR2/CR3, NEF, ARW) give the best results. HEIC and JPEG
+work in an approximate mode, because the camera has already processed them.
+
+**Without an API key**, leave out `--vlm anthropic --detector vlm`. The photo is still corrected,
+but by a classic statistical estimate (shades of gray), with no agents.
+
+**More commands:**
+
+```bash
+ncc match photo.dng        # matching window (needs a desktop): your color matches, then the agents
+ncc correct --help         # all options; any config value can be overridden, e.g. --set review.max_rounds=1
+pytest && ruff check src tests && mypy src     # tests, linter, type checker
+```
+
+Every setting lives in [`configs/default.yaml`](configs/default.yaml). `ncc showcase` rebuilds
+the website from `showcase/cases.yaml`; it needs the original photos, which are not in the
+repository.
 
 ## Project structure
 
