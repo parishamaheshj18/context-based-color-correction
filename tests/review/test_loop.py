@@ -72,6 +72,7 @@ def test_an_accepted_first_correction_ends_the_loop(scene):
     reviser = ScriptedReviser()
     outcome = _run(scene, _loop(scene, ScriptedCritic([_critique(0.05, True)]), reviser))
     assert len(outcome.rounds) == 1 and not reviser.started_from
+    assert outcome.stop_reason == "the critic accepted the correction"
 
 
 def test_the_agent_can_ignore_a_wrong_user_match(scene):
@@ -90,6 +91,7 @@ def test_a_revision_that_does_not_improve_ends_the_loop_with_the_best(scene):
     outcome = _run(scene, _loop(scene, ScriptedCritic([_critique(0.3), _critique(0.6)]), reviser))
     assert len(outcome.rounds) == 2 and outcome.best_index == 0
     assert len(reviser.started_from) == 1
+    assert outcome.stop_reason == "the last revision did not improve on round 1"
 
 
 def test_an_equally_rated_revision_counts_as_no_improvement(scene):
@@ -115,3 +117,4 @@ def test_without_a_critique_the_first_correction_is_delivered(scene):
     outcome = _run(scene, _loop(scene, ScriptedCritic([None]), ScriptedReviser()))
     assert len(outcome.rounds) == 1
     assert review_summary(outcome)[0] == "Round 1: reviewer unavailable (delivered)"
+    assert review_summary(outcome)[-1] == "Stopped because the critic was unavailable."

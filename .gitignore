@@ -1,6 +1,7 @@
+# Private working notes (the public README.md is committed)
 CODING_GUIDELINES.md
 PIPELINE.md
-README.md
+README.research.md
 # Environment and caches
 .venv/
 __pycache__/

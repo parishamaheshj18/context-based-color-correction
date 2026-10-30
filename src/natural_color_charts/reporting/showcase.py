@@ -47,10 +47,11 @@ from natural_color_charts.pipeline_factory import (
     build_loader,
     build_pipeline,
     build_renderer,
-    build_selector,
+    build_review_loop,
 )
 from natural_color_charts.reporting.overlay import render_overlay
 from natural_color_charts.reporting.report import to_jsonable
+from natural_color_charts.review.loop import ReviewOutcome
 from natural_color_charts.spectral.illuminants import DaylightBasis
 
 logger = logging.getLogger(__name__)
@@ -144,8 +145,8 @@ class ShowcaseBuilder:
         self._site_dir = site_dir
         self._config = config
         self._pipeline = build_pipeline(config)
+        self._review_loop = build_review_loop(config, self._pipeline)
         self._loader = build_loader(config)
-        self._selector = build_selector(config)
         self._builder = build_correction_builder(config)
         self._renderer = build_renderer(config)
         self._gray_world = GrayWorldEstimator(1.0, config.estimation.statistics_max_pixels)
@@ -181,11 +182,20 @@ class ShowcaseBuilder:
             self._loader.load(case.image), self._manifest.processing_long_edge_px
         )
         hidden = hide_annotated_chart(image, case.chart) if case.chart else image
-        result = self._pipeline.run_image(hidden, intent=case.intent)
-        if self._config.context.client != "none" and result.context.source != "vlm":
+        preview = self._pipeline.render_preview(hidden)
+        context = self._pipeline.analyze_scene(preview, case.intent)
+        if self._config.context.client != "none" and context.source != "vlm":
             # Publishing the fallback context would present "AI reasoning" that never happened.
             raise ShowcaseError(f"{case.case_id}: the VLM gave no usable answer; see the log above")
-        renders = self._renders(image, hidden, result)
+        review = (
+            self._review_loop.run(hidden, preview, context, intent=case.intent)
+            if self._review_loop
+            else None
+        )
+        result = (
+            review.result if review else self._pipeline.run_with_context(hidden, preview, context)
+        )
+        renders = self._renders(image, hidden, result, review)
         record: dict[str, Any] = {
             "id": case.case_id,
             "title": case.title,
@@ -198,25 +208,35 @@ class ShowcaseBuilder:
             "images": self._save_images(case, result, renders),
             "ai": self._ai_section(result),
             "physics": self._physics_section(result),
+            "review": self._review_section(case, review) if review else None,
             "seconds": round(time.perf_counter() - started, 1),
         }
         if case.chart:
-            record["ground_truth"] = self._score(image, case.chart, renders)
+            record["ground_truth"] = self._score(image, case.chart, renders, review)
         return record
 
     def _renders(
-        self, image: LinearImage, hidden: LinearImage, result: PipelineResult
+        self,
+        image: LinearImage,
+        hidden: LinearImage,
+        result: PipelineResult,
+        review: ReviewOutcome | None,
     ) -> dict[str, tuple[CorrectionTransform | None, NDArray[np.float32]]]:
         # The final transform is applied to the full photo, chart included.
         ours = self._renderer.render(image, result.transform)
         gain = ours.exposure_gain
-        sensitivity = self._selector.select(image)
+        # Baselines use the same curves as the result, so only the estimator differs.
+        sensitivity = result.sensitivity
         gray_estimate = self._gray_world.estimate(EstimationInput(image=hidden)).estimate
         gray = self._transform_for(gray_estimate, image, sensitivity)
         renders: dict[str, tuple[CorrectionTransform | None, NDArray[np.float32]]] = {
             "ours": (result.transform, ours.encoded_srgb),
             "gray_world": (gray, self._renderer.render(image, gray, gain).encoded_srgb),
         }
+        if review is not None:
+            # The correction before any critique, to show what the agents changed.
+            first = review.rounds[0].result.transform
+            renders["first_pass"] = (first, self._renderer.render(image, first, gain).encoded_srgb)
         if image.mode is InputMode.RASTER:
             renders["before"] = (None, encode_srgb(image.rgb))
         else:
@@ -344,27 +364,74 @@ class ShowcaseBuilder:
         image: LinearImage,
         chart: ChartAnnotation,
         renders: dict[str, tuple[CorrectionTransform | None, NDArray[np.float32]]],
+        review: ReviewOutcome | None,
     ) -> dict[str, Any]:
         patches = sample_chart(image, chart)
         truth = chart_white(patches)
         scores: dict[str, Any] = {"truth_white_rgb": to_jsonable(truth)}
         for key, (transform, _) in renders.items():
-            if transform is None:
-                continue
-            white = np.linalg.solve(transform.camera_to_xyz, transform.target_white_xyz)
-            scores[key] = {
-                "angular_error_deg": round(recovery_angular_error(white, truth), 2),
-                "delta_e00": round(
-                    chart_delta_e00(
-                        transform.camera_to_xyz,
-                        patches,
-                        self._reference_xyz,
-                        self._config.evaluation.white_patch_index,
-                    ),
-                    2,
-                ),
-            }
+            if transform is not None:
+                scores[key] = self._transform_score(transform, patches, truth)
+        if review is not None:
+            scores["rounds"] = [
+                self._transform_score(r.result.transform, patches, truth) for r in review.rounds
+            ]
         return scores
+
+    def _transform_score(
+        self, transform: CorrectionTransform, patches: NDArray[np.float64], truth: NDArray[Any]
+    ) -> dict[str, float]:
+        white = np.linalg.solve(transform.camera_to_xyz, transform.target_white_xyz)
+        return {
+            "angular_error_deg": round(recovery_angular_error(white, truth), 2),
+            "delta_e00": round(
+                chart_delta_e00(
+                    transform.camera_to_xyz,
+                    patches,
+                    self._reference_xyz,
+                    self._config.evaluation.white_patch_index,
+                ),
+                2,
+            ),
+        }
+
+    def _review_section(self, case: ShowcaseCase, review: ReviewOutcome) -> dict[str, Any]:
+        """Each round's critique, the sheet the critic saw, and why the loop stopped."""
+        directory = self._site_dir / "assets" / "cases" / case.case_id
+        rounds = []
+        for number, round_ in enumerate(review.rounds, start=1):
+            sheet = save_jpeg(
+                directory / f"review_round{number}.jpg",
+                round_.sheet,
+                self._manifest.display_long_edge_px,
+            )
+            rounds.append(
+                {
+                    "round": number,
+                    "delivered": number - 1 == review.best_index,
+                    "sheet": f"assets/cases/{case.case_id}/{sheet}",
+                    "rationale": round_.context.rationale,
+                    "references": [
+                        {
+                            "id": e.reference_id,
+                            "label": e.label.value,
+                            "name": e.name,
+                            "used": e.used,
+                            "delta_e": None if e.delta_e is None else round(e.delta_e, 1),
+                            "typical_spread": None
+                            if e.typical_spread is None
+                            else round(e.typical_spread, 1),
+                        }
+                        for e in round_.evidence
+                    ],
+                    "critique": to_jsonable(round_.critique),
+                }
+            )
+        return {
+            "critic_model": self._config.review.critic_model or self._model_name(),
+            "stop_reason": review.stop_reason,
+            "rounds": rounds,
+        }
 
     def _model_name(self) -> str | None:
         context = self._config.context
@@ -375,9 +442,15 @@ class ShowcaseBuilder:
         return None
 
     def _pipeline_info(self) -> dict[str, Any]:
+        detection, review = self._config.detection, self._config.review
         return {
             "vlm": self._model_name(),
-            "detector": self._config.detection.detector,
-            "segmenter": self._config.detection.segmenter_model,
+            "detector": detection.detector,
+            "segmenter": detection.segmenter_model if detection.segmenter == "sam" else "box",
             "processing_long_edge_px": self._manifest.processing_long_edge_px,
+            "review": {
+                "critic_model": review.critic_model or self._model_name(),
+                "max_rounds": review.max_rounds if self._review_loop else 0,
+                "acceptable_severity": review.acceptable_severity,
+            },
         }

@@ -110,7 +110,8 @@ def write_review(outcome: ReviewOutcome, directory: Path) -> list[Path]:
                 "critique": to_jsonable(round_.critique),
             }
         )
-    paths.insert(0, write_report(directory / "review.json", {"rounds": rounds}))
+    review = {"stop_reason": outcome.stop_reason, "rounds": rounds}
+    paths.insert(0, write_report(directory / "review.json", review))
     return paths
 
 

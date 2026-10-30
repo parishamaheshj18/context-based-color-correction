@@ -15,6 +15,7 @@
    "images": {
     "ours": "assets/cases/lab-shelf-warm/ours.jpg",
     "gray_world": "assets/cases/lab-shelf-warm/gray_world.jpg",
+    "first_pass": "assets/cases/lab-shelf-warm/first_pass.jpg",
     "before": "assets/cases/lab-shelf-warm/before.jpg",
     "overlay": "assets/cases/lab-shelf-warm/overlay.jpg",
     "thumb": "assets/cases/lab-shelf-warm/thumb.jpg"
@@ -51,7 +52,7 @@
       "label": "neutral_surface",
       "description": "White plastic turntable top surface",
       "usable": true,
-      "confidence": 0.75,
+      "confidence": 0.8,
       "concerns": [
        "slight shading toward edges"
       ],
@@ -74,9 +75,10 @@
       "label": "neutral_surface",
       "description": "White turntable cylindrical side",
       "usable": true,
-      "confidence": 0.6,
+      "confidence": 0.5,
       "concerns": [
-       "curved surface with gradient shading"
+       "curved vertical surface with gradient shading",
+       "receives less direct overhead light, reads cooler"
       ],
       "boxes": [
        [
@@ -114,26 +116,14 @@
      {
       "label": "neutral_surface",
       "description": "Gray fabric cubicle partition wall",
-      "usable": true,
-      "confidence": 0.45,
+      "usable": false,
+      "confidence": 0.25,
       "concerns": [
-       "fabric may have warm/beige tint",
-       "gradient from overhead light"
+       "fabric likely has intrinsic warm/beige tint",
+       "measured consistently warmer than the white references",
+       "background area with different light falloff"
       ],
-      "boxes": [
-       [
-        0.08,
-        0.25,
-        0.34,
-        0.55
-       ],
-       [
-        0.63,
-        0.4,
-        0.88,
-        0.6
-       ]
-      ]
+      "boxes": []
      },
      {
       "label": "neutral_surface",
@@ -142,7 +132,8 @@
       "confidence": 0.3,
       "concerns": [
        "small patches adjacent to black printed areas",
-       "printed markers reduce uniform area"
+       "printed markers reduce uniform area",
+       "flare from adjacent black ink and iridescent CD"
       ],
       "boxes": []
      }
@@ -151,9 +142,9 @@
      "adaptation": "neutral",
      "strength": 1.0
     },
-    "rationale": "This is an indoor office cubicle scene lit by an overhead fluorescent fixture visible at the top; no windows or sky are present. Office fluorescents are typically 3500-5000 K, so a daylight-locus prior near 4000 K is favored, with a blackbody fallback for warmer tubes. The best neutral references are the white plastic turntable top and side, followed by the gray laminate desk and the gray fabric partition (which may carry a slight beige tint). The checker pattern's white squares are too small and interspersed with black to be reliable. The user requested neutral, so full correction is applied.",
+    "rationale": "Indoor office cubicle lit by an overhead fluorescent fixture; no windows, so a daylight-locus prior around 3500-5000 K remains favored with a blackbody fallback. The previous correction was acceptable, with a mild split between materials: the white turntable came out slightly cool-magenta and the laminate and fabric slightly warm-green. The gray cubicle fabric was the most deviant reference (+5-6 b*) and is plausibly beige-tinted, so I mark it unusable. That removes the warmest pull. The white turntable top is the most trustworthy neutral and gets higher confidence. I lower confidence on the turntable side, since its vertical curved face gets less overhead light and reads bluer. I keep the laminate at moderate confidence because its small warm deviation balances the turntable's slight coolness. Both remaining materials sit well within their typical spread. I disagree with the reviewer about using the checker white squares: they are tiny, surrounded by black ink and near the iridescent CD, so they are unreliable. The user requested neutral, so full correction applies.",
     "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
+    "segmenter": "box",
     "regions": [
      {
       "label": "neutral_surface",
@@ -164,9 +155,9 @@
        0.49,
        0.83
       ],
-      "detector_score": 0.75,
-      "pixels": 15223,
-      "weight": 0.375,
+      "detector_score": 0.8,
+      "pixels": 9024,
+      "weight": 0.4,
       "kept": true,
       "reason": "",
       "used": true
@@ -180,9 +171,9 @@
        0.66,
        0.83
       ],
-      "detector_score": 0.75,
-      "pixels": 5397,
-      "weight": 0.375,
+      "detector_score": 0.8,
+      "pixels": 2688,
+      "weight": 0.215,
       "kept": true,
       "reason": "",
       "used": true
@@ -196,9 +187,9 @@
        0.6,
        0.94
       ],
-      "detector_score": 0.6,
-      "pixels": 8259,
-      "weight": 0.254,
+      "detector_score": 0.5,
+      "pixels": 18938,
+      "weight": 0.217,
       "kept": true,
       "reason": "",
       "used": true
@@ -213,8 +204,8 @@
        0.86
       ],
       "detector_score": 0.6,
-      "pixels": 25066,
-      "weight": 0.128,
+      "pixels": 22608,
+      "weight": 0.19,
       "kept": true,
       "reason": "",
       "used": true
@@ -229,40 +220,8 @@
        0.88
       ],
       "detector_score": 0.6,
-      "pixels": 23169,
-      "weight": 0.3,
-      "kept": true,
-      "reason": "",
-      "used": true
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Gray fabric cubicle partition wall",
-      "box_xyxy": [
-       0.08,
-       0.25,
-       0.34,
-       0.55
-      ],
-      "detector_score": 0.45,
-      "pixels": 79015,
-      "weight": 0.047,
-      "kept": true,
-      "reason": "",
-      "used": true
-     },
-     {
-      "label": "neutral_surface",
-      "description": "Gray fabric cubicle partition wall",
-      "box_xyxy": [
-       0.63,
-       0.4,
-       0.88,
-       0.6
-      ],
-      "detector_score": 0.45,
-      "pixels": 85341,
-      "weight": 0.085,
+      "pixels": 21904,
+      "weight": 0.292,
       "kept": true,
       "reason": "",
       "used": true
@@ -275,11 +234,11 @@
     "family": null,
     "cct_k": null,
     "cct_uncertainty_k": null,
-    "confidence": 0.646,
+    "confidence": 0.626,
     "white_rgb": [
-     0.725045,
+     0.721243,
      1.0,
-     0.473068
+     0.474231
     ],
     "notes": [
      "skipped spectral: no camera sensitivity data"
@@ -289,7 +248,210 @@
     "camera_curves": null,
     "camera_curves_reason": null
    },
-   "seconds": 18.1,
+   "review": {
+    "critic_model": "claude-opus-5-5",
+    "stop_reason": "the critic accepted the correction",
+    "rounds": [
+     {
+      "round": 1,
+      "delivered": false,
+      "sheet": "assets/cases/lab-shelf-warm/review_round1.jpg",
+      "rationale": "This is an indoor office cubicle scene lit by an overhead fluorescent fixture visible at the top; no windows or sky are present. Office fluorescents are typically 3500-5000 K, so a daylight-locus prior near 4000 K is favored, with a blackbody fallback for warmer tubes. The best neutral references are the white plastic turntable top and side, followed by the gray laminate desk and the gray fabric partition (which may carry a slight beige tint). The checker pattern's white squares are too small and interspersed with black to be reliable. The user requested neutral, so full correction is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "neutral_surface",
+        "name": "White plastic turntable top surface",
+        "used": true,
+        "delta_e": 2.5,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A2",
+        "label": "neutral_surface",
+        "name": "White plastic turntable top surface",
+        "used": true,
+        "delta_e": 2.3,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A3",
+        "label": "neutral_surface",
+        "name": "White turntable cylindrical side",
+        "used": true,
+        "delta_e": 4.0,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A4",
+        "label": "neutral_surface",
+        "name": "Light gray laminate desk shelf surface",
+        "used": true,
+        "delta_e": 2.7,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A5",
+        "label": "neutral_surface",
+        "name": "Light gray laminate desk shelf surface",
+        "used": true,
+        "delta_e": 2.1,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A6",
+        "label": "neutral_surface",
+        "name": "Gray fabric cubicle partition wall",
+        "used": true,
+        "delta_e": 5.9,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A7",
+        "label": "neutral_surface",
+        "name": "Gray fabric cubicle partition wall",
+        "used": true,
+        "delta_e": 5.1,
+        "typical_spread": 8.5
+       }
+      ],
+      "critique": {
+       "observations": "The correction removes most of the warm/orange cast of the original. The white turntable now reads clean, slightly cool-lavender. The shelf laminate and the gray partition fabric read near neutral with a slight olive-warm lean. The references split by material. The white plastic turntable (A1\u2013A3) ends up slightly cool and magenta. The laminate and fabric (A4\u2013A7) end up warm and slightly green. This pattern is typical of a compromise between materials with different intrinsic tints, or of mixed light (overhead fluorescent on the back wall vs. the foreground). All deviations are within the typical spread. Overall the image looks plausibly neutral, with only a mild residual split: a cool-magenta foreground white and a slightly warm-olive back wall. No skin or foliage is present. The CD shows strong rainbow iridescence, which is normal.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "White plastic, small cool/magenta deviation within spread."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "Same turntable top, agrees with A1."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "consistent",
+         "reason": "Turntable side, somewhat bluer, likely shading/skylight on the vertical face, but still within spread."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "consistent",
+         "reason": "Laminate slightly warm-green; may have a mild intrinsic beige tint."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "consistent",
+         "reason": "Laminate, small warm deviation, agrees with A4."
+        },
+        {
+         "reference_id": "A6",
+         "verdict": "doubtful",
+         "reason": "Fabric wall comes out noticeably yellow; possibly beige-tinted fabric or under different overhead light."
+        },
+        {
+         "reference_id": "A7",
+         "verdict": "doubtful",
+         "reason": "Same wall, warm by +5 b*; it disagrees with the turntable direction, and the material's true neutrality is uncertain."
+        }
+       ],
+       "remaining_cast": "mixed",
+       "cast_severity": 0.15,
+       "suggestions": [
+        "Consider dropping or down-weighting A6/A7: gray cubicle fabric often has a warm tint and lies in a differently lit background area.",
+        "Prioritize the white turntable (A1, A2) as the most reliable neutral; a slight warm/green nudge would remove the faint lavender on the turntable.",
+        "The white/gray border squares of the checker pattern on the box could serve as additional neutral references."
+       ],
+       "acceptable": true
+      }
+     },
+     {
+      "round": 2,
+      "delivered": true,
+      "sheet": "assets/cases/lab-shelf-warm/review_round2.jpg",
+      "rationale": "Indoor office cubicle lit by an overhead fluorescent fixture; no windows, so a daylight-locus prior around 3500-5000 K remains favored with a blackbody fallback. The previous correction was acceptable, with a mild split between materials: the white turntable came out slightly cool-magenta and the laminate and fabric slightly warm-green. The gray cubicle fabric was the most deviant reference (+5-6 b*) and is plausibly beige-tinted, so I mark it unusable. That removes the warmest pull. The white turntable top is the most trustworthy neutral and gets higher confidence. I lower confidence on the turntable side, since its vertical curved face gets less overhead light and reads bluer. I keep the laminate at moderate confidence because its small warm deviation balances the turntable's slight coolness. Both remaining materials sit well within their typical spread. I disagree with the reviewer about using the checker white squares: they are tiny, surrounded by black ink and near the iridescent CD, so they are unreliable. The user requested neutral, so full correction applies.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "neutral_surface",
+        "name": "White plastic turntable top surface",
+        "used": true,
+        "delta_e": 1.9,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A2",
+        "label": "neutral_surface",
+        "name": "White plastic turntable top surface",
+        "used": true,
+        "delta_e": 1.7,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A3",
+        "label": "neutral_surface",
+        "name": "White turntable cylindrical side",
+        "used": true,
+        "delta_e": 3.4,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A4",
+        "label": "neutral_surface",
+        "name": "Light gray laminate desk shelf surface",
+        "used": true,
+        "delta_e": 3.3,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A5",
+        "label": "neutral_surface",
+        "name": "Light gray laminate desk shelf surface",
+        "used": true,
+        "delta_e": 2.7,
+        "typical_spread": 8.5
+       }
+      ],
+      "critique": {
+       "observations": "The as-shot image has a warm yellow/orange cast. After correction the scene reads largely neutral. The turntable is clean white, with a faint cool/lavender tint on its cylindrical side. The gray laminate shelf and the back partition look neutral gray, with perhaps a very slight warm-olive lean on the shelf. The checkerboard whites look neutral and the red box stays red. The CD rainbow is more saturated but plausible. No skin or foliage is present (the toy face is painted).\n\nThe references split slightly: the turntable patches (A1\u2013A3) come out slightly cool/magenta, and the laminate patches (A4, A5) come out slightly warm/green. This roughly cancels in the average. All deviations are well within the typical spread, and the shelf laminate may simply be a slightly warm gray material. The overall residual is minimal.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "White turntable top is neutral after correction; small deviation."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "Same surface as A1; small deviation."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "consistent",
+         "reason": "Side of turntable reads slightly cool, possibly from shading or skylight on the vertical surface, but within spread."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "consistent",
+         "reason": "Laminate slightly warm/green, plausibly the material's own tint; within spread."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "consistent",
+         "reason": "Agrees with A4; small warm offset typical of beige-gray laminate."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.08,
+       "suggestions": [
+        "Optionally reduce A3's weight, since its vertical side may receive different light.",
+        "White squares of the checkerboard on the box could serve as an extra neutral reference."
+       ],
+       "acceptable": true
+      }
+     }
+    ]
+   },
+   "seconds": 6.1,
    "ground_truth": {
     "truth_white_rgb": [
      0.691857,
@@ -297,17 +459,31 @@
      0.491135
     ],
     "ours": {
-     "angular_error_deg": 1.57,
-     "delta_e00": 6.66
+     "angular_error_deg": 1.42,
+     "delta_e00": 6.57
     },
     "gray_world": {
      "angular_error_deg": 2.03,
      "delta_e00": 7.25
     },
+    "first_pass": {
+     "angular_error_deg": 1.56,
+     "delta_e00": 6.71
+    },
     "before": {
      "angular_error_deg": 8.41,
      "delta_e00": 10.68
-    }
+    },
+    "rounds": [
+     {
+      "angular_error_deg": 1.56,
+      "delta_e00": 6.71
+     },
+     {
+      "angular_error_deg": 1.42,
+      "delta_e00": 6.57
+     }
+    ]
    }
   },
   {
@@ -325,6 +501,7 @@
    "images": {
     "ours": "assets/cases/lab-dark-stage/ours.jpg",
     "gray_world": "assets/cases/lab-dark-stage/gray_world.jpg",
+    "first_pass": "assets/cases/lab-dark-stage/first_pass.jpg",
     "before": "assets/cases/lab-dark-stage/before.jpg",
     "overlay": "assets/cases/lab-dark-stage/overlay.jpg",
     "thumb": "assets/cases/lab-dark-stage/thumb.jpg"
@@ -412,7 +589,7 @@
     },
     "rationale": "This is a dark indoor lab/studio setup on an optical breadboard with a turntable, a checkerboard calibration target in a red frame, and a CD showing diffraction colors; no light source is visible, so the illuminant is presumably a studio lamp, either halogen (blackbody, ~3000-5000 K) or a daylight-balanced LED (~4500-6500 K), with roughly equal priors. The best neutral reference is the matte white side face of the turntable, sampled in its evenly lit central section while avoiding the pink sheen on the left, the darker right falloff, and the small hole. The white checker squares are nominally neutral but too finely interleaved with black and partly occluded to sample reliably, and the glossy platter top reflects its surroundings, so both are marked unusable. The red frame and the iridescent CD are not neutral references. The user asked for neutral, so full correction (strength 1) is applied.",
     "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
+    "segmenter": "box",
     "regions": [
      {
       "label": "neutral_surface",
@@ -424,7 +601,7 @@
        0.85
       ],
       "detector_score": 0.6,
-      "pixels": 25135,
+      "pixels": 19024,
       "weight": 0.3,
       "kept": true,
       "reason": "",
@@ -440,8 +617,8 @@
        0.84
       ],
       "detector_score": 0.6,
-      "pixels": 4154,
-      "weight": 0.249,
+      "pixels": 2977,
+      "weight": 0.179,
       "kept": true,
       "reason": "",
       "used": true
@@ -454,11 +631,11 @@
     "family": null,
     "cct_k": null,
     "cct_uncertainty_k": null,
-    "confidence": 0.399,
+    "confidence": 0.361,
     "white_rgb": [
-     0.632769,
+     0.633357,
      1.0,
-     0.589478
+     0.589488
     ],
     "notes": [
      "skipped spectral: no camera sensitivity data"
@@ -468,7 +645,59 @@
     "camera_curves": null,
     "camera_curves_reason": null
    },
-   "seconds": 17.4,
+   "review": {
+    "critic_model": "claude-opus-5-5",
+    "stop_reason": "the critic accepted the correction",
+    "rounds": [
+     {
+      "round": 1,
+      "delivered": true,
+      "sheet": "assets/cases/lab-dark-stage/review_round1.jpg",
+      "rationale": "This is a dark indoor lab/studio setup on an optical breadboard with a turntable, a checkerboard calibration target in a red frame, and a CD showing diffraction colors; no light source is visible, so the illuminant is presumably a studio lamp, either halogen (blackbody, ~3000-5000 K) or a daylight-balanced LED (~4500-6500 K), with roughly equal priors. The best neutral reference is the matte white side face of the turntable, sampled in its evenly lit central section while avoiding the pink sheen on the left, the darker right falloff, and the small hole. The white checker squares are nominally neutral but too finely interleaved with black and partly occluded to sample reliably, and the glossy platter top reflects its surroundings, so both are marked unusable. The red frame and the iridescent CD are not neutral references. The user asked for neutral, so full correction (strength 1) is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "neutral_surface",
+        "name": "White/light-gray matte-satin side face of the turntable base in the foreground",
+        "used": true,
+        "delta_e": 0.8,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A2",
+        "label": "neutral_surface",
+        "name": "White/light-gray matte-satin side face of the turntable base in the foreground",
+        "used": true,
+        "delta_e": 0.3,
+        "typical_spread": 8.5
+       }
+      ],
+      "critique": {
+       "observations": "The as-shot frame has a magenta/pink tint on the turntable's white side face and a slightly purple cast on the checkerboard. After correction the turntable side reads neutral white to light gray, and the checkerboard whites and blacks look neutral. The red box frame still reads as a plausible red. The dark background is neutral, perhaps a hair cool, and the dotted table surface looks neutral gray. The CD's rainbow is a diffraction effect and is not usable for judging white balance. Both references sit on the same material and agree closely, with \u0394E 0.8 and 0.3 against a typical spread of 8.5. Because both come from one surface they are not fully independent, but the checkerboard confirms the result. No significant cast remains.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "Matte white turntable side reads neutral after correction, matching its true color closely; it does show a strong lightness gradient but the chroma is neutral."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "Same white surface as A1; neutral and in agreement with A1."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.07,
+       "suggestions": [
+        "Add the white squares of the checkerboard target as an independent neutral reference to confirm the balance with a second material.",
+        "Avoid the very brightest, near-clipped part of the turntable side so that highlights do not bias the result."
+       ],
+       "acceptable": true
+      }
+     }
+    ]
+   },
+   "seconds": 4.9,
    "ground_truth": {
     "truth_white_rgb": [
      0.600393,
@@ -476,23 +705,33 @@
      0.611708
     ],
     "ours": {
-     "angular_error_deg": 1.69,
-     "delta_e00": 6.98
+     "angular_error_deg": 1.71,
+     "delta_e00": 6.99
     },
     "gray_world": {
      "angular_error_deg": 2.69,
      "delta_e00": 7.73
     },
+    "first_pass": {
+     "angular_error_deg": 1.71,
+     "delta_e00": 6.99
+    },
     "before": {
      "angular_error_deg": 2.1,
      "delta_e00": 7.07
-    }
+    },
+    "rounds": [
+     {
+      "angular_error_deg": 1.71,
+      "delta_e00": 6.99
+     }
+    ]
    }
   },
   {
    "id": "bluebird-garden",
    "title": "Eastern bluebird on a shrub",
-   "caption": "",
+   "caption": "A hard case. Leaves are the only reference here, and using leaves needs the camera's spectral curves, which do not exist for the iPhone 16 Pro. The physics falls back to a statistical estimate, and the critic flags the result as too cool.",
    "intent": "neutral",
    "source_file": "IMG_2947.DNG",
    "camera": "Apple iPhone 16 Pro",
@@ -504,6 +743,7 @@
    "images": {
     "ours": "assets/cases/bluebird-garden/ours.jpg",
     "gray_world": "assets/cases/bluebird-garden/gray_world.jpg",
+    "first_pass": "assets/cases/bluebird-garden/first_pass.jpg",
     "before": "assets/cases/bluebird-garden/before.jpg",
     "overlay": "assets/cases/bluebird-garden/overlay.jpg",
     "thumb": "assets/cases/bluebird-garden/thumb.jpg"
@@ -594,7 +834,7 @@
     },
     "rationale": "The scene is an outdoor garden with a bluebird perched on a red-leaved sapling, lit by soft shadowless diffuse light consistent with an overcast or foggy day, so a cool-ish CIE daylight around 6000-7500 K is the main prior. The image has a strong milky haze that lowers contrast and saturation, so color cues are weak. The only usable reference is the green tree and shrub foliage in the background, though mixed yellow autumn leaves and haze reduce confidence. The red sapling leaves and dry grass are atypical and are marked unusable. No skin, concrete, paper, snow, visible cloud, or neutral man-made surfaces are present. The user asked for neutral correction at full strength.",
     "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
+    "segmenter": "box",
     "regions": [
      {
       "label": "foliage",
@@ -606,8 +846,8 @@
        0.45
       ],
       "detector_score": 0.55,
-      "pixels": 22904,
-      "weight": 0.048,
+      "pixels": 67744,
+      "weight": 0.035,
       "kept": true,
       "reason": "needs this camera's spectral curves",
       "used": false
@@ -622,8 +862,8 @@
        0.42
       ],
       "detector_score": 0.55,
-      "pixels": 16494,
-      "weight": 0.033,
+      "pixels": 48840,
+      "weight": 0.03,
       "kept": true,
       "reason": "needs this camera's spectral curves",
       "used": false
@@ -638,8 +878,8 @@
        0.72
       ],
       "detector_score": 0.55,
-      "pixels": 83746,
-      "weight": 0.045,
+      "pixels": 71280,
+      "weight": 0.044,
       "kept": true,
       "reason": "needs this camera's spectral curves",
       "used": false
@@ -667,7 +907,135 @@
     "camera_curves": null,
     "camera_curves_reason": null
    },
-   "seconds": 20.4
+   "review": {
+    "critic_model": "claude-opus-5-5",
+    "stop_reason": "the last revision did not improve on round 1",
+    "rounds": [
+     {
+      "round": 1,
+      "delivered": true,
+      "sheet": "assets/cases/bluebird-garden/review_round1.jpg",
+      "rationale": "The scene is an outdoor garden with a bluebird perched on a red-leaved sapling, lit by soft shadowless diffuse light consistent with an overcast or foggy day, so a cool-ish CIE daylight around 6000-7500 K is the main prior. The image has a strong milky haze that lowers contrast and saturation, so color cues are weak. The only usable reference is the green tree and shrub foliage in the background, though mixed yellow autumn leaves and haze reduce confidence. The red sapling leaves and dry grass are atypical and are marked unusable. No skin, concrete, paper, snow, visible cloud, or neutral man-made surfaces are present. The user asked for neutral correction at full strength.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "foliage",
+        "name": "Healthy green leaves of the tree canopy and shrubs in the upper and middle background",
+        "used": false,
+        "delta_e": 29.1,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A2",
+        "label": "foliage",
+        "name": "Healthy green leaves of the tree canopy and shrubs in the upper and middle background",
+        "used": false,
+        "delta_e": 30.4,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A3",
+        "label": "foliage",
+        "name": "Healthy green leaves of the tree canopy and shrubs in the upper and middle background",
+        "used": false,
+        "delta_e": 26.4,
+        "typical_spread": 5.1
+       }
+      ],
+      "critique": {
+       "observations": "The as-shot image is a hazy, slightly warm/yellow-green garden scene with natural-looking foliage, a bluebird and reddish leaves. The corrected image has shifted the whole frame toward cyan/blue-teal. The foliage now reads gray-teal instead of green, the haze looks bluish, and the dry grass at the bottom has lost its straw warmth. The red shrub has gone more magenta/purple. The bird's orange breast is muted. There are no true whites or grays except the small white flowers, which now look slightly cool. All three foliage references were not used, yet they agree with each other: after a neutral correction each is about 23\u201327 b* too blue and 13\u201315 a* too magenta. That is far outside the 5.1 spread and points to an overcorrection of the warm/green haze, not a problem with the references. The correction is worse than the original.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "Genuine green tree foliage under the same daylight. Its large error reflects a bad correction, and it agrees with A2 and A3."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "Same canopy foliage. It shows the same cool/magenta deviation as the other two references, indicating a global overcorrection."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "consistent",
+         "reason": "Grassy green shrubs in the same light. Its deviation matches the other references."
+        }
+       ],
+       "remaining_cast": "cool",
+       "cast_severity": 0.65,
+       "suggestions": [
+        "Use the foliage references A1\u2013A3 instead of ignoring them; balancing to them would remove most of the blue/magenta shift.",
+        "Reduce the correction strongly toward the as-shot balance (warmer and greener, i.e. less magenta). The original was much closer to neutral.",
+        "Check against the white flowers at lower left as a near-neutral reference.",
+        "Check against the dry straw grass along the bottom edge, which should read warm beige."
+       ],
+       "acceptable": false
+      }
+     },
+     {
+      "round": 2,
+      "delivered": false,
+      "sheet": "assets/cases/bluebird-garden/review_round2.jpg",
+      "rationale": "An outdoor garden on a foggy or overcast day, with soft shadowless light, so ordinary overcast daylight around 5500-7000 K is the main prior. The previous correction made the whole frame cyan and magenta. All three foliage boxes agreed with each other, each about 23-27 b* too blue and 13-15 a* too magenta, so the problem was the correction, not the references. I agree with the reviewer: the green canopy and shrub foliage is genuine and lit by the main light, and it should be trusted as the primary reference. I raised its confidence and re-boxed it onto the greenest, evenly lit patches, away from the yellow autumn leaves, the bird and the red sapling. I also slightly lowered the top of the CCT prior so the correction does not push cool again. The red sapling and dry grass stay unusable as atypical foliage. The small white flowers are not one of the allowed classes and are too tiny to box reliably, so they are useful only as a visual check. No skin, concrete, paper, snow, cloud or man-made neutral surfaces are visible. The user asked for a neutral correction at full strength.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "foliage",
+        "name": "Healthy green leaves of the tree canopy and shrubs in the upper and middle background",
+        "used": false,
+        "delta_e": 29.0,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A2",
+        "label": "foliage",
+        "name": "Healthy green leaves of the tree canopy and shrubs in the upper and middle background",
+        "used": false,
+        "delta_e": 32.0,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A3",
+        "label": "foliage",
+        "name": "Healthy green leaves of the tree canopy and shrubs in the upper and middle background",
+        "used": false,
+        "delta_e": 26.7,
+        "typical_spread": 5.1
+       }
+      ],
+      "critique": {
+       "observations": "The as-shot image is hazy, with a slight warm/yellow-green tone. The foliage reads green and the orange-red leaves look natural. The correction pushed the whole frame strongly cool: the foliage is now teal/blue-gray, the bird's orange breast is muted, and the white flowers and dry grass at the bottom look bluish-cyan. The red shrub is now dull magenta-mauve. All three foliage swatches after correction show blue-gray against the expected yellow-green, about 27\u201332 \u0394E off, mostly a b* deficit plus some magenta. The references agree with each other and are not outliers; the correction itself is overshot toward blue, and the foliage was not used, so it did not anchor the correction. The result is a significant cool/cyan cast, worse than the original.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "Genuine green canopy foliage. Its large deviation reflects the overly cool correction, not a bad reference."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "Shaded green foliage. Its deviation matches A1 and A3 and indicates a global cool cast."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "consistent",
+         "reason": "Green shrub foliage. It agrees with the other references and shows the same blue/magenta error."
+        }
+       ],
+       "remaining_cast": "cool",
+       "cast_severity": 0.65,
+       "suggestions": [
+        "Use the foliage references A1\u2013A3 to warm the image substantially, roughly +25 b* and slightly toward green, to remove the blue/cyan cast.",
+        "Use the white flowers at lower left (around x=100, y=900 in the left panel) as a neutral reference, and the dry pale grass along the bottom edge as a secondary check.",
+        "Consider a correction close to as-shot with only mild cooling. The original is nearer to neutral than the corrected version.",
+        "Address the haze separately with dehaze or contrast rather than through white balance."
+       ],
+       "acceptable": false
+      }
+     }
+    ]
+   },
+   "seconds": 7.6
   },
   {
    "id": "forest-shade",
@@ -684,6 +1052,7 @@
    "images": {
     "ours": "assets/cases/forest-shade/ours.jpg",
     "gray_world": "assets/cases/forest-shade/gray_world.jpg",
+    "first_pass": "assets/cases/forest-shade/first_pass.jpg",
     "before": "assets/cases/forest-shade/before.jpg",
     "overlay": "assets/cases/forest-shade/overlay.jpg",
     "thumb": "assets/cases/forest-shade/thumb.jpg"
@@ -702,10 +1071,10 @@
      {
       "family": "daylight",
       "cct_range_k": [
-       5500.0,
-       8000.0
+       5000.0,
+       7000.0
       ],
-      "confidence": 0.8
+      "confidence": 0.75
      },
      {
       "family": "daylight",
@@ -713,40 +1082,28 @@
        4500.0,
        5500.0
       ],
-      "confidence": 0.2
+      "confidence": 0.25
      }
     ],
     "candidates": [
      {
       "label": "foliage",
-      "description": "Green leaves of canopy and understory trees, left side and mid-background",
-      "usable": true,
-      "confidence": 0.45,
+      "description": "Backlit green canopy leaves against the sky",
+      "usable": false,
+      "confidence": 0.15,
       "concerns": [
-       "some autumn coloration nearby",
-       "backlit and translucent against sky",
-       "underexposed"
+       "backlit and translucent",
+       "mixed with sky gaps and trunks",
+       "autumn coloration nearby",
+       "measured far outside typical spread"
       ],
-      "boxes": [
-       [
-        0.0,
-        0.33,
-        0.12,
-        0.45
-       ],
-       [
-        0.3,
-        0.3,
-        0.42,
-        0.4
-       ]
-      ]
+      "boxes": []
      },
      {
       "label": "foliage",
       "description": "Autumn reddish-orange tree on left",
       "usable": false,
-      "confidence": 0.2,
+      "confidence": 0.1,
       "concerns": [
        "autumn foliage, atypical hue"
       ],
@@ -765,12 +1122,12 @@
      },
      {
       "label": "concrete",
-      "description": "Gray boulders and rocks along the trail",
+      "description": "Gray boulders along the trail, front and mid-ground",
       "usable": true,
-      "confidence": 0.4,
+      "confidence": 0.55,
       "concerns": [
-       "natural stone, not concrete; possible lichen or staining",
-       "in forest shade with green spill from canopy",
+       "natural stone, not concrete",
+       "in forest shade",
        "underexposed"
       ],
       "boxes": [
@@ -795,24 +1152,32 @@
       ]
      },
      {
+      "label": "neutral_surface",
+      "description": "White sweater worn by the woman, center of frame",
+      "usable": true,
+      "confidence": 0.35,
+      "concerns": [
+       "fabric may be off-white",
+       "small region",
+       "in shade"
+      ],
+      "boxes": [
+       [
+        0.375,
+        0.515,
+        0.405,
+        0.545
+       ]
+      ]
+     },
+     {
       "label": "cloud",
       "description": "Bright sky patches through canopy",
       "usable": false,
-      "confidence": 0.2,
+      "confidence": 0.15,
       "concerns": [
        "clipped highlights",
-       "small fragmented patches between leaves"
-      ],
-      "boxes": []
-     },
-     {
-      "label": "neutral_surface",
-      "description": "White sweater worn by the woman",
-      "usable": false,
-      "confidence": 0.25,
-      "concerns": [
-       "fabric may be off-white",
-       "small region in shade"
+       "small fragmented patches"
       ],
       "boxes": []
      }
@@ -821,86 +1186,70 @@
      "adaptation": "neutral",
      "strength": 1.0
     },
-    "rationale": "The scene is a forest trail in daytime with sky visible through the canopy and no artificial lights, so illumination is open-shade daylight, likely on the cooler side (5500-8000 K) due to skylight and canopy filtering. The image is heavily underexposed. Green foliage on the left and mid-background is the best reference despite backlighting and nearby autumn colors; gray boulders are a secondary near-neutral reference with caveats about stone color and green spill. Skin, the white sweater, and the sky are too small, shaded, or clipped to rely on. The user asked for neutral correction, so full-strength neutral adaptation is applied.",
+    "rationale": "Forest trail in daytime, lit by skylight filtered through the canopy, with no artificial lights. The foliage boxes measured far outside their typical spread because the leaves are backlit and translucent, and the A2 box caught trunks and sky gaps, so all foliage is dropped. The gray boulders agree with one another and stay the main reference with higher confidence. Two of the three rock boxes still read slightly cool after correction, so I narrowed the illuminant prior toward 5000-7000 K, which allows a slightly warmer result. I added the white sweater as a small secondary neutral check, as the reviewer suggested, but gave it lower confidence because the fabric could be off-white. I did not use the cabin because weathered wood is not a reliable neutral. The user asked for neutral, so full-strength neutral correction applies.",
     "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
+    "segmenter": "box",
     "regions": [
      {
-      "label": "foliage",
-      "description": "Green leaves of canopy and understory trees, left side and mid-background",
-      "box_xyxy": [
-       0.0,
-       0.33,
-       0.12,
-       0.45
-      ],
-      "detector_score": 0.45,
-      "pixels": 31301,
-      "weight": 0.132,
-      "kept": true,
-      "reason": "needs this camera's spectral curves",
-      "used": false
-     },
-     {
-      "label": "foliage",
-      "description": "Green leaves of canopy and understory trees, left side and mid-background",
-      "box_xyxy": [
-       0.3,
-       0.3,
-       0.42,
-       0.4
-      ],
-      "detector_score": 0.45,
-      "pixels": 10510,
-      "weight": 0.159,
-      "kept": true,
-      "reason": "needs this camera's spectral curves",
-      "used": false
-     },
-     {
       "label": "concrete",
-      "description": "Gray boulders and rocks along the trail",
+      "description": "Gray boulders along the trail, front and mid-ground",
       "box_xyxy": [
        0.54,
        0.6,
        0.62,
        0.64
       ],
-      "detector_score": 0.4,
-      "pixels": 654,
-      "weight": 0.003,
+      "detector_score": 0.55,
+      "pixels": 3895,
+      "weight": 0.027,
       "kept": true,
       "reason": "",
       "used": true
      },
      {
       "label": "concrete",
-      "description": "Gray boulders and rocks along the trail",
+      "description": "Gray boulders along the trail, front and mid-ground",
       "box_xyxy": [
        0.72,
        0.78,
        0.84,
        0.84
       ],
-      "detector_score": 0.4,
-      "pixels": 6566,
-      "weight": 0.078,
+      "detector_score": 0.55,
+      "pixels": 10730,
+      "weight": 0.102,
       "kept": true,
       "reason": "",
       "used": true
      },
      {
       "label": "concrete",
-      "description": "Gray boulders and rocks along the trail",
+      "description": "Gray boulders along the trail, front and mid-ground",
       "box_xyxy": [
        0.36,
        0.67,
        0.48,
        0.71
       ],
-      "detector_score": 0.4,
-      "pixels": 5468,
-      "weight": 0.092,
+      "detector_score": 0.55,
+      "pixels": 6314,
+      "weight": 0.125,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White sweater worn by the woman, center of frame",
+      "box_xyxy": [
+       0.375,
+       0.515,
+       0.405,
+       0.545
+      ],
+      "detector_score": 0.35,
+      "pixels": 687,
+      "weight": 0.019,
       "kept": true,
       "reason": "",
       "used": true
@@ -913,11 +1262,11 @@
     "family": null,
     "cct_k": null,
     "cct_uncertainty_k": null,
-    "confidence": 0.133,
+    "confidence": 0.179,
     "white_rgb": [
-     1.048557,
+     1.046913,
      1.0,
-     0.983459
+     0.981224
     ],
     "notes": [
      "skipped spectral: no camera sensitivity data"
@@ -927,7 +1276,245 @@
     "camera_curves": null,
     "camera_curves_reason": null
    },
-   "seconds": 32.7
+   "review": {
+    "critic_model": "claude-opus-5-5",
+    "stop_reason": "the last revision did not improve on round 2",
+    "rounds": [
+     {
+      "round": 1,
+      "delivered": false,
+      "sheet": "assets/cases/forest-shade/review_round1.jpg",
+      "rationale": "The scene is a forest trail in daytime with sky visible through the canopy and no artificial lights, so illumination is open-shade daylight, likely on the cooler side (5500-8000 K) due to skylight and canopy filtering. The image is heavily underexposed. Green foliage on the left and mid-background is the best reference despite backlighting and nearby autumn colors; gray boulders are a secondary near-neutral reference with caveats about stone color and green spill. Skin, the white sweater, and the sky are too small, shaded, or clipped to rely on. The user asked for neutral correction, so full-strength neutral adaptation is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "foliage",
+        "name": "Green leaves of canopy and understory trees, left side and mid-background",
+        "used": false,
+        "delta_e": 19.3,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A2",
+        "label": "foliage",
+        "name": "Green leaves of canopy and understory trees, left side and mid-background",
+        "used": false,
+        "delta_e": 24.5,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A3",
+        "label": "concrete",
+        "name": "Gray boulders and rocks along the trail",
+        "used": true,
+        "delta_e": 0.4,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A4",
+        "label": "concrete",
+        "name": "Gray boulders and rocks along the trail",
+        "used": true,
+        "delta_e": 3.4,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A5",
+        "label": "concrete",
+        "name": "Gray boulders and rocks along the trail",
+        "used": true,
+        "delta_e": 2.2,
+        "typical_spread": 3.3
+       }
+      ],
+      "critique": {
+       "observations": "The corrected image is slightly cooler and more desaturated than the original. The rocks read as neutral to slightly cool gray. The woman's white sweater looks neutral to faintly bluish. Skin is hard to judge because it is dark, but it does not look strongly off. The foliage has become dull olive-gray rather than green, which fits the foliage references being too blue and magenta. That error is partly expected because the foliage is backlit and in mixed shade, so it was rightly not used. Both rock references, A4 and A5, come out slightly too blue, so overall a mild cool cast remains, mostly in the shadowed rocks and the ground. The rock references agree with one another.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "doubtful",
+         "reason": "Foliage seen against the sky with translucent leaves; it shows a large cool/magenta error, but backlit leaves are not a reliable reference. Correctly excluded."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "wrong",
+         "reason": "The box is mostly dark trunks and sky gaps rather than clean leaves; \u0394E is very large."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "consistent",
+         "reason": "Gray rock is neutral after correction, with \u0394E 0.4."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "consistent",
+         "reason": "Gray rock is slightly cool but close to the material's typical spread."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "consistent",
+         "reason": "Gray rock is within the typical spread, with a slight cool shift."
+        }
+       ],
+       "remaining_cast": "cool",
+       "cast_severity": 0.2,
+       "suggestions": [
+        "Warm the result slightly (about +2 to +3 b*) so the rock grays come out neutral rather than bluish.",
+        "Use the woman's white sweater, centre of frame, as an additional neutral reference.",
+        "The wooden cabin at mid-left could serve as a check for a warm neutral."
+       ],
+       "acceptable": false
+      }
+     },
+     {
+      "round": 2,
+      "delivered": true,
+      "sheet": "assets/cases/forest-shade/review_round2.jpg",
+      "rationale": "Forest trail in daytime, lit by skylight filtered through the canopy, with no artificial lights. The foliage boxes measured far outside their typical spread because the leaves are backlit and translucent, and the A2 box caught trunks and sky gaps, so all foliage is dropped. The gray boulders agree with one another and stay the main reference with higher confidence. Two of the three rock boxes still read slightly cool after correction, so I narrowed the illuminant prior toward 5000-7000 K, which allows a slightly warmer result. I added the white sweater as a small secondary neutral check, as the reviewer suggested, but gave it lower confidence because the fabric could be off-white. I did not use the cabin because weathered wood is not a reliable neutral. The user asked for neutral, so full-strength neutral correction applies.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "concrete",
+        "name": "Gray boulders along the trail, front and mid-ground",
+        "used": true,
+        "delta_e": 0.6,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A2",
+        "label": "concrete",
+        "name": "Gray boulders along the trail, front and mid-ground",
+        "used": true,
+        "delta_e": 3.1,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A3",
+        "label": "concrete",
+        "name": "Gray boulders along the trail, front and mid-ground",
+        "used": true,
+        "delta_e": 2.0,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A4",
+        "label": "neutral_surface",
+        "name": "White sweater worn by the woman, center of frame",
+        "used": true,
+        "delta_e": 3.7,
+        "typical_spread": 8.5
+       }
+      ],
+      "critique": {
+       "observations": "The as-shot frame has a slight warm/green murk. The corrected version reads cooler and more neutral: the boulders look gray with a faint blue lean, and the white sweater reads neutral to slightly cool. Skin on the woman is small and dark but not obviously off. Foliage stays green and the autumn reds are retained, so the scene still looks natural. The references mostly agree that a slight cool residual remains: A2, A3 and A4 all sit at negative b* by about 2\u20133.6, all within typical spread. A1 is nearly perfect. Overall there is a mild cool cast in the shadows and rocks, but it is small. The image is underexposed, which makes judgment harder; that is an exposure issue, not white balance.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "Gray boulder; \u0394E 0.6, well within spread."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "Boulder in shade; slightly cool (-3.1 b*) but within spread, likely due to skylight on the shadowed rock."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "consistent",
+         "reason": "Boulder under the subject; small cool deviation within spread."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "consistent",
+         "reason": "White sweater; slightly cool but well within the fabric's spread."
+        }
+       ],
+       "remaining_cast": "cool",
+       "cast_severity": 0.15,
+       "suggestions": [
+        "Warm the result slightly (about +2 b*) to offset the consistent cool lean shared by A2, A3 and A4.",
+        "Add the cabin's weathered gray wood in the background left as an extra neutral reference.",
+        "Raise exposure separately; the darkness is not a white-balance problem."
+       ],
+       "acceptable": true
+      }
+     },
+     {
+      "round": 3,
+      "delivered": false,
+      "sheet": "assets/cases/forest-shade/review_round3.jpg",
+      "rationale": "Forest trail in daytime, lit by skylight filtered through the canopy, with no artificial lights. The previous references agree well: every residual is within its typical spread. Three of the four (two boulder boxes and the sweater) lean slightly cool by about 2 to 3.6 b*, so I shifted the main daylight prior down to 4800-6500 K. This allows the small warming the reviewer suggested without discarding any measurement. The boulders remain the primary reference and the sweater remains a secondary check, both with unchanged boxes. All foliage stays excluded because it is backlit, translucent, or autumn-colored. I disagree with the suggestion to add the cabin: weathered wood is usually brown or tinted rather than neutral, and the cabin is tiny and in deep shade. Exposure is a separate issue from white balance. The user asked for neutral, so full-strength neutral correction applies.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "concrete",
+        "name": "Gray boulders along the trail, front and mid-ground",
+        "used": true,
+        "delta_e": 0.6,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A2",
+        "label": "concrete",
+        "name": "Gray boulders along the trail, front and mid-ground",
+        "used": true,
+        "delta_e": 3.1,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A3",
+        "label": "concrete",
+        "name": "Gray boulders along the trail, front and mid-ground",
+        "used": true,
+        "delta_e": 2.0,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A4",
+        "label": "neutral_surface",
+        "name": "White sweater worn by the woman, center of frame",
+        "used": true,
+        "delta_e": 3.7,
+        "typical_spread": 8.5
+       }
+      ],
+      "critique": {
+       "observations": "The as-shot frame has a slight warm/green murk. The corrected version reads cooler and more neutral: the boulders look gray with a faint blue lean, and the white sweater reads neutral to slightly cool. Skin on the woman is small and dark but not obviously off. Foliage stays green and the autumn reds are retained, so the scene still looks natural. The references mostly agree that a slight cool residual remains: A2, A3 and A4 all sit at negative b* by about 2\u20133.6, all within typical spread. A1 is nearly perfect. Overall there is a mild cool cast in the shadows and rocks, but it is small. The image is underexposed, which makes judgment harder; that is an exposure issue, not white balance.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "Gray boulder; \u0394E 0.6, well within spread."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "Boulder in shade; slightly cool (-3.1 b*) but within spread, likely due to skylight on the shadowed rock."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "consistent",
+         "reason": "Boulder under the subject; small cool deviation within spread."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "consistent",
+         "reason": "White sweater; slightly cool but well within the fabric's spread."
+        }
+       ],
+       "remaining_cast": "cool",
+       "cast_severity": 0.15,
+       "suggestions": [
+        "Warm the result slightly (about +2 b*) to offset the consistent cool lean shared by A2, A3 and A4.",
+        "Add the cabin's weathered gray wood in the background left as an extra neutral reference.",
+        "Raise exposure separately; the darkness is not a white-balance problem."
+       ],
+       "acceptable": true
+      }
+     }
+    ]
+   },
+   "seconds": 8.8
   },
   {
    "id": "conservatory-fountain",
@@ -944,6 +1531,7 @@
    "images": {
     "ours": "assets/cases/conservatory-fountain/ours.jpg",
     "gray_world": "assets/cases/conservatory-fountain/gray_world.jpg",
+    "first_pass": "assets/cases/conservatory-fountain/first_pass.jpg",
     "before": "assets/cases/conservatory-fountain/before.jpg",
     "overlay": "assets/cases/conservatory-fountain/overlay.jpg",
     "thumb": "assets/cases/conservatory-fountain/thumb.jpg"
@@ -1095,7 +1683,7 @@
     },
     "rationale": "This is a glass-roofed conservatory with clear blue sky visible through the glazing and no visible artificial lamps lit, so the dominant illuminant is daylight transmitted through glass, likely around 5000-7000 K; a small blackbody prior is kept for possible interior fill. The best references are the white orchid petals and the pale marble statue (near-neutral but slightly warm and curved), plus healthy green orchid leaves and shrubs as foliage. The columns and the onyx fountain basin are beige/amber tinted and excluded. The user asked for neutral, so full correction is applied.",
     "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
+    "segmenter": "box",
     "regions": [
      {
       "label": "foliage",
@@ -1107,10 +1695,10 @@
        0.87
       ],
       "detector_score": 0.6,
-      "pixels": 1,
+      "pixels": 0,
       "weight": 0.0,
       "kept": false,
-      "reason": "only 1 valid pixels",
+      "reason": "only 0 valid pixels",
       "used": false
      },
      {
@@ -1155,8 +1743,8 @@
        0.74
       ],
       "detector_score": 0.5,
-      "pixels": 706,
-      "weight": 0.035,
+      "pixels": 675,
+      "weight": 0.034,
       "kept": true,
       "reason": "",
       "used": true
@@ -1171,8 +1759,8 @@
        0.75
       ],
       "detector_score": 0.5,
-      "pixels": 374,
-      "weight": 0.019,
+      "pixels": 1053,
+      "weight": 0.053,
       "kept": true,
       "reason": "",
       "used": true
@@ -1187,8 +1775,8 @@
        0.37
       ],
       "detector_score": 0.5,
-      "pixels": 652,
-      "weight": 0.033,
+      "pixels": 5263,
+      "weight": 0.25,
       "kept": true,
       "reason": "",
       "used": true
@@ -1203,8 +1791,8 @@
        0.44
       ],
       "detector_score": 0.5,
-      "pixels": 1628,
-      "weight": 0.081,
+      "pixels": 2231,
+      "weight": 0.112,
       "kept": true,
       "reason": "",
       "used": true
@@ -1215,16 +1803,16 @@
     "estimator": "spectral",
     "is_fallback": false,
     "family": "daylight",
-    "cct_k": 7219.594881830271,
-    "cct_uncertainty_k": 627.1228382946963,
-    "confidence": 0.143,
+    "cct_k": 7174.602919745528,
+    "cct_uncertainty_k": 602.0236187168789,
+    "confidence": 0.347,
     "white_rgb": [
-     0.938645,
+     0.941816,
      1.0,
-     1.098046
+     1.092093
     ],
     "notes": [
-     "mean patch residual 0.24\u00b0"
+     "mean patch residual 0.12\u00b0"
     ],
     "correction": "bradford",
     "adaptation_degree": 1.0,
@@ -1265,37 +1853,37 @@
       700.0
      ],
      "relative_power": [
-      0.751588,
-      0.826278,
-      0.835527,
-      0.766449,
-      0.907503,
+      0.749117,
+      0.823778,
+      0.833439,
+      0.765008,
+      0.906882,
       1.0,
-      0.997965,
-      0.96321,
-      0.962486,
-      0.896305,
-      0.890631,
-      0.870975,
-      0.836057,
-      0.85223,
-      0.821693,
-      0.813052,
-      0.776712,
-      0.744133,
-      0.734978,
-      0.67887,
-      0.682747,
-      0.675565,
-      0.656961,
-      0.620229,
-      0.618985,
-      0.590606,
-      0.588059,
-      0.598392,
-      0.568134,
-      0.506733,
-      0.517389
+      0.998453,
+      0.964219,
+      0.964034,
+      0.898131,
+      0.893017,
+      0.873708,
+      0.839294,
+      0.855934,
+      0.82552,
+      0.81718,
+      0.780931,
+      0.748418,
+      0.739501,
+      0.683097,
+      0.687348,
+      0.680343,
+      0.661852,
+      0.625058,
+      0.624028,
+      0.595468,
+      0.59311,
+      0.603807,
+      0.573327,
+      0.51134,
+      0.522258
      ],
      "d65_relative_power": [
       0.702521,
@@ -1332,7 +1920,224 @@
      ]
     }
    },
-   "seconds": 29.3
+   "review": {
+    "critic_model": "claude-opus-5-5",
+    "stop_reason": "the last revision did not improve on round 1",
+    "rounds": [
+     {
+      "round": 1,
+      "delivered": true,
+      "sheet": "assets/cases/conservatory-fountain/review_round1.jpg",
+      "rationale": "This is a glass-roofed conservatory with clear blue sky visible through the glazing and no visible artificial lamps lit, so the dominant illuminant is daylight transmitted through glass, likely around 5000-7000 K; a small blackbody prior is kept for possible interior fill. The best references are the white orchid petals and the pale marble statue (near-neutral but slightly warm and curved), plus healthy green orchid leaves and shrubs as foliage. The columns and the onyx fountain basin are beige/amber tinted and excluded. The user asked for neutral, so full correction is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "foliage",
+        "name": "Green orchid leaves at base and green shrubs behind statue",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A2",
+        "label": "foliage",
+        "name": "Green orchid leaves at base and green shrubs behind statue",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A3",
+        "label": "foliage",
+        "name": "Green orchid leaves at base and green shrubs behind statue",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A4",
+        "label": "neutral_surface",
+        "name": "White phalaenopsis orchid petals",
+        "used": true,
+        "delta_e": 6.6,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A5",
+        "label": "neutral_surface",
+        "name": "White phalaenopsis orchid petals",
+        "used": true,
+        "delta_e": 2.1,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A6",
+        "label": "neutral_surface",
+        "name": "Pale marble statue of youth and cherubs",
+        "used": true,
+        "delta_e": 4.5,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A7",
+        "label": "neutral_surface",
+        "name": "Pale marble statue of youth and cherubs",
+        "used": true,
+        "delta_e": 1.3,
+        "typical_spread": 8.5
+       }
+      ],
+      "critique": {
+       "observations": "The as-shot image is already close to neutral, with slightly warm light under the glass roof. The corrected image looks very similar, perhaps marginally cooler or more neutral. The marble statue reads as a pale warm-gray, which is plausible for weathered marble. The orchid petals are white with a faint cool tint in shadow. Foliage looks natural green, and the sky is blue with some clipped highlights. The references roughly bracket neutral: A6 statue torso is slightly warm (+4.5 b*), while the A4 orchid is slightly cool (-6.6 b*). These partly cancel, and all fall within the typical spread. A6 sits on a weathered, slightly yellowed marble area, so its warmth is likely a property of the material. The orchids in shadow pick up skylight from the glass roof, which explains their coolness. The foliage references yielded no valid pixels. No significant cast remains.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "doubtful",
+         "reason": "No valid pixels; contributed nothing."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "doubtful",
+         "reason": "No valid pixels; contributed nothing."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "doubtful",
+         "reason": "No valid pixels; region is dark shrubbery."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "consistent",
+         "reason": "White petal, slightly cool from skylight shade but within spread; low weight."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "consistent",
+         "reason": "White petal near neutral."
+        },
+        {
+         "reference_id": "A6",
+         "verdict": "consistent",
+         "reason": "Marble torso slightly warm, plausibly aged marble patina; within spread."
+        },
+        {
+         "reference_id": "A7",
+         "verdict": "consistent",
+         "reason": "Marble leg close to neutral."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.1,
+       "suggestions": [
+        "Could add the stone columns (sunlit faces) as additional neutral references to stabilize the estimate.",
+        "Drop the foliage references A1\u2013A3 since they yielded no valid pixels."
+       ],
+       "acceptable": true
+      }
+     },
+     {
+      "round": 2,
+      "delivered": false,
+      "sheet": "assets/cases/conservatory-fountain/review_round2.jpg",
+      "rationale": "The glass-roofed conservatory with clear blue sky and no lit lamps indicates daylight through glazing, about 5000-7000 K, with a small blackbody prior for interior fill. The previous correction worked well: the marble statue and white orchid references bracket neutral and all sit within typical spread, so they are kept unchanged. The foliage boxes yielded no valid pixels, so the shrub box is dropped and the orchid-leaf boxes are replaced with smaller ones centered on broad leaf blades, at lower confidence. I disagree with the reviewer's suggestion to add the columns: they are visibly beige/cream stone and would bias the estimate warm, so they stay unusable, as does the amber onyx basin. The user asked for neutral, so full correction is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "foliage",
+        "name": "Green orchid leaves at base of fountain",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A2",
+        "label": "foliage",
+        "name": "Green orchid leaves at base of fountain",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A3",
+        "label": "neutral_surface",
+        "name": "White phalaenopsis orchid petals",
+        "used": true,
+        "delta_e": 6.6,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A4",
+        "label": "neutral_surface",
+        "name": "White phalaenopsis orchid petals",
+        "used": true,
+        "delta_e": 2.1,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A5",
+        "label": "neutral_surface",
+        "name": "Pale marble statue of youth and cherubs",
+        "used": true,
+        "delta_e": 4.5,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A6",
+        "label": "neutral_surface",
+        "name": "Pale marble statue of youth and cherubs",
+        "used": true,
+        "delta_e": 1.3,
+        "typical_spread": 8.5
+       }
+      ],
+      "critique": {
+       "observations": "The as-shot image is already fairly neutral to slightly warm. The corrected version cools it slightly: the statue reads as pale neutral gray, the columns as warm stone (their natural color), and the orchid petals as white with a faint blue tint in the shadows. Foliage looks natural green. The sky and skylight panes now look somewhat blown and cyan-blue, but that is a tone issue rather than a white-balance one. The references disagree mildly. The marble at A5 still measures slightly warm (+4.5 b*), while the orchid petals measure slightly cool (A3 -6.6 b*, which is in shadow among blue-lit petals). All of these are within typical spread, and they roughly cancel out. Overall the residual cast is small, possibly a touch cool in the shaded whites and neutral in the midtones.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "doubtful",
+         "reason": "No valid pixels; box is mostly dark gaps between leaves; unused."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "doubtful",
+         "reason": "No valid pixels; dark region; unused."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "doubtful",
+         "reason": "Petals in shadow pick up skylight blue; reads -6.6 b*, which is within spread but biased cool."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "consistent",
+         "reason": "Well-lit white petals, only slightly cool."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "consistent",
+         "reason": "Marble torso is slightly warm, possibly from aged stone or warm bounce from the fountain; within spread."
+        },
+        {
+         "reference_id": "A6",
+         "verdict": "consistent",
+         "reason": "Marble leg is close to neutral, \u0394E 1.3."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.12,
+       "suggestions": [
+        "Drop A1/A2 or replace them with lit leaf areas, since foliage is a weak neutral reference anyway.",
+        "Prefer sunlit petals (like A4) over shaded ones like A3 to avoid the skylight blue bias.",
+        "Consider adding the cherub statues' lit marble as extra neutral references to stabilize the estimate.",
+        "Recover the blown sky highlights separately; that is not a white-balance issue."
+       ],
+       "acceptable": true
+      }
+     }
+    ]
+   },
+   "seconds": 9.1
   },
   {
    "id": "kitchen-roses",
@@ -1349,6 +2154,7 @@
    "images": {
     "ours": "assets/cases/kitchen-roses/ours.jpg",
     "gray_world": "assets/cases/kitchen-roses/gray_world.jpg",
+    "first_pass": "assets/cases/kitchen-roses/first_pass.jpg",
     "before": "assets/cases/kitchen-roses/before.jpg",
     "overlay": "assets/cases/kitchen-roses/overlay.jpg",
     "thumb": "assets/cases/kitchen-roses/thumb.jpg"
@@ -1361,7 +2167,7 @@
     "weather": "unknown",
     "light_sources": [
      "no light fixture visible; overhead indoor lighting implied",
-     "closed window blinds on door at right (no strong daylight evident)"
+     "closed window blinds on door at right (possible faint outside light)"
     ],
     "hypotheses": [
      {
@@ -1385,35 +2191,24 @@
      {
       "label": "foliage",
       "description": "Green rose leaves and stems in the vase",
-      "usable": true,
-      "confidence": 0.45,
+      "usable": false,
+      "confidence": 0.2,
       "concerns": [
-       "cut-flower leaves can be darker or bluish green than typical foliage",
-       "partly in shadow and close to red petals"
+       "dark, glossy cut-flower leaves are atypical foliage",
+       "heavily shaded and contaminated by reflections from red petals",
+       "previous measurement 19.7 \u0394E, far outside foliage spread",
+       "earlier box landed on a rose petal"
       ],
-      "boxes": [
-       [
-        0.43,
-        0.62,
-        0.5,
-        0.7
-       ],
-       [
-        0.26,
-        0.8,
-        0.36,
-        0.86
-       ]
-      ]
+      "boxes": []
      },
      {
       "label": "neutral_surface",
       "description": "White painted walls and ceiling area in background",
       "usable": true,
-      "confidence": 0.6,
+      "confidence": 0.65,
       "concerns": [
        "out of focus",
-       "may be off-white painted"
+       "may be slightly off-white paint"
       ],
       "boxes": [
        [
@@ -1434,7 +2229,7 @@
       "label": "neutral_surface",
       "description": "White refrigerator door",
       "usable": true,
-      "confidence": 0.55,
+      "confidence": 0.6,
       "concerns": [
        "out of focus",
        "magnets and papers on surface",
@@ -1459,10 +2254,10 @@
       "label": "neutral_surface",
       "description": "White door and window blinds at right",
       "usable": true,
-      "confidence": 0.5,
+      "confidence": 0.55,
       "concerns": [
        "blinds have slatted texture",
-       "possible light from outside behind blinds"
+       "possible cooler light from outside behind blinds"
       ],
       "boxes": [
        [
@@ -1485,7 +2280,7 @@
       "usable": false,
       "confidence": 0.3,
       "concerns": [
-       "cream/beige tint wood-tone laminate",
+       "cream/beige tinted laminate or paint",
        "not reliably neutral"
       ],
       "boxes": []
@@ -1507,42 +2302,10 @@
      "adaptation": "neutral",
      "strength": 1.0
     },
-    "rationale": "This is an indoor kitchen with closed blinds and no visible daylight, so the scene is most likely lit by ceiling fixtures. These are probably warm-to-neutral LEDs or incandescent bulbs, though cooler household lighting or faint daylight is possible. The white walls, refrigerator and door are the best neutral references, although they are out of focus. The leaves give a secondary foliage cue. The beige cabinets and cluttered counter are excluded. The user asked for neutral, so full correction is applied.",
+    "rationale": "This is an indoor kitchen with closed blinds and no visible daylight, so it is most likely lit by warm-to-neutral ceiling fixtures, possibly with faint daylight through the blinds. The white wall, refrigerator, door and blind references agreed within 1.6\u20133.7 \u0394E. Their small warm/cool split, walls slightly warm and door/blinds slightly cool, fits mixed room and window light and averages out, so they are kept as the sole basis for correction. The foliage candidate is now marked unusable. One previous box sat on a rose petal, and the real leaves measured 19.7 \u0394E toward magenta/blue, which reflects dark, glossy, shaded leaves picking up red reflections rather than the main light. I disagree with the reviewer's suggestion to add the upper-left cabinets: they look cream/beige rather than white, so they stay excluded to avoid a warm bias. The user asked for neutral, so full correction is applied.",
     "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
+    "segmenter": "box",
     "regions": [
-     {
-      "label": "foliage",
-      "description": "Green rose leaves and stems in the vase",
-      "box_xyxy": [
-       0.43,
-       0.62,
-       0.5,
-       0.7
-      ],
-      "detector_score": 0.45,
-      "pixels": 0,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 0 valid pixels",
-      "used": false
-     },
-     {
-      "label": "foliage",
-      "description": "Green rose leaves and stems in the vase",
-      "box_xyxy": [
-       0.26,
-       0.8,
-       0.36,
-       0.86
-      ],
-      "detector_score": 0.45,
-      "pixels": 9287,
-      "weight": 0.225,
-      "kept": false,
-      "reason": "inconsistent with other references",
-      "used": false
-     },
      {
       "label": "neutral_surface",
       "description": "White painted walls and ceiling area in background",
@@ -1552,9 +2315,9 @@
        0.6,
        0.2
       ],
-      "detector_score": 0.6,
-      "pixels": 63731,
-      "weight": 0.3,
+      "detector_score": 0.65,
+      "pixels": 61248,
+      "weight": 0.325,
       "kept": true,
       "reason": "",
       "used": true
@@ -1568,9 +2331,9 @@
        0.66,
        0.35
       ],
-      "detector_score": 0.6,
-      "pixels": 11336,
-      "weight": 0.3,
+      "detector_score": 0.65,
+      "pixels": 18720,
+      "weight": 0.325,
       "kept": true,
       "reason": "",
       "used": true
@@ -1584,9 +2347,9 @@
        0.52,
        0.36
       ],
-      "detector_score": 0.55,
-      "pixels": 14079,
-      "weight": 0.275,
+      "detector_score": 0.6,
+      "pixels": 11304,
+      "weight": 0.3,
       "kept": true,
       "reason": "",
       "used": true
@@ -1600,9 +2363,9 @@
        0.24,
        0.36
       ],
-      "detector_score": 0.55,
-      "pixels": 7941,
-      "weight": 0.275,
+      "detector_score": 0.6,
+      "pixels": 9380,
+      "weight": 0.3,
       "kept": true,
       "reason": "",
       "used": true
@@ -1616,9 +2379,9 @@
        0.86,
        0.4
       ],
-      "detector_score": 0.5,
-      "pixels": 88005,
-      "weight": 0.25,
+      "detector_score": 0.55,
+      "pixels": 72344,
+      "weight": 0.275,
       "kept": true,
       "reason": "",
       "used": true
@@ -1632,9 +2395,9 @@
        0.98,
        0.45
       ],
-      "detector_score": 0.5,
-      "pixels": 217,
-      "weight": 0.011,
+      "detector_score": 0.55,
+      "pixels": 7745,
+      "weight": 0.275,
       "kept": true,
       "reason": "",
       "used": true
@@ -1645,16 +2408,16 @@
     "estimator": "spectral",
     "is_fallback": false,
     "family": "daylight",
-    "cct_k": 6161.1474529651505,
-    "cct_uncertainty_k": 361.78019160851966,
-    "confidence": 0.744,
+    "cct_k": 6169.688923501263,
+    "cct_uncertainty_k": 352.6798284774832,
+    "confidence": 0.824,
     "white_rgb": [
-     1.030787,
+     1.029863,
      1.0,
-     0.944067
+     0.945435
     ],
     "notes": [
-     "mean patch residual 0.05\u00b0"
+     "mean patch residual 0.04\u00b0"
     ],
     "correction": "bradford",
     "adaptation_degree": 1.0,
@@ -1695,37 +2458,37 @@
       700.0
      ],
      "relative_power": [
-      0.673495,
-      0.747635,
-      0.768272,
-      0.717534,
-      0.878867,
-      0.987956,
+      0.674262,
+      0.748397,
+      0.768924,
+      0.718015,
+      0.879167,
+      0.988095,
       1.0,
-      0.980697,
-      0.995379,
-      0.938817,
-      0.949588,
-      0.940282,
-      0.920203,
-      0.949847,
-      0.923791,
-      0.924105,
-      0.891077,
-      0.860912,
-      0.859072,
-      0.797233,
-      0.813331,
-      0.812548,
-      0.798187,
-      0.760557,
-      0.767695,
-      0.735224,
-      0.73996,
-      0.762331,
-      0.726527,
-      0.646185,
-      0.666068
+      0.980542,
+      0.995073,
+      0.938407,
+      0.949012,
+      0.939601,
+      0.919376,
+      0.948884,
+      0.922778,
+      0.923001,
+      0.889936,
+      0.859746,
+      0.857829,
+      0.796023,
+      0.811985,
+      0.811125,
+      0.796714,
+      0.759087,
+      0.766118,
+      0.73368,
+      0.738324,
+      0.760558,
+      0.724804,
+      0.644678,
+      0.664451
      ],
      "d65_relative_power": [
       0.702521,
@@ -1762,7 +2525,236 @@
      ]
     }
    },
-   "seconds": 29.7
+   "review": {
+    "critic_model": "claude-opus-5-5",
+    "stop_reason": "the critic accepted the correction",
+    "rounds": [
+     {
+      "round": 1,
+      "delivered": false,
+      "sheet": "assets/cases/kitchen-roses/review_round1.jpg",
+      "rationale": "This is an indoor kitchen with closed blinds and no visible daylight, so the scene is most likely lit by ceiling fixtures. These are probably warm-to-neutral LEDs or incandescent bulbs, though cooler household lighting or faint daylight is possible. The white walls, refrigerator and door are the best neutral references, although they are out of focus. The leaves give a secondary foliage cue. The beige cabinets and cluttered counter are excluded. The user asked for neutral, so full correction is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "foliage",
+        "name": "Green rose leaves and stems in the vase",
+        "used": false,
+        "delta_e": 76.4,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A2",
+        "label": "foliage",
+        "name": "Green rose leaves and stems in the vase",
+        "used": true,
+        "delta_e": 19.7,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A3",
+        "label": "neutral_surface",
+        "name": "White painted walls and ceiling area in background",
+        "used": true,
+        "delta_e": 2.8,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A4",
+        "label": "neutral_surface",
+        "name": "White painted walls and ceiling area in background",
+        "used": true,
+        "delta_e": 1.9,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A5",
+        "label": "neutral_surface",
+        "name": "White refrigerator door",
+        "used": true,
+        "delta_e": 1.6,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A6",
+        "label": "neutral_surface",
+        "name": "White refrigerator door",
+        "used": true,
+        "delta_e": 2.4,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A7",
+        "label": "neutral_surface",
+        "name": "White door and window blinds at right",
+        "used": true,
+        "delta_e": 3.7,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A8",
+        "label": "neutral_surface",
+        "name": "White door and window blinds at right",
+        "used": true,
+        "delta_e": 2.6,
+        "typical_spread": 8.5
+       }
+      ],
+      "critique": {
+       "observations": "The corrected image looks close to neutral. The walls, refrigerator, door and blinds read as clean light gray-white, with at most a faint cool tint on the right-side door and blinds. The red roses stay saturated red without shifting toward orange or pink, and the leaves look like a natural dark green. The neutral references A3\u2013A8 agree closely with each other (\u0394E 1.6\u20133.7, well within their 8.5 spread), splitting slightly between warm walls and cool door/blinds, which averages out. A1 is mislabeled: its box sits on a red rose petal, not foliage, so the 76 \u0394E magenta reading is expected, and it was correctly excluded. A2 is real foliage but deviates 19.7 \u0394E toward magenta/blue. That is likely because shaded, glossy dark leaves reflect the red petals and the cooler window light, so it is an unreliable reference. Its 0.23 weight may pull the result slightly cool/magenta, but the neutrals dominate.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "wrong",
+         "reason": "Box covers a red rose petal, not green foliage; correctly excluded."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "doubtful",
+         "reason": "Dark shaded leaves are contaminated by red reflections; deviation is far beyond the foliage spread."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "consistent",
+         "reason": "White wall, small warm deviation within spread."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "consistent",
+         "reason": "White wall, near neutral."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "consistent",
+         "reason": "White fridge, near neutral."
+        },
+        {
+         "reference_id": "A6",
+         "verdict": "consistent",
+         "reason": "White fridge side, small deviation."
+        },
+        {
+         "reference_id": "A7",
+         "verdict": "consistent",
+         "reason": "Blinds slightly cool from window light, but within spread."
+        },
+        {
+         "reference_id": "A8",
+         "verdict": "consistent",
+         "reason": "White door frame slightly cool, within spread."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.1,
+       "suggestions": [
+        "Drop A2, or reduce its weight, and rely on the white neutral surfaces.",
+        "Remove A1, which is a rose petal mislabeled as foliage.",
+        "The white cabinet fronts at upper left could serve as additional neutral references."
+       ],
+       "acceptable": true
+      }
+     },
+     {
+      "round": 2,
+      "delivered": true,
+      "sheet": "assets/cases/kitchen-roses/review_round2.jpg",
+      "rationale": "This is an indoor kitchen with closed blinds and no visible daylight, so it is most likely lit by warm-to-neutral ceiling fixtures, possibly with faint daylight through the blinds. The white wall, refrigerator, door and blind references agreed within 1.6\u20133.7 \u0394E. Their small warm/cool split, walls slightly warm and door/blinds slightly cool, fits mixed room and window light and averages out, so they are kept as the sole basis for correction. The foliage candidate is now marked unusable. One previous box sat on a rose petal, and the real leaves measured 19.7 \u0394E toward magenta/blue, which reflects dark, glossy, shaded leaves picking up red reflections rather than the main light. I disagree with the reviewer's suggestion to add the upper-left cabinets: they look cream/beige rather than white, so they stay excluded to avoid a warm bias. The user asked for neutral, so full correction is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "neutral_surface",
+        "name": "White painted walls and ceiling area in background",
+        "used": true,
+        "delta_e": 3.0,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A2",
+        "label": "neutral_surface",
+        "name": "White painted walls and ceiling area in background",
+        "used": true,
+        "delta_e": 2.1,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A3",
+        "label": "neutral_surface",
+        "name": "White refrigerator door",
+        "used": true,
+        "delta_e": 1.4,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A4",
+        "label": "neutral_surface",
+        "name": "White refrigerator door",
+        "used": true,
+        "delta_e": 2.3,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A5",
+        "label": "neutral_surface",
+        "name": "White door and window blinds at right",
+        "used": true,
+        "delta_e": 3.5,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A6",
+        "label": "neutral_surface",
+        "name": "White door and window blinds at right",
+        "used": true,
+        "delta_e": 2.4,
+        "typical_spread": 8.5
+       }
+      ],
+      "critique": {
+       "observations": "The as-shot image already looked close to neutral, with a slight warm/pinkish tint on the walls. The corrected version is very similar and reads as neutral. The walls and ceiling are a clean light gray-white, the fridge is white, and the door and blinds are neutral to very slightly cool. The roses stay a rich red and the foliage is a natural green. There is no meaningful cast. References disagree only mildly and within normal spread: the wall patches (A1, A2) remain slightly warm and the door/blinds (A5, A6) slightly cool. This is consistent with mixed light, with warm indoor light on the back wall and window daylight near the door. The two sides average out to near neutral. A4 sits on the shadowed side of the fridge and has a slight magenta lean, but it is small.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "White wall; slight warm/magenta residual, well within spread, likely from warmer ambient light."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "White wall strip; small warm residual within spread."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "consistent",
+         "reason": "White fridge door; nearly neutral."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "consistent",
+         "reason": "Fridge side in shadow; slight magenta/cool but within spread."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "consistent",
+         "reason": "White blinds lit by window daylight; slightly cool, within spread."
+        },
+        {
+         "reference_id": "A6",
+         "verdict": "consistent",
+         "reason": "White door edge; slightly cool, within spread."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.08,
+       "suggestions": [
+        "Correction is fine; optionally weight the fridge front (A3) more heavily, since it sits between the warm wall and the cool window light.",
+        "The white cabinets at upper left could be added as an extra neutral reference, but they may be off-white or wood-toned, so use them cautiously."
+       ],
+       "acceptable": true
+      }
+     }
+    ]
+   },
+   "seconds": 10.0
   },
   {
    "id": "bronze-sculpture",
@@ -1779,6 +2771,7 @@
    "images": {
     "ours": "assets/cases/bronze-sculpture/ours.jpg",
     "gray_world": "assets/cases/bronze-sculpture/gray_world.jpg",
+    "first_pass": "assets/cases/bronze-sculpture/first_pass.jpg",
     "before": "assets/cases/bronze-sculpture/before.jpg",
     "overlay": "assets/cases/bronze-sculpture/overlay.jpg",
     "thumb": "assets/cases/bronze-sculpture/thumb.jpg"
@@ -1814,42 +2807,11 @@
     ],
     "candidates": [
      {
-      "label": "foliage",
-      "description": "Healthy green palm fronds, cycads and hedge leaves in direct sun",
-      "usable": true,
-      "confidence": 0.75,
-      "concerns": [
-       "mixed species with varying greens",
-       "some leaves glossy with specular highlights"
-      ],
-      "boxes": [
-       [
-        0.27,
-        0.75,
-        0.4,
-        0.86
-       ],
-       [
-        0.55,
-        0.78,
-        0.7,
-        0.88
-       ],
-       [
-        0.72,
-        0.52,
-        0.85,
-        0.66
-       ]
-      ]
-     },
-     {
       "label": "concrete",
       "description": "Gray concrete curb in the foreground, sunlit",
       "usable": true,
-      "confidence": 0.7,
+      "confidence": 0.8,
       "concerns": [
-       "slight warm/beige tint possible",
        "edge of frame, minor blur"
       ],
       "boxes": [
@@ -1871,7 +2833,7 @@
       "label": "concrete",
       "description": "Light gray concrete/stone sculpture base pad",
       "usable": true,
-      "confidence": 0.55,
+      "confidence": 0.65,
       "concerns": [
        "partly shaded by plants and sculpture",
        "possible bronze reflection near figures"
@@ -1892,34 +2854,41 @@
       ]
      },
      {
-      "label": "cloud",
-      "description": "White cumulus clouds against blue sky",
+      "label": "foliage",
+      "description": "Healthy green palm fronds, cycads and hedge leaves",
       "usable": true,
-      "confidence": 0.6,
+      "confidence": 0.35,
       "concerns": [
-       "bright, may be near clipping",
-       "partly behind palm fronds"
+       "glossy fronds reflect blue skylight",
+       "mixed sun and shade, dense hedges",
+       "mixed species with varying greens"
       ],
       "boxes": [
        [
-        0.03,
-        0.32,
-        0.09,
-        0.36
-       ],
-       [
-        0.62,
-        0.2,
-        0.7,
-        0.24
-       ],
-       [
+        0.27,
+        0.75,
         0.4,
-        0.13,
-        0.45,
-        0.18
+        0.86
+       ],
+       [
+        0.55,
+        0.78,
+        0.7,
+        0.88
        ]
       ]
+     },
+     {
+      "label": "cloud",
+      "description": "White cumulus clouds against blue sky",
+      "usable": false,
+      "confidence": 0.2,
+      "concerns": [
+       "clipped highlights",
+       "small patches fragmented by palm fronds",
+       "boxes easily land on blue sky"
+      ],
+      "boxes": []
      },
      {
       "label": "neutral_surface",
@@ -1937,58 +2906,10 @@
      "adaptation": "neutral",
      "strength": 1.0
     },
-    "rationale": "The scene is an outdoor plaza under strong direct sun with a deep blue sky and scattered cumulus, with crisp shadows under the sculptures, indicating midday daylight around 5000-6500 K with some skylight contribution possibly raising it. The bronze sculptures are colored and reflective, so they are not references. Sunlit green foliage is abundant and usable, the gray foreground curb and the base pad are good concrete candidates (the pad partially shaded), and white clouds offer a bright neutral though risk clipping. The distant white building is too fragmented to use. The user asked for neutral, so full correction (strength 1) is applied.",
+    "rationale": "This is an outdoor plaza under strong midday sun with a blue sky and scattered cumulus. Crisp shadows point to daylight at about 5000-6500 K. The four concrete measurements (the curb and the sculpture base) all landed within 1 \u0394E of neutral and agree with each other, so they stay as the primary anchors, with raised confidence. I dropped the cloud references. They are clipped, and one box fell on blue sky, which explains its huge \u0394E; I am not adding new cloud boxes because the clouds are small and fragmented by fronds. Foliage measured cool and magenta, about twice its typical spread. I agree with the reviewer that this most likely comes from glossy fronds reflecting skylight and from shade rather than a global cast, since the grays are neutral. So I kept the two larger foliage boxes at low confidence, dropped the tiny shaded hedge box, and listed the concerns. I did not add the silver globe because it is a curved mirror that reflects its surroundings, so it is not a reliable neutral. The over-bright sky is a tonal problem, separate from white balance. The user asked for neutral, so full correction is applied.",
     "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
+    "segmenter": "box",
     "regions": [
-     {
-      "label": "foliage",
-      "description": "Healthy green palm fronds, cycads and hedge leaves in direct sun",
-      "box_xyxy": [
-       0.27,
-       0.75,
-       0.4,
-       0.86
-      ],
-      "detector_score": 0.75,
-      "pixels": 122,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 122 valid pixels",
-      "used": false
-     },
-     {
-      "label": "foliage",
-      "description": "Healthy green palm fronds, cycads and hedge leaves in direct sun",
-      "box_xyxy": [
-       0.55,
-       0.78,
-       0.7,
-       0.88
-      ],
-      "detector_score": 0.75,
-      "pixels": 2586,
-      "weight": 0.194,
-      "kept": true,
-      "reason": "",
-      "used": true
-     },
-     {
-      "label": "foliage",
-      "description": "Healthy green palm fronds, cycads and hedge leaves in direct sun",
-      "box_xyxy": [
-       0.72,
-       0.52,
-       0.85,
-       0.66
-      ],
-      "detector_score": 0.75,
-      "pixels": 23,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 23 valid pixels",
-      "used": false
-     },
      {
       "label": "concrete",
       "description": "Gray concrete curb in the foreground, sunlit",
@@ -1998,9 +2919,9 @@
        0.5,
        0.99
       ],
-      "detector_score": 0.7,
-      "pixels": 5221,
-      "weight": 0.56,
+      "detector_score": 0.8,
+      "pixels": 19533,
+      "weight": 0.64,
       "kept": true,
       "reason": "",
       "used": true
@@ -2014,9 +2935,9 @@
        0.85,
        0.99
       ],
-      "detector_score": 0.7,
-      "pixels": 10464,
-      "weight": 0.56,
+      "detector_score": 0.8,
+      "pixels": 19204,
+      "weight": 0.64,
       "kept": true,
       "reason": "",
       "used": true
@@ -2030,9 +2951,9 @@
        0.6,
        0.78
       ],
-      "detector_score": 0.55,
-      "pixels": 890,
-      "weight": 0.078,
+      "detector_score": 0.65,
+      "pixels": 3030,
+      "weight": 0.315,
       "kept": true,
       "reason": "",
       "used": true
@@ -2046,60 +2967,44 @@
        0.8,
        0.79
       ],
-      "detector_score": 0.55,
-      "pixels": 1599,
-      "weight": 0.141,
+      "detector_score": 0.65,
+      "pixels": 1877,
+      "weight": 0.195,
       "kept": true,
       "reason": "",
       "used": true
      },
      {
-      "label": "cloud",
-      "description": "White cumulus clouds against blue sky",
+      "label": "foliage",
+      "description": "Healthy green palm fronds, cycads and hedge leaves",
       "box_xyxy": [
-       0.03,
-       0.32,
-       0.09,
-       0.36
-      ],
-      "detector_score": 0.6,
-      "pixels": 258,
-      "weight": 0.022,
-      "kept": true,
-      "reason": "",
-      "used": true
-     },
-     {
-      "label": "cloud",
-      "description": "White cumulus clouds against blue sky",
-      "box_xyxy": [
-       0.62,
-       0.2,
-       0.7,
-       0.24
-      ],
-      "detector_score": 0.6,
-      "pixels": 0,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 0 valid pixels",
-      "used": false
-     },
-     {
-      "label": "cloud",
-      "description": "White cumulus clouds against blue sky",
-      "box_xyxy": [
+       0.27,
+       0.75,
        0.4,
-       0.13,
-       0.45,
-       0.18
+       0.86
       ],
-      "detector_score": 0.6,
-      "pixels": 0,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 0 valid pixels",
-      "used": false
+      "detector_score": 0.35,
+      "pixels": 386,
+      "weight": 0.014,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "foliage",
+      "description": "Healthy green palm fronds, cycads and hedge leaves",
+      "box_xyxy": [
+       0.55,
+       0.78,
+       0.7,
+       0.88
+      ],
+      "detector_score": 0.35,
+      "pixels": 2071,
+      "weight": 0.072,
+      "kept": true,
+      "reason": "",
+      "used": true
      }
     ]
    },
@@ -2107,16 +3012,16 @@
     "estimator": "spectral",
     "is_fallback": false,
     "family": "daylight",
-    "cct_k": 6552.841186021641,
-    "cct_uncertainty_k": 252.7763810284075,
-    "confidence": 0.754,
+    "cct_k": 6377.66739804843,
+    "cct_uncertainty_k": 230.44633434022714,
+    "confidence": 0.815,
     "white_rgb": [
-     0.991839,
+     1.008425,
      1.0,
-     1.004619
+     0.978085
     ],
     "notes": [
-     "mean patch residual 0.14\u00b0"
+     "mean patch residual 0.12\u00b0"
     ],
     "correction": "bradford",
     "adaptation_degree": 1.0,
@@ -2157,37 +3062,37 @@
       700.0
      ],
      "relative_power": [
-      0.706379,
-      0.780512,
-      0.796465,
-      0.738265,
-      0.89162,
-      0.993873,
+      0.692233,
+      0.766314,
+      0.784284,
+      0.729325,
+      0.886164,
+      0.991346,
       1.0,
-      0.974175,
-      0.982422,
-      0.921559,
-      0.925351,
-      0.911652,
-      0.885344,
-      0.909285,
-      0.881178,
-      0.877679,
-      0.843163,
-      0.811922,
-      0.806917,
-      0.746889,
-      0.757474,
-      0.753686,
-      0.737334,
-      0.699937,
-      0.702981,
-      0.672002,
-      0.673214,
-      0.69011,
-      0.656481,
-      0.584766,
-      0.600311
+      0.97696,
+      0.987962,
+      0.928899,
+      0.93566,
+      0.923831,
+      0.90019,
+      0.926555,
+      0.899298,
+      0.89742,
+      0.863527,
+      0.83274,
+      0.829071,
+      0.76817,
+      0.781039,
+      0.778478,
+      0.762942,
+      0.725425,
+      0.730113,
+      0.69846,
+      0.701093,
+      0.720249,
+      0.685668,
+      0.6104,
+      0.627712
      ],
      "d65_relative_power": [
       0.702521,
@@ -2224,7 +3129,337 @@
      ]
     }
    },
-   "seconds": 33.6
+   "review": {
+    "critic_model": "claude-opus-5-5",
+    "stop_reason": "the last revision did not improve on round 2",
+    "rounds": [
+     {
+      "round": 1,
+      "delivered": false,
+      "sheet": "assets/cases/bronze-sculpture/review_round1.jpg",
+      "rationale": "The scene is an outdoor plaza under strong direct sun with a deep blue sky and scattered cumulus, with crisp shadows under the sculptures, indicating midday daylight around 5000-6500 K with some skylight contribution possibly raising it. The bronze sculptures are colored and reflective, so they are not references. Sunlit green foliage is abundant and usable, the gray foreground curb and the base pad are good concrete candidates (the pad partially shaded), and white clouds offer a bright neutral though risk clipping. The distant white building is too fragmented to use. The user asked for neutral, so full correction (strength 1) is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "foliage",
+        "name": "Healthy green palm fronds, cycads and hedge leaves in direct sun",
+        "used": true,
+        "delta_e": 10.7,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A2",
+        "label": "foliage",
+        "name": "Healthy green palm fronds, cycads and hedge leaves in direct sun",
+        "used": true,
+        "delta_e": 14.1,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A3",
+        "label": "foliage",
+        "name": "Healthy green palm fronds, cycads and hedge leaves in direct sun",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A4",
+        "label": "concrete",
+        "name": "Gray concrete curb in the foreground, sunlit",
+        "used": true,
+        "delta_e": 0.4,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A5",
+        "label": "concrete",
+        "name": "Gray concrete curb in the foreground, sunlit",
+        "used": true,
+        "delta_e": 0.8,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A6",
+        "label": "concrete",
+        "name": "Light gray concrete/stone sculpture base pad",
+        "used": true,
+        "delta_e": 1.0,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A7",
+        "label": "concrete",
+        "name": "Light gray concrete/stone sculpture base pad",
+        "used": true,
+        "delta_e": 1.0,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A8",
+        "label": "cloud",
+        "name": "White cumulus clouds against blue sky",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A9",
+        "label": "cloud",
+        "name": "White cumulus clouds against blue sky",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A10",
+        "label": "cloud",
+        "name": "White cumulus clouds against blue sky",
+        "used": false,
+        "delta_e": 77.0,
+        "typical_spread": 7.0
+       }
+      ],
+      "critique": {
+       "observations": "The concrete curb (A4, A5) and the sculpture base (A6, A7) land within about 1 \u0394E of neutral gray. These four agree closely and carry most of the weight. The bronze sculptures keep a believable warm brass tone, and the silver globe looks neutral. Foliage reads slightly cooler and less yellow than the reference sunlit green. This is plausibly the material's own variation: dense hedges, shaded leaf undersides and blue skylight reflected off glossy fronds, rather than a global cast. The foliage weights are low, so the balance does not hinge on them. The main problem in the corrected image is tonal, not color. The sky and clouds are pushed to clipped white with posterized blue patches, so the cloud references are unusable. A10 actually sits on blue sky, not cloud. White balance overall looks neutral, with no meaningful cast in the grays.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "doubtful",
+         "reason": "Foliage reads bluer and more magenta than typical, about 2x its typical spread. Likely shade and skylight on the leaves; low weight."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "doubtful",
+         "reason": "Same cool, magenta deviation as A1, larger than the material's spread. Probably mixed shade and specular skylight on the fronds rather than a true cast."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "doubtful",
+         "reason": "Too few valid pixels; dark hedge in partial shade."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "consistent",
+         "reason": "Sunlit gray curb, \u0394E 0.4, agrees with the other grays."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "consistent",
+         "reason": "Sunlit gray curb, \u0394E 0.8."
+        },
+        {
+         "reference_id": "A6",
+         "verdict": "consistent",
+         "reason": "Base pad is neutral, \u0394E 1.0."
+        },
+        {
+         "reference_id": "A7",
+         "verdict": "consistent",
+         "reason": "Base pad is neutral, \u0394E 1.0."
+        },
+        {
+         "reference_id": "A8",
+         "verdict": "doubtful",
+         "reason": "Cloud is clipped; only 139 valid pixels."
+        },
+        {
+         "reference_id": "A9",
+         "verdict": "wrong",
+         "reason": "No valid pixels; fully clipped region."
+        },
+        {
+         "reference_id": "A10",
+         "verdict": "wrong",
+         "reason": "Box covers blue sky, not white cloud. Huge blue deviation."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.1,
+       "suggestions": [
+        "Drop A10 and A9: they are blue sky and clipped cloud respectively.",
+        "Keep the concrete references (A4 to A7) as the primary anchors.",
+        "Use the silver globe's matte, non-specular areas as an additional neutral check.",
+        "Recover highlights and reduce exposure: the sky and clouds are blown and posterized. This tonal problem should be fixed separately from white balance."
+       ],
+       "acceptable": true
+      }
+     },
+     {
+      "round": 2,
+      "delivered": true,
+      "sheet": "assets/cases/bronze-sculpture/review_round2.jpg",
+      "rationale": "This is an outdoor plaza under strong midday sun with a blue sky and scattered cumulus. Crisp shadows point to daylight at about 5000-6500 K. The four concrete measurements (the curb and the sculpture base) all landed within 1 \u0394E of neutral and agree with each other, so they stay as the primary anchors, with raised confidence. I dropped the cloud references. They are clipped, and one box fell on blue sky, which explains its huge \u0394E; I am not adding new cloud boxes because the clouds are small and fragmented by fronds. Foliage measured cool and magenta, about twice its typical spread. I agree with the reviewer that this most likely comes from glossy fronds reflecting skylight and from shade rather than a global cast, since the grays are neutral. So I kept the two larger foliage boxes at low confidence, dropped the tiny shaded hedge box, and listed the concerns. I did not add the silver globe because it is a curved mirror that reflects its surroundings, so it is not a reliable neutral. The over-bright sky is a tonal problem, separate from white balance. The user asked for neutral, so full correction is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "concrete",
+        "name": "Gray concrete curb in the foreground, sunlit",
+        "used": true,
+        "delta_e": 0.4,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A2",
+        "label": "concrete",
+        "name": "Gray concrete curb in the foreground, sunlit",
+        "used": true,
+        "delta_e": 0.9,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A3",
+        "label": "concrete",
+        "name": "Light gray concrete/stone sculpture base pad",
+        "used": true,
+        "delta_e": 1.0,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A4",
+        "label": "concrete",
+        "name": "Light gray concrete/stone sculpture base pad",
+        "used": true,
+        "delta_e": 1.0,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A5",
+        "label": "foliage",
+        "name": "Healthy green palm fronds, cycads and hedge leaves",
+        "used": true,
+        "delta_e": 10.7,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A6",
+        "label": "foliage",
+        "name": "Healthy green palm fronds, cycads and hedge leaves",
+        "used": true,
+        "delta_e": 14.1,
+        "typical_spread": 5.1
+       }
+      ],
+      "critique": {
+       "observations": "The corrected image reads as neutral. The concrete curb and the sculpture base are clean gray, the bronze keeps its natural warm brown, and the silver globe looks neutral. The concrete references (A1\u2013A4) agree closely, all with \u0394E about 1 or less, so there is no meaningful cast. Foliage measures somewhat cool and less yellow than ideal (A5, A6), but green leaves vary naturally, and sky light reflected off glossy fronds pushes them bluish. Those two references carry little weight and do not drive the result. The sky shows heavy clipping and posterized white blotches, which is an exposure or tone problem, not white balance. Shadows in the hedge may lean slightly cool, which is plausible as open shade under blue sky.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "Sunlit gray concrete, \u0394E 0.4, matches the other neutrals."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "Sunlit gray concrete, \u0394E 0.9, agrees with A1."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "consistent",
+         "reason": "Neutral stone pad, \u0394E 1.0, in agreement."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "consistent",
+         "reason": "Neutral stone pad, \u0394E 1.0, in agreement."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "doubtful",
+         "reason": "Foliage reflects skylight and varies a lot in hue. It deviates cool and magenta from the concrete consensus; low weight."
+        },
+        {
+         "reference_id": "A6",
+         "verdict": "doubtful",
+         "reason": "Same as A5, with a larger deviation; glossy fronds pick up blue sky. Unreliable as a neutral anchor."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.08,
+       "suggestions": [
+        "Drop A5 and A6 as references, or reduce their weight further; the concrete neutrals are sufficient.",
+        "Fix the clipped and posterized sky with highlight recovery; this is a tone problem, not white balance.",
+        "Optionally add the sidewalk concrete pad behind the statues as another sunlit neutral."
+       ],
+       "acceptable": true
+      }
+     },
+     {
+      "round": 3,
+      "delivered": false,
+      "sheet": "assets/cases/bronze-sculpture/review_round3.jpg",
+      "rationale": "This is an outdoor plaza under strong midday sun, with blue sky, scattered cumulus and crisp shadows, so the light is daylight at roughly 5000-6500 K. All four concrete measurements, two on the sunlit curb and two on the sculpture base, sit within about 1 \u0394E of neutral and agree with each other. They remain the anchors, and I have slightly raised their confidence. Foliage measured 2-3 times its typical spread, too cool and too magenta. The grays are neutral, so this points to glossy fronds reflecting skylight and to shade rather than a global cast. I agree with the reviewer and have marked foliage unusable. Clouds and the distant white wall stay excluded because they are clipped and fragmented. The pad the reviewer suggested behind the statues is already covered by the base-pad boxes. Its other visible parts lie near the bronze figures and in plant shade, so I have not added more boxes there. The clipped sky is a tone problem, not a white-balance one. The user asked for neutral, so full correction is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "concrete",
+        "name": "Gray concrete curb in the foreground, sunlit",
+        "used": true,
+        "delta_e": 0.4,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A2",
+        "label": "concrete",
+        "name": "Gray concrete curb in the foreground, sunlit",
+        "used": true,
+        "delta_e": 0.8,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A3",
+        "label": "concrete",
+        "name": "Light gray concrete/stone sculpture base pad",
+        "used": true,
+        "delta_e": 1.0,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A4",
+        "label": "concrete",
+        "name": "Light gray concrete/stone sculpture base pad",
+        "used": true,
+        "delta_e": 1.0,
+        "typical_spread": 3.3
+       }
+      ],
+      "critique": {
+       "observations": "The concrete curb (A1, A2) and the sculpture base pad (A3, A4) render as clean neutral gray in the corrected image, and their swatches match the true material color closely. Foliage looks natural green, with no yellow or blue shift. The bronze sculpture keeps a believable warm brass tone, and the silver globe looks neutral. No meaningful color cast remains in the midtones. There is a serious tonal artifact, though: the sky is badly clipped and posterized into white blotches, with clouds and blue patches breaking up. This comes from gain or exposure (highlight clipping after the channel multipliers), not from the white point. The four references agree closely with each other and all sit on the same sunlit light.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "Sunlit gray concrete curb, \u0394E 0.4, well within the 3.3 spread; agrees with the other references."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "Same curb under the same sunlight, \u0394E 0.8; neutral and consistent."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "consistent",
+         "reason": "Sunlit concrete base pad, \u0394E 1.0; agrees with the curb."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "consistent",
+         "reason": "Base pad, \u0394E 1.0; small area but consistent with the others."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.08,
+       "suggestions": [
+        "Keep the white balance as is.",
+        "Fix the highlight handling: the correction gain clips the sky into posterized white patches. Apply the channel multipliers in linear space with highlight recovery, or reduce exposure so the sky stays below clipping.",
+        "Optionally add the silver globe's diffuse (non-specular) areas as an extra neutral check."
+       ],
+       "acceptable": true
+      }
+     }
+    ]
+   },
+   "seconds": 11.2
   },
   {
    "id": "lake-overlook",
@@ -2241,6 +3476,7 @@
    "images": {
     "ours": "assets/cases/lake-overlook/ours.jpg",
     "gray_world": "assets/cases/lake-overlook/gray_world.jpg",
+    "first_pass": "assets/cases/lake-overlook/first_pass.jpg",
     "before": "assets/cases/lake-overlook/before.jpg",
     "overlay": "assets/cases/lake-overlook/overlay.jpg",
     "thumb": "assets/cases/lake-overlook/thumb.jpg"
@@ -2261,110 +3497,25 @@
        6000.0,
        7500.0
       ],
-      "confidence": 0.85
+      "confidence": 0.8
      },
      {
       "family": "daylight",
       "cct_range_k": [
-       5000.0,
-       6000.0
+       5200.0,
+       6200.0
       ],
-      "confidence": 0.15
+      "confidence": 0.2
      }
     ],
     "candidates": [
      {
-      "label": "foliage",
-      "description": "Healthy green leaves on the trees in the upper right and on the left side, plus the forested hillside",
-      "usable": true,
-      "confidence": 0.7,
-      "concerns": [
-       "backlit leaves against the sky may be translucent and look more yellow-green",
-       "the distant hillside is affected by atmospheric haze"
-      ],
-      "boxes": [
-       [
-        0.02,
-        0.52,
-        0.12,
-        0.6
-       ],
-       [
-        0.7,
-        0.2,
-        0.8,
-        0.28
-       ],
-       [
-        0.42,
-        0.64,
-        0.62,
-        0.72
-       ]
-      ]
-     },
-     {
-      "label": "skin",
-      "description": "Faces and arms of the three people, lit by diffuse skylight",
-      "usable": true,
-      "confidence": 0.6,
-      "concerns": [
-       "skin tone varies by person",
-       "small regions"
-      ],
-      "boxes": [
-       [
-        0.415,
-        0.745,
-        0.455,
-        0.775
-       ],
-       [
-        0.53,
-        0.73,
-        0.565,
-        0.765
-       ],
-       [
-        0.275,
-        0.8,
-        0.315,
-        0.825
-       ]
-      ]
-     },
-     {
-      "label": "cloud",
-      "description": "Uniform overcast white-gray sky filling the upper middle of the frame",
-      "usable": true,
-      "confidence": 0.6,
-      "concerns": [
-       "sky is near clipping and may be overexposed",
-       "bright haze may not be exactly neutral"
-      ],
-      "boxes": [
-       [
-        0.6,
-        0.5,
-        0.85,
-        0.6
-       ],
-       [
-        0.35,
-        0.3,
-        0.6,
-        0.45
-       ]
-      ]
-     },
-     {
       "label": "neutral_surface",
-      "description": "White Levi's tank top worn by the middle person",
+      "description": "White Levi's tank top worn by the middle person, front-lit lower torso below the red logo",
       "usable": true,
-      "confidence": 0.55,
+      "confidence": 0.85,
       "concerns": [
        "fabric may contain optical brighteners",
-       "red logo nearby",
        "small folds"
       ],
       "boxes": [
@@ -2375,159 +3526,188 @@
         0.94
        ]
       ]
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White Levi's tank top, upper chest between the straps above the logo",
+      "usable": true,
+      "confidence": 0.4,
+      "concerns": [
+       "partly shaded by the chin and shoulders, picks up cool sky fill",
+       "close to straps and the red logo"
+      ],
+      "boxes": [
+       [
+        0.4,
+        0.815,
+        0.45,
+        0.84
+       ]
+      ]
+     },
+     {
+      "label": "foliage",
+      "description": "Near green leaves on the left side of the frame and in the lower-left foreground",
+      "usable": false,
+      "confidence": 0.15,
+      "concerns": [
+       "measured far outside the foliage spread (too magenta and blue)",
+       "translucent and backlit leaves mixed with branches, shadow and sky gaps",
+       "disagrees with the white shirt reference"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "foliage",
+      "description": "Distant forested hillside across the lake",
+      "usable": false,
+      "confidence": 0.1,
+      "concerns": [
+       "strong atmospheric haze veil",
+       "not representative of the light on the subjects"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "foliage",
+      "description": "Upper branches backlit against the blown sky",
+      "usable": false,
+      "confidence": 0.05,
+      "concerns": [
+       "backlit with flare from the clipped sky"
+      ],
+      "boxes": []
+     },
+     {
+      "label": "skin",
+      "description": "Faces of the three people under diffuse overcast skylight",
+      "usable": true,
+      "confidence": 0.3,
+      "concerns": [
+       "small regions",
+       "skin tone varies by person",
+       "earlier boxes yielded few valid pixels",
+       "possible green reflections from surrounding foliage"
+      ],
+      "boxes": [
+       [
+        0.41,
+        0.755,
+        0.45,
+        0.785
+       ],
+       [
+        0.28,
+        0.8,
+        0.315,
+        0.83
+       ],
+       [
+        0.52,
+        0.745,
+        0.565,
+        0.775
+       ]
+      ]
+     },
+     {
+      "label": "cloud",
+      "description": "Uniform overcast sky in the upper middle of the frame",
+      "usable": false,
+      "confidence": 0.05,
+      "concerns": [
+       "sky is clipped to white and holds no color information"
+      ],
+      "boxes": []
      }
     ],
     "intent": {
      "adaptation": "neutral",
      "strength": 1.0
     },
-    "rationale": "This is an outdoor lakeside scene under a bright, uniformly overcast sky, with soft shadows and no artificial light, so the illuminant is overcast CIE daylight of roughly 6000-7500 K. Green foliage is the most plentiful reference, though backlit leaves and the hazy distant hillside need some caution. The overcast sky offers a near-neutral area but may be clipped. The white tank top serves as a small neutral reference, and the subjects' faces and arms give skin references under the same diffuse light. The user asked for neutral correction, so full-strength white balance applies.",
+    "rationale": "This is an outdoor lakeside scene under a bright, uniform overcast sky with soft shadows and no artificial light, so overcast daylight of about 6000-7500 K remains the prior. The measurements show that the front-lit lower part of the white tank top (A1) is a near-neutral anchor (\u0394E 1.6), so it gets the highest confidence. The chest area was cool because of shade and sky fill near the straps. I re-boxed it to a tighter central patch and lowered its confidence. I agree with the reviewer that the near foliage reads well outside the typical foliage spread (magenta and blue) and contradicts the shirt. That means it is translucent or mixed with shadow and is not reliable, so I marked all foliage unusable. The forearm skin box was contaminated by edge pixels and leaf reflections and returned few valid pixels. I replaced the skin samples with three face boxes centered on the cheeks as a low-weight cross-check. I did not add the watch band or the Levi's lettering, because they are too small or not clearly neutral. The sky is clipped and unusable. The user asked for neutral, so the correction is applied at full strength.",
     "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
+    "segmenter": "box",
     "regions": [
      {
-      "label": "foliage",
-      "description": "Healthy green leaves on the trees in the upper right and on the left side, plus the forested hillside",
-      "box_xyxy": [
-       0.02,
-       0.52,
-       0.12,
-       0.6
-      ],
-      "detector_score": 0.7,
-      "pixels": 221,
-      "weight": 0.015,
-      "kept": true,
-      "reason": "",
-      "used": true
-     },
-     {
-      "label": "foliage",
-      "description": "Healthy green leaves on the trees in the upper right and on the left side, plus the forested hillside",
-      "box_xyxy": [
-       0.7,
-       0.2,
-       0.8,
-       0.28
-      ],
-      "detector_score": 0.7,
-      "pixels": 1167,
-      "weight": 0.082,
-      "kept": true,
-      "reason": "",
-      "used": true
-     },
-     {
-      "label": "foliage",
-      "description": "Healthy green leaves on the trees in the upper right and on the left side, plus the forested hillside",
-      "box_xyxy": [
-       0.42,
-       0.64,
-       0.62,
-       0.72
-      ],
-      "detector_score": 0.7,
-      "pixels": 17544,
-      "weight": 0.35,
-      "kept": true,
-      "reason": "",
-      "used": true
-     },
-     {
-      "label": "skin",
-      "description": "Faces and arms of the three people, lit by diffuse skylight",
-      "box_xyxy": [
-       0.415,
-       0.745,
-       0.455,
-       0.775
-      ],
-      "detector_score": 0.6,
-      "pixels": 0,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 0 valid pixels",
-      "used": false
-     },
-     {
-      "label": "skin",
-      "description": "Faces and arms of the three people, lit by diffuse skylight",
-      "box_xyxy": [
-       0.53,
-       0.73,
-       0.565,
-       0.765
-      ],
-      "detector_score": 0.6,
-      "pixels": 0,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 0 valid pixels",
-      "used": false
-     },
-     {
-      "label": "skin",
-      "description": "Faces and arms of the three people, lit by diffuse skylight",
-      "box_xyxy": [
-       0.275,
-       0.8,
-       0.315,
-       0.825
-      ],
-      "detector_score": 0.6,
-      "pixels": 0,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 0 valid pixels",
-      "used": false
-     },
-     {
-      "label": "cloud",
-      "description": "Uniform overcast white-gray sky filling the upper middle of the frame",
-      "box_xyxy": [
-       0.6,
-       0.5,
-       0.85,
-       0.6
-      ],
-      "detector_score": 0.6,
-      "pixels": 0,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 0 valid pixels",
-      "used": false
-     },
-     {
-      "label": "cloud",
-      "description": "Uniform overcast white-gray sky filling the upper middle of the frame",
-      "box_xyxy": [
-       0.35,
-       0.3,
-       0.6,
-       0.45
-      ],
-      "detector_score": 0.6,
-      "pixels": 0,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 0 valid pixels",
-      "used": false
-     },
-     {
       "label": "neutral_surface",
-      "description": "White Levi's tank top worn by the middle person",
+      "description": "White Levi's tank top worn by the middle person, front-lit lower torso below the red logo",
       "box_xyxy": [
        0.37,
        0.88,
        0.46,
        0.94
       ],
-      "detector_score": 0.55,
-      "pixels": 7634,
-      "weight": 0.275,
+      "detector_score": 0.85,
+      "pixels": 8232,
+      "weight": 0.425,
       "kept": true,
       "reason": "",
       "used": true
+     },
+     {
+      "label": "neutral_surface",
+      "description": "White Levi's tank top, upper chest between the straps above the logo",
+      "box_xyxy": [
+       0.4,
+       0.815,
+       0.45,
+       0.84
+      ],
+      "detector_score": 0.4,
+      "pixels": 754,
+      "weight": 0.03,
+      "kept": true,
+      "reason": "",
+      "used": true
+     },
+     {
+      "label": "skin",
+      "description": "Faces of the three people under diffuse overcast skylight",
+      "box_xyxy": [
+       0.41,
+       0.755,
+       0.45,
+       0.785
+      ],
+      "detector_score": 0.3,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
+     },
+     {
+      "label": "skin",
+      "description": "Faces of the three people under diffuse overcast skylight",
+      "box_xyxy": [
+       0.28,
+       0.8,
+       0.315,
+       0.83
+      ],
+      "detector_score": 0.3,
+      "pixels": 191,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 191 valid pixels",
+      "used": false
+     },
+     {
+      "label": "skin",
+      "description": "Faces of the three people under diffuse overcast skylight",
+      "box_xyxy": [
+       0.52,
+       0.745,
+       0.565,
+       0.775
+      ],
+      "detector_score": 0.3,
+      "pixels": 0,
+      "weight": 0.0,
+      "kept": false,
+      "reason": "only 0 valid pixels",
+      "used": false
      }
     ]
    },
@@ -2535,16 +3715,16 @@
     "estimator": "spectral",
     "is_fallback": false,
     "family": "daylight",
-    "cct_k": 6596.491548570393,
-    "cct_uncertainty_k": 734.9454811133903,
-    "confidence": 0.473,
+    "cct_k": 7150.319428669656,
+    "cct_uncertainty_k": 663.5141821041753,
+    "confidence": 0.359,
     "white_rgb": [
-     0.987898,
+     0.943551,
      1.0,
-     1.011095
+     1.088858
     ],
     "notes": [
-     "mean patch residual 0.25\u00b0"
+     "mean patch residual 0.06\u00b0"
     ],
     "correction": "bradford",
     "adaptation_degree": 1.0,
@@ -2585,37 +3765,37 @@
       700.0
      ],
      "relative_power": [
-      0.709771,
-      0.783928,
-      0.799397,
-      0.740413,
-      0.892922,
-      0.994475,
+      0.747767,
+      0.822414,
+      0.832299,
+      0.764222,
+      0.906542,
       1.0,
-      0.973512,
-      0.981101,
-      0.919817,
-      0.922905,
-      0.908761,
-      0.881817,
-      0.905182,
-      0.876878,
-      0.872994,
-      0.838332,
-      0.806985,
-      0.801665,
-      0.741866,
-      0.751922,
-      0.747854,
-      0.731316,
-      0.693952,
-      0.696627,
-      0.665816,
-      0.666708,
-      0.683083,
-      0.649685,
-      0.578788,
-      0.593931
+      0.998719,
+      0.964771,
+      0.964881,
+      0.899131,
+      0.894323,
+      0.875204,
+      0.841067,
+      0.857961,
+      0.827615,
+      0.81944,
+      0.783241,
+      0.750764,
+      0.741979,
+      0.685415,
+      0.689871,
+      0.682965,
+      0.664537,
+      0.62771,
+      0.626798,
+      0.59814,
+      0.595887,
+      0.606785,
+      0.576184,
+      0.513874,
+      0.524937
      ],
      "d65_relative_power": [
       0.702521,
@@ -2652,7 +3832,350 @@
      ]
     }
    },
-   "seconds": 29.3
+   "review": {
+    "critic_model": "claude-opus-5-5",
+    "stop_reason": "the round limit was reached",
+    "rounds": [
+     {
+      "round": 1,
+      "delivered": false,
+      "sheet": "assets/cases/lake-overlook/review_round1.jpg",
+      "rationale": "This is an outdoor lakeside scene under a bright, uniformly overcast sky, with soft shadows and no artificial light, so the illuminant is overcast CIE daylight of roughly 6000-7500 K. Green foliage is the most plentiful reference, though backlit leaves and the hazy distant hillside need some caution. The overcast sky offers a near-neutral area but may be clipped. The white tank top serves as a small neutral reference, and the subjects' faces and arms give skin references under the same diffuse light. The user asked for neutral correction, so full-strength white balance applies.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "foliage",
+        "name": "Healthy green leaves on the trees in the upper right and on the left side, plus the forested hillside",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A2",
+        "label": "foliage",
+        "name": "Healthy green leaves on the trees in the upper right and on the left side, plus the forested hillside",
+        "used": false,
+        "delta_e": 20.7,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A3",
+        "label": "foliage",
+        "name": "Healthy green leaves on the trees in the upper right and on the left side, plus the forested hillside",
+        "used": true,
+        "delta_e": 16.9,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A4",
+        "label": "skin",
+        "name": "Faces and arms of the three people, lit by diffuse skylight",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A5",
+        "label": "skin",
+        "name": "Faces and arms of the three people, lit by diffuse skylight",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A6",
+        "label": "skin",
+        "name": "Faces and arms of the three people, lit by diffuse skylight",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A7",
+        "label": "cloud",
+        "name": "Uniform overcast white-gray sky filling the upper middle of the frame",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A8",
+        "label": "cloud",
+        "name": "Uniform overcast white-gray sky filling the upper middle of the frame",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A9",
+        "label": "neutral_surface",
+        "name": "White Levi's tank top worn by the middle person",
+        "used": true,
+        "delta_e": 2.4,
+        "typical_spread": 8.5
+       }
+      ],
+      "critique": {
+       "observations": "The correction changes little from the as-shot image; the scene was already near neutral under overcast skylight. The white Levi's tank top reads essentially neutral, with only a faint cool/magenta lean (\u0394E 2.4, well inside its spread). Skin on all three faces looks natural, neither sallow nor pink. Near foliage on the left and in the foreground is a plausible green. The sky is blown to white and carries no color information. The distant hillside (A3) and the backlit leaves against the sky (A2) both measure strongly blue/magenta. This comes from atmospheric haze and sky flare, not from the light falling on the scene. Those two references therefore disagree with the reliable neutral (A9) and should not drive the balance. Overall, at most a very slight cool cast remains.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "doubtful",
+         "reason": "Too few valid pixels (172) to be reliable; the foliage itself looks plausible."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "wrong",
+         "reason": "Leaves are backlit against a blown sky, so flare and sky light make them read blue/magenta (\u0394E 20.7). This is not representative of the scene light."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "doubtful",
+         "reason": "The distant hillside is veiled by blue haze, so it reads far too cool and magenta (\u0394E 16.9). It is a poor reference, yet it still carries weight 0.35."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "doubtful",
+         "reason": "No valid pixels."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "doubtful",
+         "reason": "No valid pixels."
+        },
+        {
+         "reference_id": "A6",
+         "verdict": "doubtful",
+         "reason": "Only 42 valid pixels; too small to rely on, though the skin looks natural."
+        },
+        {
+         "reference_id": "A7",
+         "verdict": "doubtful",
+         "reason": "Sky is clipped; no valid pixels."
+        },
+        {
+         "reference_id": "A8",
+         "verdict": "doubtful",
+         "reason": "Sky is clipped; essentially no valid pixels."
+        },
+        {
+         "reference_id": "A9",
+         "verdict": "consistent",
+         "reason": "White shirt is close to neutral with a small error (\u0394E 2.4), well within its spread."
+        }
+       ],
+       "remaining_cast": "cool",
+       "cast_severity": 0.12,
+       "suggestions": [
+        "Drop A3, the hazy distant hillside, as a foliage reference, or reduce its weight sharply.",
+        "Drop A2, the backlit leaves against the sky.",
+        "Rely mainly on the white tank top (A9); add the man's white watch face and the shirt's white areas as extra neutral samples.",
+        "Use larger skin patches on the arms and cheeks so skin samples have enough valid pixels.",
+        "Optionally warm the image very slightly to remove the faint cool/magenta lean."
+       ],
+       "acceptable": true
+      }
+     },
+     {
+      "round": 2,
+      "delivered": false,
+      "sheet": "assets/cases/lake-overlook/review_round2.jpg",
+      "rationale": "This is an outdoor lakeside scene under a bright, uniform overcast sky with soft shadows and no artificial light, so overcast daylight of about 6000-7500 K remains the main prior. The measurements show that the white tank top is the reliable reference: it came out nearly neutral, so it now carries the most confidence and has a second box on the chest above the logo. I agree with the reviewer that the hazy distant hillside and the backlit leaves against the sky read blue and magenta because of haze and flare rather than the scene light, so I marked both unusable. Only the near, front-lit foliage on the left is kept, at reduced confidence. The clipped sky is unusable. I re-boxed the skin samples, including the raised forearm, to collect more valid pixels. The man's watch face looks dark and his shirt is mint green, so I did not add them as neutrals, which departs from the reviewer's suggestion. The faint residual cool lean should shrink once the haze-affected foliage is removed. The user asked for neutral, so the correction is applied at full strength.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "neutral_surface",
+        "name": "White Levi's tank top worn by the middle person, chest area above the logo and lower torso below it",
+        "used": true,
+        "delta_e": 1.6,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A2",
+        "label": "neutral_surface",
+        "name": "White Levi's tank top worn by the middle person, chest area above the logo and lower torso below it",
+        "used": true,
+        "delta_e": 5.8,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A3",
+        "label": "foliage",
+        "name": "Near, front-lit green leaves on the left side of the frame and in the lower-left foreground",
+        "used": true,
+        "delta_e": 8.7,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A4",
+        "label": "foliage",
+        "name": "Near, front-lit green leaves on the left side of the frame and in the lower-left foreground",
+        "used": true,
+        "delta_e": 10.8,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A5",
+        "label": "skin",
+        "name": "Faces and arms of the three people under diffuse skylight",
+        "used": true,
+        "delta_e": 7.6,
+        "typical_spread": 8.1
+       },
+       {
+        "id": "A6",
+        "label": "skin",
+        "name": "Faces and arms of the three people under diffuse skylight",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A7",
+        "label": "skin",
+        "name": "Faces and arms of the three people under diffuse skylight",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       }
+      ],
+      "critique": {
+       "observations": "The corrected image looks very close to the original and essentially neutral. The white Levi's tank (A1) reads as clean neutral gray-white, with only a trace of magenta (+1.3 a*). The A2 crop of the same shirt reads slightly cool, probably because it includes shadowed fabric and the strap region that picks up sky-blue fill. Skin tones on the three people look natural and pleasantly warm. Foliage looks natural green to the eye. The swatches show A3/A4 leaves as slightly duller and more magenta/blue than typical foliage, but foliage varies widely and backlit or translucent leaves under a bright overcast sky often skew this way. The sky is blown white, so it gives no cue. No obvious overall cast remains. At most a very slight cool tint is visible in shadowed areas, which is consistent with open-shade skylight.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "White tank top, well lit, \u0394E 1.6 is well within its spread; a solid neutral anchor."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "Same shirt, partly in shadow and picking up skylight, so slightly cool; still within its spread."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "doubtful",
+         "reason": "Foliage deviation exceeds its typical spread; it mixes branches, shadow and sky bleed through the leaves."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "doubtful",
+         "reason": "Large magenta/cool deviation for foliage; mixed shadowed and translucent leaves are unreliable and it carries too much weight (0.19)."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "doubtful",
+         "reason": "Small crop of a raised arm against a bright background; the green/cool reading likely comes from leaf reflections and edge pixels."
+        },
+        {
+         "reference_id": "A6",
+         "verdict": "wrong",
+         "reason": "No valid pixels; unusable."
+        },
+        {
+         "reference_id": "A7",
+         "verdict": "wrong",
+         "reason": "No valid pixels; unusable."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.1,
+       "suggestions": [
+        "Reduce or drop the weight on A4 (and A3) foliage, since they disagree with the white shirt references.",
+        "Rely primarily on the A1 white tank top; consider adding the white Levi's lettering area or the light gray watch band as extra neutral references.",
+        "Fix the face boxes A6/A7 so they sample valid skin pixels, giving skin a cross-check."
+       ],
+       "acceptable": true
+      }
+     },
+     {
+      "round": 3,
+      "delivered": true,
+      "sheet": "assets/cases/lake-overlook/review_round3.jpg",
+      "rationale": "This is an outdoor lakeside scene under a bright, uniform overcast sky with soft shadows and no artificial light, so overcast daylight of about 6000-7500 K remains the prior. The measurements show that the front-lit lower part of the white tank top (A1) is a near-neutral anchor (\u0394E 1.6), so it gets the highest confidence. The chest area was cool because of shade and sky fill near the straps. I re-boxed it to a tighter central patch and lowered its confidence. I agree with the reviewer that the near foliage reads well outside the typical foliage spread (magenta and blue) and contradicts the shirt. That means it is translucent or mixed with shadow and is not reliable, so I marked all foliage unusable. The forearm skin box was contaminated by edge pixels and leaf reflections and returned few valid pixels. I replaced the skin samples with three face boxes centered on the cheeks as a low-weight cross-check. I did not add the watch band or the Levi's lettering, because they are too small or not clearly neutral. The sky is clipped and unusable. The user asked for neutral, so the correction is applied at full strength.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "neutral_surface",
+        "name": "White Levi's tank top worn by the middle person, front-lit lower torso below the red logo",
+        "used": true,
+        "delta_e": 1.8,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A2",
+        "label": "neutral_surface",
+        "name": "White Levi's tank top, upper chest between the straps above the logo",
+        "used": true,
+        "delta_e": 6.1,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A3",
+        "label": "skin",
+        "name": "Faces of the three people under diffuse overcast skylight",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A4",
+        "label": "skin",
+        "name": "Faces of the three people under diffuse overcast skylight",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A5",
+        "label": "skin",
+        "name": "Faces of the three people under diffuse overcast skylight",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       }
+      ],
+      "critique": {
+       "observations": "The as-shot image has a slight greenish/cool tint; the sky is a pale greenish white and the white tank top is a little cool. After correction the sky reads neutral white, the white Levi's tank top is a clean neutral light gray in shadow, and skin tones on all three faces look natural and warm without a magenta or green bias. Foliage remains a believable green and the lake keeps its jade color, which is plausible for that water. A1, the main reference at weight 0.42, sits within 1.8 \u0394E of neutral, with only a tiny magenta/blue lean. A2 shows a stronger blue offset of 6.1 \u0394E. That is still within the spread for white fabric and fits a patch partly lit by open skylight. Because A2's weight is minimal, it hardly affects the result. The skin references had too few valid pixels to contribute. Any remaining cast is at most a very faint cool/magenta lean that is barely perceptible.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "White cotton tank top, front-lit, near neutral after correction (\u0394E 1.8, well within spread)."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "Same white fabric. The bluer reading is plausible from open-sky light on the upper chest, it is within the typical spread, and its weight is negligible."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "doubtful",
+         "reason": "Had no valid pixels, so it was not usable. The face itself looks natural."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "doubtful",
+         "reason": "Too few valid pixels to count. The skin still appears natural after correction."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "doubtful",
+         "reason": "Had no valid pixels (the open-mouth expression and highlights likely filtered them out)."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.08,
+       "suggestions": [
+        "Optionally add the white sleeves/shirt details or bright overcast sky near the horizon (not clipped) as additional neutral checks.",
+        "Skin samples could be retaken from the cheeks rather than mouth areas so they yield valid pixels for cross-checking."
+       ],
+       "acceptable": true
+      }
+     }
+    ]
+   },
+   "seconds": 10.3
   },
   {
    "id": "waterfall-group",
@@ -2669,6 +4192,7 @@
    "images": {
     "ours": "assets/cases/waterfall-group/ours.jpg",
     "gray_world": "assets/cases/waterfall-group/gray_world.jpg",
+    "first_pass": "assets/cases/waterfall-group/first_pass.jpg",
     "before": "assets/cases/waterfall-group/before.jpg",
     "overlay": "assets/cases/waterfall-group/overlay.jpg",
     "thumb": "assets/cases/waterfall-group/thumb.jpg"
@@ -2797,7 +4321,7 @@
     },
     "rationale": "This is an outdoor winter scene at a waterfall with bare trees and a bright, white-gray sky. Shadows are soft, which points to overcast or open-shade daylight, so the main hypothesis is daylight at about 5500-7500 K, with a smaller chance of a cooler shade value. Usable references are the evergreen leaves on the right and the faces of the group, although the faces are small and vary in tone. The pale stone boulders are a weak stand-in for concrete because they are natural rock and may be damp. The dry autumn leaves on the slope are excluded. The user asked for neutral, so the full correction is applied.",
     "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
+    "segmenter": "box",
     "regions": [
      {
       "label": "foliage",
@@ -2825,10 +4349,10 @@
        0.6
       ],
       "detector_score": 0.6,
-      "pixels": 32,
+      "pixels": 50,
       "weight": 0.0,
       "kept": false,
-      "reason": "only 32 valid pixels",
+      "reason": "only 50 valid pixels",
       "used": false
      },
      {
@@ -2857,10 +4381,10 @@
        0.627
       ],
       "detector_score": 0.55,
-      "pixels": 0,
+      "pixels": 3,
       "weight": 0.0,
       "kept": false,
-      "reason": "only 0 valid pixels",
+      "reason": "only 3 valid pixels",
       "used": false
      },
      {
@@ -2889,8 +4413,8 @@
        0.83
       ],
       "detector_score": 0.4,
-      "pixels": 1053,
-      "weight": 0.067,
+      "pixels": 1627,
+      "weight": 0.104,
       "kept": true,
       "reason": "",
       "used": true
@@ -2905,11 +4429,11 @@
        0.77
       ],
       "detector_score": 0.4,
-      "pixels": 179,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 179 valid pixels",
-      "used": false
+      "pixels": 592,
+      "weight": 0.038,
+      "kept": true,
+      "reason": "",
+      "used": true
      }
     ]
    },
@@ -2917,16 +4441,16 @@
     "estimator": "spectral",
     "is_fallback": false,
     "family": "daylight",
-    "cct_k": 6234.526739516024,
-    "cct_uncertainty_k": 455.8095882200869,
-    "confidence": 0.062,
+    "cct_k": 5847.6951479844165,
+    "cct_uncertainty_k": 323.7572039809078,
+    "confidence": 0.107,
     "white_rgb": [
-     1.022962,
+     1.067408,
      1.0,
-     0.955749
+     0.892359
     ],
     "notes": [
-     "mean patch residual 0.13\u00b0"
+     "mean patch residual 0.63\u00b0"
     ],
     "correction": "bradford",
     "adaptation_degree": 1.0,
@@ -2967,37 +4491,37 @@
       700.0
      ],
      "relative_power": [
-      0.680007,
-      0.75411,
-      0.77382,
-      0.721626,
-      0.881412,
-      0.98914,
+      0.638947,
+      0.712959,
+      0.737647,
+      0.693765,
+      0.860715,
+      0.975245,
+      0.992669,
+      0.979532,
       1.0,
-      0.979392,
-      0.992791,
-      0.935344,
-      0.944711,
-      0.934522,
-      0.913201,
-      0.941697,
-      0.915213,
-      0.914759,
-      0.881425,
-      0.851041,
-      0.848557,
-      0.787015,
-      0.801964,
-      0.800543,
-      0.785761,
-      0.748164,
-      0.754414,
-      0.722217,
-      0.726193,
-      0.747417,
-      0.712033,
-      0.633503,
-      0.652463
+      0.948104,
+      0.965332,
+      0.960192,
+      0.945966,
+      0.980741,
+      0.956965,
+      0.960858,
+      0.929534,
+      0.900632,
+      0.901842,
+      0.839527,
+      0.861119,
+      0.86354,
+      0.851385,
+      0.813967,
+      0.825609,
+      0.792273,
+      0.800855,
+      0.828698,
+      0.791325,
+      0.702622,
+      0.727006
      ],
      "d65_relative_power": [
       0.702521,
@@ -3034,7 +4558,292 @@
      ]
     }
    },
-   "seconds": 30.4
+   "review": {
+    "critic_model": "claude-opus-5-5",
+    "stop_reason": "the last revision did not improve on round 1",
+    "rounds": [
+     {
+      "round": 1,
+      "delivered": true,
+      "sheet": "assets/cases/waterfall-group/review_round1.jpg",
+      "rationale": "This is an outdoor winter scene at a waterfall with bare trees and a bright, white-gray sky. Shadows are soft, which points to overcast or open-shade daylight, so the main hypothesis is daylight at about 5500-7500 K, with a smaller chance of a cooler shade value. Usable references are the evergreen leaves on the right and the faces of the group, although the faces are small and vary in tone. The pale stone boulders are a weak stand-in for concrete because they are natural rock and may be damp. The dry autumn leaves on the slope are excluded. The user asked for neutral, so the full correction is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "foliage",
+        "name": "Green evergreen leaves (rhododendron/laurel) on the right side of the frame",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A2",
+        "label": "foliage",
+        "name": "Green evergreen leaves (rhododendron/laurel) on the right side of the frame",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A3",
+        "label": "skin",
+        "name": "Faces of the group standing in front of the waterfall",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A4",
+        "label": "skin",
+        "name": "Faces of the group standing in front of the waterfall",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A5",
+        "label": "skin",
+        "name": "Faces of the group standing in front of the waterfall",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A6",
+        "label": "concrete",
+        "name": "Gray boulders and rocks behind the group near the waterfall base",
+        "used": true,
+        "delta_e": 2.9,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A7",
+        "label": "concrete",
+        "name": "Gray boulders and rocks behind the group near the waterfall base",
+        "used": true,
+        "delta_e": 4.0,
+        "typical_spread": 3.3
+       }
+      ],
+      "critique": {
+       "observations": "The as-shot image is fairly neutral to slightly warm, under overcast daylight. The corrected version is very close to it, perhaps marginally cooler. The waterfall whites read neutral white without an obvious tint. The gray rocks and tree trunk look neutral gray. Skin tones look natural, and the foliage greens look plausible. The bright sky through the trees is neutral.\n\nThe correction rests almost entirely on two small rock patches, A6 and A7, at low weight. They disagree with each other in opposite directions: A6 reads slightly cool, A7 reads warm and magenta. A7 sits on brownish dirt or rock rather than gray stone. The foliage and skin references had essentially no valid pixels.\n\nThe overall result still looks natural. At most there is a faint cool-neutral tendency in the shadows, which is negligible.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "doubtful",
+         "reason": "0 valid pixels; the box covers mixed branches and leaves, so it was unusable."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "doubtful",
+         "reason": "Only 50 valid pixels; the foliage is mixed with brown leaves and branches."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "doubtful",
+         "reason": "Face too small and partly occluded; 0 valid pixels."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "doubtful",
+         "reason": "Only 3 valid pixels; the face patch is tiny."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "doubtful",
+         "reason": "0 valid pixels; tiny face patch."
+        },
+        {
+         "reference_id": "A6",
+         "verdict": "consistent",
+         "reason": "Gray rock reads near neutral, within the typical spread, only slightly cool."
+        },
+        {
+         "reference_id": "A7",
+         "verdict": "doubtful",
+         "reason": "Patch includes brownish dirt or leaves; it reads warm and magenta beyond the typical spread."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.1,
+       "suggestions": [
+        "Use the waterfall's white water spray (center) as a neutral white reference.",
+        "Use the large gray tree trunk on the left (in open shade) as a neutral gray reference.",
+        "Drop A7, or move it onto clean gray boulder surface.",
+        "Use larger face patches if skin references are wanted."
+       ],
+       "acceptable": true
+      }
+     },
+     {
+      "round": 2,
+      "delivered": false,
+      "sheet": "assets/cases/waterfall-group/review_round2.jpg",
+      "rationale": "This is an outdoor winter waterfall scene under soft, overcast daylight, so the prior stays at daylight around 5500-7500 K, with a small chance of a cooler shade value. Last time the foliage and skin boxes produced almost no valid pixels, so I moved them onto denser leaf clusters and slightly larger face areas, and lowered their confidence. A7 measured warm and magenta outside the typical spread, which points to brown dirt rather than gray stone, so I dropped it. I kept A6, which measured within the typical spread, and gave it a little more confidence. Following the reviewer, I added the left tree trunk as a weak gray reference, labeled concrete since bark is the nearest class. I also added the white waterfall water as a low-confidence neutral, because it can clip or pick up sky color. The result already looked natural, so these changes are meant to make the estimate more robust rather than to shift it. The user asked for neutral, so the full correction is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "foliage",
+        "name": "Green evergreen leaves (rhododendron/laurel) on the right edge of the frame, densest clusters only",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A2",
+        "label": "foliage",
+        "name": "Green evergreen leaves (rhododendron/laurel) on the right edge of the frame, densest clusters only",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A3",
+        "label": "foliage",
+        "name": "Green evergreen leaves (rhododendron/laurel) on the right edge of the frame, densest clusters only",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A4",
+        "label": "skin",
+        "name": "Faces of the group standing in front of the waterfall",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A5",
+        "label": "skin",
+        "name": "Faces of the group standing in front of the waterfall",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A6",
+        "label": "skin",
+        "name": "Faces of the group standing in front of the waterfall",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A7",
+        "label": "concrete",
+        "name": "Clean gray boulder surface at the left base of the waterfall behind the group",
+        "used": true,
+        "delta_e": 1.3,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A8",
+        "label": "concrete",
+        "name": "Clean gray boulder surface at the left base of the waterfall behind the group",
+        "used": true,
+        "delta_e": 7.3,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A9",
+        "label": "concrete",
+        "name": "Gray bark of the large tree trunk on the left, in open shade",
+        "used": true,
+        "delta_e": 3.7,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A10",
+        "label": "neutral_surface",
+        "name": "White falling water of the waterfall cascades",
+        "used": true,
+        "delta_e": 10.4,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A11",
+        "label": "neutral_surface",
+        "name": "White falling water of the waterfall cascades",
+        "used": true,
+        "delta_e": 11.2,
+        "typical_spread": 8.5
+       }
+      ],
+      "critique": {
+       "observations": "The corrected image looks nearly identical to the as-shot version, with only a slight cooling. Overcast and open-shade daylight lights the scene. The waterfall whites read slightly blue-gray. The boulders look neutral gray and the tree bark looks neutral to faintly cool-magenta. The sweater on the left reads as plausible light gray. Skin tones look natural and a touch warm, and the foliage looks natural green. The heavier-weighted references (A7 boulder, A9 bark) agree with each other within about the material spread. A8 disagrees because it reads warm, so it is likely a dirt- or leaf-stained patch on the ground rather than clean rock. The water patches (A10, A11) read about 10 b* blue. That is typical of water in shade reflecting the sky, and they carry little weight. Overall the residual cast is small and slightly cool in the shadows and water. The skin and foliage references were rejected for lack of valid pixels.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "doubtful",
+         "reason": "No valid pixels; it could not contribute."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "doubtful",
+         "reason": "No valid pixels."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "doubtful",
+         "reason": "No valid pixels."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "doubtful",
+         "reason": "The box is a face but has no valid pixels."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "doubtful",
+         "reason": "Too few pixels to be reliable."
+        },
+        {
+         "reference_id": "A6",
+         "verdict": "doubtful",
+         "reason": "No valid pixels."
+        },
+        {
+         "reference_id": "A7",
+         "verdict": "consistent",
+         "reason": "Gray boulder sits within the material spread."
+        },
+        {
+         "reference_id": "A8",
+         "verdict": "wrong",
+         "reason": "The box sits on the warm ground or stained rock near the feet, not clean gray boulder; it reads strongly yellow."
+        },
+        {
+         "reference_id": "A9",
+         "verdict": "consistent",
+         "reason": "Bark is only slightly cool, near the material spread, and agrees with A7."
+        },
+        {
+         "reference_id": "A10",
+         "verdict": "doubtful",
+         "reason": "Shaded water reflects blue sky; it reads too cool to be a reliable neutral."
+        },
+        {
+         "reference_id": "A11",
+         "verdict": "doubtful",
+         "reason": "Same as A10: water picks up blue from the sky."
+        }
+       ],
+       "remaining_cast": "cool",
+       "cast_severity": 0.15,
+       "suggestions": [
+        "Drop A8, since it falls on warm ground rather than clean rock.",
+        "Down-weight or drop the waterfall water references (A10, A11), which carry a sky-blue reflection.",
+        "Use the light gray sweater of the left person, or the white trim on the jackets, as an additional neutral reference.",
+        "Re-sample faces with larger boxes on cheeks so skin can serve as a cross-check.",
+        "Consider a very slight warm shift (about +2 b*) to offset the cool shade."
+       ],
+       "acceptable": true
+      }
+     }
+    ]
+   },
+   "seconds": 11.4
   },
   {
    "id": "riverside-trail",
@@ -3051,6 +4860,7 @@
    "images": {
     "ours": "assets/cases/riverside-trail/ours.jpg",
     "gray_world": "assets/cases/riverside-trail/gray_world.jpg",
+    "first_pass": "assets/cases/riverside-trail/first_pass.jpg",
     "before": "assets/cases/riverside-trail/before.jpg",
     "overlay": "assets/cases/riverside-trail/overlay.jpg",
     "thumb": "assets/cases/riverside-trail/thumb.jpg"
@@ -3218,7 +5028,7 @@
     },
     "rationale": "The scene is an outdoor river trail on a clear spring day with deep blue sky, white cumulus clouds and hard shadows, indicating direct midday sunlight mixed with skylight, best modeled as CIE daylight around 5000-6500 K, with a smaller chance of a cooler mix from sky fill. Reliable references include the sunlit white sweatshirt, white clouds, gray stone wall and pavement, fresh green foliage, and the subject's sunlit skin; concerns include possible fabric brighteners, cloud clipping, warm-toned stone and spring yellow-green leaves. The user requested neutral, so full correction is applied.",
     "detector": "claude-opus-5-5 boxes",
-    "segmenter": "facebook/sam-vit-base",
+    "segmenter": "box",
     "regions": [
      {
       "label": "foliage",
@@ -3262,11 +5072,11 @@
        0.42
       ],
       "detector_score": 0.7,
-      "pixels": 87,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 87 valid pixels",
-      "used": false
+      "pixels": 320,
+      "weight": 0.022,
+      "kept": true,
+      "reason": "",
+      "used": true
      },
      {
       "label": "skin",
@@ -3278,10 +5088,10 @@
        0.55
       ],
       "detector_score": 0.55,
-      "pixels": 0,
+      "pixels": 96,
       "weight": 0.0,
       "kept": false,
-      "reason": "only 0 valid pixels",
+      "reason": "only 96 valid pixels",
       "used": false
      },
      {
@@ -3294,8 +5104,8 @@
        0.8
       ],
       "detector_score": 0.6,
-      "pixels": 4907,
-      "weight": 0.471,
+      "pixels": 6764,
+      "weight": 0.48,
       "kept": true,
       "reason": "",
       "used": true
@@ -3310,11 +5120,11 @@
        0.76
       ],
       "detector_score": 0.6,
-      "pixels": 850,
-      "weight": 0.071,
-      "kept": false,
-      "reason": "inconsistent with other references",
-      "used": false
+      "pixels": 4387,
+      "weight": 0.421,
+      "kept": true,
+      "reason": "",
+      "used": true
      },
      {
       "label": "concrete",
@@ -3326,8 +5136,8 @@
        0.93
       ],
       "detector_score": 0.6,
-      "pixels": 588,
-      "weight": 0.056,
+      "pixels": 8101,
+      "weight": 0.48,
       "kept": false,
       "reason": "inconsistent with other references",
       "used": false
@@ -3342,10 +5152,10 @@
        0.2
       ],
       "detector_score": 0.65,
-      "pixels": 0,
-      "weight": 0.0,
+      "pixels": 1505,
+      "weight": 0.137,
       "kept": false,
-      "reason": "only 0 valid pixels",
+      "reason": "inconsistent with other references",
       "used": false
      },
      {
@@ -3358,10 +5168,10 @@
        0.13
       ],
       "detector_score": 0.65,
-      "pixels": 0,
-      "weight": 0.0,
+      "pixels": 1953,
+      "weight": 0.178,
       "kept": false,
-      "reason": "only 0 valid pixels",
+      "reason": "inconsistent with other references",
       "used": false
      },
      {
@@ -3374,8 +5184,8 @@
        0.66
       ],
       "detector_score": 0.6,
-      "pixels": 1337,
-      "weight": 0.08,
+      "pixels": 2026,
+      "weight": 0.122,
       "kept": true,
       "reason": "",
       "used": true
@@ -3390,11 +5200,11 @@
        0.7
       ],
       "detector_score": 0.6,
-      "pixels": 0,
-      "weight": 0.0,
-      "kept": false,
-      "reason": "only 0 valid pixels",
-      "used": false
+      "pixels": 1245,
+      "weight": 0.075,
+      "kept": true,
+      "reason": "",
+      "used": true
      }
     ]
    },
@@ -3402,16 +5212,16 @@
     "estimator": "spectral",
     "is_fallback": false,
     "family": "daylight",
-    "cct_k": 5881.551325430413,
-    "cct_uncertainty_k": 435.1432004876889,
-    "confidence": 0.398,
+    "cct_k": 5823.047106647206,
+    "cct_uncertainty_k": 356.64567587558344,
+    "confidence": 0.621,
     "white_rgb": [
-     1.063183,
+     1.070528,
      1.0,
-     0.898086
+     0.888167
     ],
     "notes": [
-     "mean patch residual 0.19\u00b0"
+     "mean patch residual 0.24\u00b0"
     ],
     "correction": "bradford",
     "adaptation_degree": 1.0,
@@ -3452,37 +5262,37 @@
       700.0
      ],
      "relative_power": [
-      0.643188,
-      0.717233,
-      0.741477,
-      0.69681,
-      0.863235,
-      0.977208,
-      0.994027,
-      0.980179,
+      0.635834,
+      0.709825,
+      0.734838,
+      0.69153,
+      0.858861,
+      0.973801,
+      0.99167,
+      0.979057,
       1.0,
-      0.94753,
-      0.964026,
-      0.958405,
-      0.943506,
-      0.97771,
-      0.953652,
-      0.957135,
-      0.925596,
-      0.896532,
-      0.897389,
-      0.835058,
-      0.856008,
-      0.858043,
-      0.845617,
-      0.808147,
-      0.819242,
-      0.785974,
-      0.79409,
-      0.821294,
-      0.784072,
-      0.696325,
-      0.720176
+      0.948529,
+      0.966297,
+      0.96151,
+      0.947779,
+      0.982976,
+      0.959409,
+      0.963604,
+      0.932439,
+      0.903656,
+      0.905127,
+      0.842831,
+      0.864899,
+      0.867607,
+      0.855654,
+      0.818275,
+      0.830326,
+      0.796943,
+      0.805874,
+      0.834193,
+      0.79671,
+      0.707293,
+      0.732075
      ],
      "d65_relative_power": [
       0.702521,
@@ -3519,13 +5329,248 @@
      ]
     }
    },
-   "seconds": 25.8
+   "review": {
+    "critic_model": "claude-opus-5-5",
+    "stop_reason": "the last revision did not improve on round 1",
+    "rounds": [
+     {
+      "round": 1,
+      "delivered": true,
+      "sheet": "assets/cases/riverside-trail/review_round1.jpg",
+      "rationale": "The scene is an outdoor river trail on a clear spring day with deep blue sky, white cumulus clouds and hard shadows, indicating direct midday sunlight mixed with skylight, best modeled as CIE daylight around 5000-6500 K, with a smaller chance of a cooler mix from sky fill. Reliable references include the sunlit white sweatshirt, white clouds, gray stone wall and pavement, fresh green foliage, and the subject's sunlit skin; concerns include possible fabric brighteners, cloud clipping, warm-toned stone and spring yellow-green leaves. The user requested neutral, so full correction is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "foliage",
+        "name": "Fresh spring green leaves on bushes and trees along the river bank, sunlit",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A2",
+        "label": "foliage",
+        "name": "Fresh spring green leaves on bushes and trees along the river bank, sunlit",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A3",
+        "label": "foliage",
+        "name": "Fresh spring green leaves on bushes and trees along the river bank, sunlit",
+        "used": true,
+        "delta_e": 12.8,
+        "typical_spread": 5.1
+       },
+       {
+        "id": "A4",
+        "label": "skin",
+        "name": "Face and hands of the woman in direct sun",
+        "used": false,
+        "delta_e": null,
+        "typical_spread": null
+       },
+       {
+        "id": "A5",
+        "label": "concrete",
+        "name": "Gray stone/concrete wall top and paved walkway in sun",
+        "used": true,
+        "delta_e": 1.8,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A6",
+        "label": "concrete",
+        "name": "Gray stone/concrete wall top and paved walkway in sun",
+        "used": true,
+        "delta_e": 1.9,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A7",
+        "label": "concrete",
+        "name": "Gray stone/concrete wall top and paved walkway in sun",
+        "used": false,
+        "delta_e": 6.8,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A8",
+        "label": "cloud",
+        "name": "White cumulus clouds in upper right sky",
+        "used": false,
+        "delta_e": 32.9,
+        "typical_spread": 7.0
+       },
+       {
+        "id": "A9",
+        "label": "cloud",
+        "name": "White cumulus clouds in upper right sky",
+        "used": false,
+        "delta_e": 34.1,
+        "typical_spread": 7.0
+       },
+       {
+        "id": "A10",
+        "label": "neutral_surface",
+        "name": "White sweatshirt worn by the woman",
+        "used": true,
+        "delta_e": 24.0,
+        "typical_spread": 8.5
+       },
+       {
+        "id": "A11",
+        "label": "neutral_surface",
+        "name": "White sweatshirt worn by the woman",
+        "used": true,
+        "delta_e": 27.0,
+        "typical_spread": 8.5
+       }
+      ],
+      "critique": {
+       "observations": "The corrected image looks very close to the original. Both versions are well balanced daylight shots. The sunlit concrete walkway and wall (A5, A6) are near neutral with only a tiny warm/magenta residual, well within the material's spread. Skin looks natural and foliage looks a natural spring green.\n\nThe clouds and the white sweatshirt read strongly blue in the measurements. That reflects blue skylight and shade on bright white surfaces, plus clipping: the corrected clouds and sweatshirt show blown, posterized white patches. It does not indicate a global cast. These references conflict with the concrete references.\n\nA3 foliage reads magenta/blue against the expected leaf color. This is likely a mix of branches, shadow and sky gaps rather than a real cast.\n\nA7 is warmer because the path there is sandy, dusty soil rather than gray concrete.\n\nOverall the white balance is essentially neutral, with at most a faint warm/magenta tinge on grays. The main flaw is the clipped highlights in the clouds, the sky seen through the arch, and the sweatshirt. That is a tone and exposure issue, not a white-balance one.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "doubtful",
+         "reason": "No valid pixels; heavily shadowed foliage."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "doubtful",
+         "reason": "No valid pixels."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "doubtful",
+         "reason": "Mix of leaves, branches and shadow; reads magenta/blue against leaf color; low weight."
+        },
+        {
+         "reference_id": "A4",
+         "verdict": "doubtful",
+         "reason": "Too few pixels; skin varies too much to serve as a reference."
+        },
+        {
+         "reference_id": "A5",
+         "verdict": "consistent",
+         "reason": "Sunlit gray stone, near neutral, within spread."
+        },
+        {
+         "reference_id": "A6",
+         "verdict": "consistent",
+         "reason": "Sunlit walkway concrete, near neutral, agrees with A5."
+        },
+        {
+         "reference_id": "A7",
+         "verdict": "wrong",
+         "reason": "Area is brownish dirt/sand on the path, not gray concrete."
+        },
+        {
+         "reference_id": "A8",
+         "verdict": "wrong",
+         "reason": "Box is mostly blue sky and branches, with clipped cloud."
+        },
+        {
+         "reference_id": "A9",
+         "verdict": "wrong",
+         "reason": "Box is mostly blue sky with clipped cloud highlights."
+        },
+        {
+         "reference_id": "A10",
+         "verdict": "wrong",
+         "reason": "Sweatshirt is clipped and has blue-shadowed folds, giving a strong blue bias; it should not be used."
+        },
+        {
+         "reference_id": "A11",
+         "verdict": "wrong",
+         "reason": "Shaded sweatshirt region lit by blue skylight; inconsistent with the concrete references."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.1,
+       "suggestions": [
+        "Drop A10 and A11 (white sweatshirt) as references, since they are clipped or skylit; use only the sunlit, unclipped mid-tone part of the shirt if any.",
+        "Drop A7, which is dirt rather than concrete, and drop A8 and A9, which are sky rather than cloud.",
+        "Rely on the sunlit concrete wall and walkway (A5, A6); the lit stone of the arch could serve as an additional gray reference.",
+        "Address the highlight clipping introduced in the clouds, the sky through the arch, and the sweatshirt by reducing exposure or gain in the correction."
+       ],
+       "acceptable": true
+      }
+     },
+     {
+      "round": 2,
+      "delivered": false,
+      "sheet": "assets/cases/riverside-trail/review_round2.jpg",
+      "rationale": "This is an outdoor river trail at midday on a clear spring day. The deep blue sky, cumulus clouds and hard shadows indicate direct sun plus skylight, modeled as CIE daylight around 5000-6000 K, with some chance of a cooler skylight mix. The measurements support the sunlit gray stone wall and walkway: both landed within the concrete spread and agree with each other. I keep those as the only usable references. I mark the sandy lower path, the clouds (clipped and mixed with blue sky) and the white sweatshirt (clipped and skylit in its folds) as unusable, because their errors far exceed their typical spreads. Foliage and skin are also unusable: the spring leaves are atypical, their boxes mixed in shadow and gaps, and the skin area is too small. I agree with the reviewer that the result is essentially neutral and that the remaining flaw is highlight clipping, which is a tone issue rather than a white-balance one. The user asked for neutral, so full correction is applied.",
+      "references": [
+       {
+        "id": "A1",
+        "label": "concrete",
+        "name": "Sunlit gray stone wall top beside the river",
+        "used": true,
+        "delta_e": 1.3,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A2",
+        "label": "concrete",
+        "name": "Sunlit gray stone wall top beside the river",
+        "used": true,
+        "delta_e": 2.1,
+        "typical_spread": 3.3
+       },
+       {
+        "id": "A3",
+        "label": "concrete",
+        "name": "Sunlit gray paved walkway on the right",
+        "used": true,
+        "delta_e": 1.0,
+        "typical_spread": 3.3
+       }
+      ],
+      "critique": {
+       "observations": "The as-shot frame has a mild warm/yellow cast: the path is beige-tan, the stone is warm, and the sweatshirt is slightly cream. The correction cools it. The concrete wall and walkway now read close to neutral gray, the sweatshirt is near white, and skin stays natural and warm without going gray. Foliage is a plausible spring green, and the river remains olive, which is natural for that water. The sky is very saturated blue. There are clipped/posterized white patches in the clouds, in the sky seen through the arch, and on the sweatshirt. These look like exposure or processing artifacts rather than a white-balance problem, but they are visible. All three references agree within the typical spread of their material. A2 leans slightly cool and magenta, but well within normal spread. No significant cast remains; at most there is a faint cool-magenta tilt on the stone.",
+       "verdicts": [
+        {
+         "reference_id": "A1",
+         "verdict": "consistent",
+         "reason": "Sunlit gray stone wall reads neutral after correction; \u0394E 1.3 is well within the 3.3 spread."
+        },
+        {
+         "reference_id": "A2",
+         "verdict": "consistent",
+         "reason": "Same sunlit wall, slightly cool and magenta but within spread. It may contain some green-reflected or shaded areas near the foliage."
+        },
+        {
+         "reference_id": "A3",
+         "verdict": "consistent",
+         "reason": "Sunlit paved walkway matches the expected concrete gray; \u0394E 1.0."
+        }
+       ],
+       "remaining_cast": "none",
+       "cast_severity": 0.1,
+       "suggestions": [
+        "The white sweatshirt (sunlit areas not clipped) could serve as an extra neutral check.",
+        "Address the clipped highlight blotches in the sky, the arch opening and the shirt; these are a processing issue, not white balance."
+       ],
+       "acceptable": true
+      }
+     }
+    ]
+   },
+   "seconds": 5.2
   }
  ],
  "pipeline": {
   "vlm": "claude-opus-5-5",
   "detector": "vlm",
-  "segmenter": "facebook/sam-vit-base",
-  "processing_long_edge_px": 2048
+  "segmenter": "box",
+  "processing_long_edge_px": 2048,
+  "review": {
+   "critic_model": "claude-opus-5-5",
+   "max_rounds": 3,
+   "acceptable_severity": 0.1
+  }
  }
 }

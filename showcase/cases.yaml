@@ -9,7 +9,8 @@ config_overrides:
   io: {raw_half_size: true}
   camera: {sensitivity_dir: Data}
   context: {client: anthropic, cache_dir: showcase/vlm_cache}
-  detection: {detector: vlm, segmenter: sam, device: cpu}
+  # box needs no PyTorch, so the showcase builds on any machine; sam needs the ml extra.
+  detection: {detector: vlm, segmenter: box, device: cpu}
 
 cases:
   - id: lab-shelf-warm
@@ -32,6 +33,10 @@ cases:
     title: Eastern bluebird on a shrub
     image: Data/ColorChart Images/IMG_2947.DNG
     intent: neutral
+    caption: >-
+      A hard case. Leaves are the only reference here, and using leaves needs the camera's spectral
+      curves, which do not exist for the iPhone 16 Pro. The physics falls back to a statistical
+      estimate, and the critic flags the result as too cool.
 
   - id: forest-shade
     title: Forest trail in deep shade

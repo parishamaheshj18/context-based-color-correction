@@ -77,10 +77,11 @@ class ReviewRound:
 
 @dataclass(frozen=True, eq=False)
 class ReviewOutcome:
-    """All rounds and which one is delivered."""
+    """All rounds, which one is delivered, and why the loop stopped."""
 
     rounds: tuple[ReviewRound, ...]
     best_index: int
+    stop_reason: str = ""
 
     @property
     def best(self) -> ReviewRound:
@@ -129,13 +130,14 @@ class AgenticCorrectionLoop:
             rounds.append(self._review(result, context, matches, intent))
             best = min(range(len(rounds)), key=lambda i: (rounds[i].severity, i))
             logger.info("Review round %d: severity %.2f", len(rounds), rounds[-1].severity)
-            if self._should_stop(rounds, best):
-                return ReviewOutcome(tuple(rounds), best)
+            reason = self._stop_reason(rounds, best)
+            if reason:
+                return ReviewOutcome(tuple(rounds), best, reason)
             revision = self._reviser.revise(
                 preview, intent, context, revision_feedback(rounds), len(matches)
             )
             if revision is None:
-                return ReviewOutcome(tuple(rounds), best)
+                return ReviewOutcome(tuple(rounds), best, "the revision step failed")
             context, trust = revision
             matches = tuple(
                 dataclasses.replace(a, trust=trust.get(i, a.trust)) for i, a in enumerate(matches)
@@ -155,16 +157,21 @@ class AgenticCorrectionLoop:
         )
         return ReviewRound(result, context, anchors, evidence, sheet, critique)
 
-    def _should_stop(self, rounds: Sequence[ReviewRound], best: int) -> bool:
+    def _stop_reason(self, rounds: Sequence[ReviewRound], best: int) -> str | None:
+        """Why the loop should stop now, or None to revise again."""
         critique = rounds[-1].critique
-        if critique is None or len(rounds) >= self._max_rounds:
-            return True
+        if critique is None:
+            return "the critic was unavailable"
         # A revision that does not beat the best rating so far is unlikely to be followed by one
         # that does, and the critic's doubts about it would only steer from a worse start.
         if best != len(rounds) - 1:
-            return True
+            return f"the last revision did not improve on round {best + 1}"
         in_doubt = any(v.verdict != "consistent" for v in critique.verdicts)
-        return critique.acceptable and critique.cast_severity <= self._acceptable and not in_doubt
+        if critique.acceptable and critique.cast_severity <= self._acceptable and not in_doubt:
+            return "the critic accepted the correction"
+        if len(rounds) >= self._max_rounds:
+            return "the round limit was reached"
+        return None
 
 
 def revision_feedback(rounds: Sequence[ReviewRound]) -> str:
@@ -194,4 +201,6 @@ def review_summary(outcome: ReviewOutcome) -> list[str]:
     for index, anchor in enumerate(outcome.best.anchors, start=1):
         if anchor.trust < 1.0:
             lines.append(f"Your match {index}: trusted {anchor.trust:.0%} by the agent")
+    if outcome.stop_reason:
+        lines.append(f"Stopped because {outcome.stop_reason}.")
     return lines

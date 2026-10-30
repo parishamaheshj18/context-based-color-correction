@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Natural Color Charts: context-aware color correction</title>
-  <meta name="description" content="Color correction without a color checker: you and Claude point out trusted colors in the scene, physics corrects the pixels.">
-  <meta property="og:title" content="Natural Color Charts">
-  <meta property="og:description" content="Color correction without a color checker: you and Claude point out trusted colors in the scene, physics corrects the pixels.">
+  <title>Natural Color Charts: color correction with two AI agents and physics</title>
+  <meta name="description" content="Color correction without a color chart. Two Claude agents find surfaces whose true color is known and check each other's work; physics computes every pixel.">
+  <meta property="og:title" content="Natural Color Charts: color correction with two AI agents and physics">
+  <meta property="og:description" content="Two Claude agents find surfaces whose true color is known and check each other's work; physics computes every pixel.">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="https://parishamaheshj18.github.io/context-based-color-correction/assets/before-after.jpg">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='16' height='16' fill='%232a78d6'/%3E%3Crect x='16' width='16' height='16' fill='%23eb6834'/%3E%3Crect y='16' width='16' height='16' fill='%231baf7a'/%3E%3Crect x='16' y='16' width='16' height='16' fill='%23bdbcb6'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -15,85 +16,222 @@
   <header class="topbar">
     <a class="brand" href="#top">Natural Color Charts</a>
     <nav aria-label="Sections">
-      <a href="#workflow">Workflow</a>
-      <a href="#accuracy">Accuracy</a>
+      <a href="#problem">Problem</a>
+      <a href="#how">How it works</a>
+      <a href="#agents">The agents</a>
+      <a href="#accuracy">Results</a>
       <a href="#gallery">Gallery</a>
-      <a id="repo-link" href="#" class="button-ghost">Code</a>
+      <a class="repo-link button-ghost" href="#">Code</a>
     </nav>
   </header>
 
   <main id="top">
     <section class="hero">
-      <h1>Color correction that understands the scene</h1>
-      <p class="lede">
-        No color checker needed. You and Claude point out surfaces whose true color is known;
-        physics turns them into one color correction.
-      </p>
+      <p class="eyebrow">Computer vision · AI agents · Color science</p>
+      <h1>Color correction without a color chart</h1>
+      <p class="lede">Two Claude agents find surfaces with a known color and check each other's work. Physics computes every pixel.</p>
+      <div class="cta">
+        <a class="button" href="#gallery">See the results</a>
+        <a class="repo-link button-ghost" href="#">View the code on GitHub</a>
+      </div>
+      <dl id="stats" class="stats"></dl>
+      <div id="featured" class="featured"></div>
     </section>
 
-    <section id="workflow" class="workflow">
-      <!-- Replace with your own diagram: put it at assets/workflow.svg (or .png) and swap this figure's contents for an <img>. -->
+    <section id="problem">
+      <h2>The idea</h2>
       <figure class="diagram">
-        <svg viewBox="0 0 1000 300" role="img" aria-labelledby="diagram-title">
-          <title id="diagram-title">Workflow: your matches and Claude's context both feed the physics that fits the light and corrects the photo</title>
+        <svg viewBox="0 0 1000 270" role="img" aria-labelledby="idea-title">
+          <title id="idea-title">A color chart is accurate but rarely in the photo; everyday surfaces such as leaves, skin, white paint and gray stone are in almost every photo and can play its role</title>
+          <text x="200" y="36" class="head">Color chart</text>
+          <text x="200" y="60" class="sub">accurate, but almost never in the photo</text>
+          <g class="chart-grid" transform="translate(80,80)">
+            <rect x="0" y="0" width="34" height="34" rx="4" fill="#735244"/><rect x="40" y="0" width="34" height="34" rx="4" fill="#c29682"/><rect x="80" y="0" width="34" height="34" rx="4" fill="#627a9d"/><rect x="120" y="0" width="34" height="34" rx="4" fill="#576c43"/><rect x="160" y="0" width="34" height="34" rx="4" fill="#8580b1"/><rect x="200" y="0" width="34" height="34" rx="4" fill="#67bdaa"/>
+            <rect x="0" y="40" width="34" height="34" rx="4" fill="#d67e2c"/><rect x="40" y="40" width="34" height="34" rx="4" fill="#505ba6"/><rect x="80" y="40" width="34" height="34" rx="4" fill="#c15a63"/><rect x="120" y="40" width="34" height="34" rx="4" fill="#5e3c6c"/><rect x="160" y="40" width="34" height="34" rx="4" fill="#9dbc40"/><rect x="200" y="40" width="34" height="34" rx="4" fill="#e0a32e"/>
+            <rect x="0" y="80" width="34" height="34" rx="4" fill="#383d96"/><rect x="40" y="80" width="34" height="34" rx="4" fill="#469449"/><rect x="80" y="80" width="34" height="34" rx="4" fill="#af363c"/><rect x="120" y="80" width="34" height="34" rx="4" fill="#e7c71f"/><rect x="160" y="80" width="34" height="34" rx="4" fill="#bb5695"/><rect x="200" y="80" width="34" height="34" rx="4" fill="#0885a1"/>
+            <rect x="0" y="120" width="34" height="34" rx="4" fill="#f3f3f2"/><rect x="40" y="120" width="34" height="34" rx="4" fill="#c8c8c8"/><rect x="80" y="120" width="34" height="34" rx="4" fill="#a0a0a0"/><rect x="120" y="120" width="34" height="34" rx="4" fill="#7a7a79"/><rect x="160" y="120" width="34" height="34" rx="4" fill="#555555"/><rect x="200" y="120" width="34" height="34" rx="4" fill="#343434"/>
+          </g>
+          <path class="link" d="M370,157 H560" marker-end="url(#arrow-idea)"/>
+          <text x="465" y="145" class="edge">AI finds stand-ins</text>
           <defs>
-            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <marker id="arrow-idea" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" class="arrowhead"/>
             </marker>
           </defs>
-          <g class="node">
-            <rect x="10" y="115" width="130" height="70" rx="12"/>
-            <text x="75" y="146">Photo</text>
-            <text x="75" y="166" class="sub">RAW or JPEG</text>
+          <text x="790" y="36" class="head">Everyday surfaces</text>
+          <text x="790" y="60" class="sub">in almost every photo, with a predictable color</text>
+          <g class="swatches">
+            <rect x="590" y="105" width="80" height="80" rx="10" fill="#5b7a34"/><text x="630" y="210">Leaves</text>
+            <rect x="690" y="105" width="80" height="80" rx="10" fill="#c68e6c"/><text x="730" y="210">Skin</text>
+            <rect x="790" y="105" width="80" height="80" rx="10" fill="#efeee9"/><text x="830" y="210">White paint</text>
+            <rect x="890" y="105" width="80" height="80" rx="10" fill="#8e8d88"/><text x="930" y="210">Gray stone</text>
           </g>
-          <g class="node human">
-            <rect x="215" y="25" width="250" height="90" rx="12"/>
-            <text x="340" y="55" class="kind">You</text>
-            <text x="340" y="80">Match regions to</text>
-            <text x="340" y="100">color-chart patches</text>
-          </g>
-          <g class="node ai">
-            <rect x="215" y="185" width="250" height="90" rx="12"/>
-            <text x="340" y="215" class="kind">Claude</text>
-            <text x="340" y="240">Read the scene, box</text>
-            <text x="340" y="260">materials it trusts</text>
-          </g>
-          <g class="node physics">
-            <rect x="540" y="105" width="200" height="90" rx="12"/>
-            <text x="640" y="135" class="kind">Physics</text>
-            <text x="640" y="160">Fit the light's spectrum,</text>
-            <text x="640" y="180">build a 3×3 matrix</text>
-          </g>
-          <g class="node">
-            <rect x="815" y="115" width="175" height="70" rx="12"/>
-            <text x="902" y="146">Corrected photo</text>
-            <text x="902" y="166" class="sub">every pixel, one matrix</text>
-          </g>
-          <path class="link" d="M140,150 C180,150 175,70 213,70" marker-end="url(#arrow)"/>
-          <path class="link" d="M140,150 C180,150 175,230 213,230" marker-end="url(#arrow)"/>
-          <path class="link human" d="M465,70 C505,70 500,135 538,135" marker-end="url(#arrow)"/>
-          <path class="link ai" d="M465,230 C505,230 500,165 538,165" marker-end="url(#arrow)"/>
-          <path class="link" d="M740,150 L813,150" marker-end="url(#arrow)"/>
         </svg>
       </figure>
     </section>
 
+    <section id="how">
+      <h2>How it works</h2>
+      <p class="section-lede">AI decides <em>which</em> surfaces to trust. Physics does the math.</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 1080 470" role="img" aria-labelledby="diagram-title diagram-desc">
+          <title id="diagram-title">Pipeline: two AI agents and a physics model in a critique loop</title>
+          <desc id="diagram-desc">The photo goes to Agent 1, the scene analyst, which boxes surfaces with a known color. Optional user color matches go to the physics stage too. Physics measures the surfaces, fits the light's spectrum and builds one color matrix, giving a corrected photo. Agent 2, the critic, judges it. If the critic accepts, the best round is delivered; otherwise its feedback goes back to Agent 1, for up to 3 rounds.</desc>
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="arrowhead"/>
+            </marker>
+            <marker id="arrow-ai" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="arrowhead ai"/>
+            </marker>
+            <marker id="arrow-human" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="arrowhead human"/>
+            </marker>
+          </defs>
+
+          <g class="node human">
+            <rect x="164" y="8" width="230" height="78" rx="12"/>
+            <text x="279" y="34" class="kind">You · optional</text>
+            <text x="279" y="56">Click pixels and pick</text>
+            <text x="279" y="75">their true chart color</text>
+          </g>
+          <g class="node">
+            <rect x="8" y="152" width="120" height="74" rx="12"/>
+            <text x="68" y="184">Photo</text>
+            <text x="68" y="205" class="sub">RAW, HEIC, JPEG</text>
+          </g>
+          <g class="node ai">
+            <rect x="164" y="122" width="230" height="134" rx="12"/>
+            <text x="279" y="150" class="kind">Agent 1 · Scene analyst</text>
+            <text x="279" y="176">Claude reads the scene</text>
+            <text x="279" y="198">and boxes surfaces whose</text>
+            <text x="279" y="220">true color is known</text>
+            <text x="279" y="242" class="sub">leaves · skin · paint · concrete</text>
+          </g>
+          <g class="node physics">
+            <rect x="430" y="122" width="230" height="134" rx="12"/>
+            <text x="545" y="150" class="kind">Physics · no AI</text>
+            <text x="545" y="176">Measure each surface</text>
+            <text x="545" y="198">Fit the light's spectrum</text>
+            <text x="545" y="220">Build one 3×3 color matrix</text>
+            <text x="545" y="242" class="sub">camera + material spectra</text>
+          </g>
+          <g class="node">
+            <rect x="696" y="152" width="150" height="74" rx="12"/>
+            <text x="771" y="184">Corrected photo</text>
+            <text x="771" y="205" class="sub">this round</text>
+          </g>
+          <g class="node ai">
+            <rect x="661" y="318" width="220" height="134" rx="12"/>
+            <text x="771" y="346" class="kind">Agent 2 · Critic</text>
+            <text x="771" y="372">Compares each surface</text>
+            <text x="771" y="394">with its true color and</text>
+            <text x="771" y="416">rates any cast left over</text>
+            <text x="771" y="438" class="sub">never sees Agent 1's reasoning</text>
+          </g>
+          <g class="node final">
+            <rect x="950" y="348" width="122" height="74" rx="12"/>
+            <text x="1011" y="380">Final photo</text>
+            <text x="1011" y="401" class="sub">best round</text>
+          </g>
+
+          <path class="link" d="M128,189 H162" marker-end="url(#arrow)"/>
+          <path class="link" d="M394,189 H428" marker-end="url(#arrow)"/>
+          <path class="link" d="M660,189 H694" marker-end="url(#arrow)"/>
+          <path class="link" d="M771,226 V316" marker-end="url(#arrow)"/>
+          <path class="link human" d="M394,47 C480,47 545,60 545,120" marker-end="url(#arrow-human)"/>
+          <path class="link" d="M881,385 H948" marker-end="url(#arrow)"/>
+          <text x="914" y="374" class="edge">accepted</text>
+          <path class="link ai" d="M661,385 H310 Q279,385 279,354 V258" marker-end="url(#arrow-ai)"/>
+          <text x="470" y="374" class="edge ai">feedback: re-box, drop, re-trust</text>
+          <text x="470" y="404" class="edge">up to 3 rounds</text>
+        </svg>
+      </figure>
+      <p class="note diagram-hint">Swipe the diagram sideways to see the whole loop.</p>
+      <ul class="legend-chips" aria-label="Diagram legend">
+        <li><i class="chip human"></i>You (optional)</li>
+        <li><i class="chip ai"></i>AI agent (Claude)</li>
+        <li><i class="chip physics"></i>Physics (deterministic)</li>
+      </ul>
+    </section>
+
+    <section id="agents">
+      <h2>The two agents</h2>
+      <div class="flows">
+        <div class="flow-labels" aria-hidden="true"><span>Sees</span><span></span><span></span><span></span><span>Returns</span></div>
+        <div class="agent-flow">
+          <ul class="io"><li>Photo</li><li>Your request</li><li>Critic's feedback</li></ul>
+          <span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="agent-node"><span class="kind ai">Agent 1</span><strong>Scene analyst</strong></div>
+          <span class="flow-arrow" aria-hidden="true">→</span>
+          <ul class="io"><li>Boxes on known surfaces</li><li>Light guess</li><li>Trust in your matches</li></ul>
+        </div>
+        <div class="agent-flow">
+          <ul class="io"><li>Before and after</li><li>Each surface vs. its true color</li></ul>
+          <span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="agent-node"><span class="kind ai">Agent 2</span><strong>Critic</strong><small>never sees Agent 1's reasoning</small></div>
+          <span class="flow-arrow" aria-hidden="true">→</span>
+          <ul class="io"><li>Verdict per surface</li><li>Leftover cast and severity</li><li>Accept or revise</li></ul>
+        </div>
+      </div>
+      <ul class="guardrails" aria-label="Guardrails">
+        <li>AI never edits pixels</li>
+        <li>Judged against measurements</li>
+        <li>Only improvements are kept</li>
+        <li>Schema-checked, cached answers</li>
+      </ul>
+      <figure id="sheet-example" class="sheet-example" hidden>
+        <img alt="Review sheet: the photo as shot and corrected, with numbered reference boxes and swatch pairs below">
+        <figcaption></figcaption>
+      </figure>
+    </section>
+
     <section id="match-tool" class="tool" hidden>
-      <h2>You choose, Claude adds context</h2>
+      <h2>Human in the loop</h2>
+      <p class="section-lede">Click a pixel, pick its true color. Then the agents decide how far to trust it.</p>
       <figure>
         <img id="match-tool-shot" src="assets/match-tool.png" alt="Matching window: photo with boxes on the left, color chart on the right">
       </figure>
     </section>
 
     <section id="accuracy">
-      <h2>Accuracy</h2>
-      <p class="section-lede">Error in the light color, on photos with a hidden color chart. Lower is better.</p>
+      <h2>Results</h2>
+      <p class="section-lede">Light-color error on photos with a hidden color chart. Lower is better.</p>
       <div id="accuracy-chart" class="chart-card"></div>
+      <p id="accuracy-note" class="note"></p>
     </section>
 
     <section id="gallery">
       <h2>Gallery</h2>
+      <p class="section-lede">Drag to compare. Open a photo's review to see each round.</p>
       <div id="cases"></div>
+    </section>
+
+    <section id="tech">
+      <h2>Built with</h2>
+      <div class="cards three">
+        <article class="card">
+          <h3>AI agents</h3>
+          <ul class="chips">
+            <li>Claude API (Opus)</li><li>Multi-agent critique loop</li><li>Structured JSON outputs</li>
+            <li>Pydantic validation and retries</li><li>Prompt design</li><li>Response caching</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Color science and vision</h3>
+          <ul class="chips">
+            <li>Spectral light estimation</li><li>Camera spectral sensitivities</li><li>Material reflectance priors (PCA)</li>
+            <li>Chromatic adaptation</li><li>CIELAB and ΔE2000</li><li>RAW decoding (LibRaw)</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Engineering</h3>
+          <ul class="chips">
+            <li>Python 3.11</li><li>NumPy and SciPy</li><li>pytest (124 tests)</li>
+            <li>mypy (strict) and ruff</li><li>Typer CLI</li><li>GitHub Actions and Pages</li>
+          </ul>
+        </article>
+      </div>
     </section>
   </main>
 
